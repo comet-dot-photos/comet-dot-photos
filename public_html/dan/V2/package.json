@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "three": "^0.154.0",
+    "wtd-core": "^2.2.0",
+    "wtd-three-ext": "^2.2.0",
+    "wwobjloader2": "^6.0.0"
+  },
+  "devDependencies": {
+    "vite": "^4.4.4"
+  }
+}

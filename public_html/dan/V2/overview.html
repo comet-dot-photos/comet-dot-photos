@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta property="og:title" content="Comet.photos Project Overview" />
+    <link rel="shortcut icon" type="image/x-icon" href="./NicePng_comet-png_310313.png"/>
+    <style type="text/css">
+        body {
+            max-width: 750px;
+            margin: 20px;
+        }
+        figure {
+            margin: 0;
+            padding: 0;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        figure img {
+            max-width: 750px;
+            height: auto;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body lang="en-us" dir="ltr">
+    <div class="content ">
+        <h1 id="overviewTitle">Comet.photos Project Overview</h1>
+        <h3>Daniel Kurlander</br>Department of Earth and Planetary Sciences</br>Massachusetts Institute of Technology</h3>
+        <p>The Rosetta mission, the first spacecraft to orbit a comet, provided a treasure trove of data for planetary scientists. This European Space Agency mission took decades to plan and complete, cost close to two billion dollars, and succeeded due to the cooperation of many countries. Between 2014 and 2016, the mission took over 30,000 images of comet 67P/Churyumov-Gerasimenko with the OSIRIS Narrow Angle Camera. These data provide the best images of a comet to-date for studying surface features, and scientists at MIT and elsewhere have been examining them to determine how the icy surfaces of comets evolve. Scientists studying the comet, however, face several challenges when using these data. The public data are clunky and difficult to search. Previously, the images had been sorted by date alone, but many science projects need the ability to find images of a particular region, and filter by other relevant properties. Furthermore, the sheer number of images and associated meta-data (gigabytes of data), the complexity of the analytical tools, and the amount of compute-time and real-time necessary for reviewing the data, makes studying what is the most important collection of comet data a tremendous challenge.</p>
+        <p>To improve upon this, I have created a tool that allows scientists to quickly navigate through the images in a manner that is intuitive, allows searches by location and other properties, does not require a time-intensive download of a massive data set, allows analysis of the data independent of the speed of their computer, and does not require installation of a very complex set of programs. Under the mentorship of Jason Soderblom of MIT’s Earth and Planetary Sciences Department and a cross-university team of scientists, I have designed and built a web-based program that allows the large, public data set of the Rosetta mission to be studied with greater ease than before. Because it is important for the images to be searchable without a large download, I chose to build a web-based interface. Scientists and other users can rotate and scale a 3D model of the comet, and paint a region of interest. In a fraction of a second, the web server communicates to the web browser the set of images that overlap with the painted region. To enable such real-time searches required days of precomputation, but for the user, the search is nearly instantaneous! Furthermore, the server’s visibility database, which is hundreds of megabytes in size, never needs to be transmitted to the web browser. After painting the region of interest (Figure 1), the user can choose a matching comet surface image to be projected onto the comet 3D model (Figure 2). Scientists can filter the results with other parameters important to them, including the pixel scale (the number of meters per pixel), the angle between spacecraft and the surface (emission angle), the angle between the sun and the surface (incidence angle), and the angle between the spacecraft, surface, and the sun (phase angle). The emission and incidence angles are computed specifically for the painted region of interest.</p> 
+        <figure>
+            <img src="OverviewFig1.png" alt="Figure 1. In the first step, the user paints a region of interest on the 3D model.">
+            <figcaption>Figure 1. In the first step, the user paints a region of interest on the 3D model.</figcaption>
+        </figure>
+        <figure>
+            <img src="OverviewFig2.png" alt="Figure 2. In the next step, the user can examine each matched image, projecting it onto the 3D model.">
+            <figcaption>Figure 2. In the next step, the user can examine each matched image, projecting it onto the 3D model.</figcaption>
+        </figure>
+        <p>I invite you try out this program at <a href="https://comet.photos">https://comet.photos</a>. Scientists are already using this program to explore how a comet has changed over time. Other missions, such as Apollo, Cassini, Chandrayaan, and Juno have large datasets of images that use similar formats and meta-data; I would love to explore how the large, open datasets from those missions might be made more accessible as well.</p> 
+        <h2>Have a question? Want to send us a comment?</h2>
+        <p>If so, <a href="mailto:inxfox@comext.photxos" onmouseover="this.href=this.href.replace(/x/g,'');">click here</a>.</p>
+    </div>
+</body>
