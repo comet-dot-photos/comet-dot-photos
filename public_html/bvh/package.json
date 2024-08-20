@@ -1,0 +1,21 @@
+{
+  "name": "paintcomet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "paintComet8.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.153.0",
+    "three-mesh-bvh": "^0.6.3",
+    "wtd-three-ext": "^2.2.0",
+    "wwobjloader2": "^6.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}

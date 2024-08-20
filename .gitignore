@@ -1,0 +1,13 @@
+node_modules/
+three-mesh-bvh-master/
+CG_NavCam_200k_facets.obj
+viewdata.json
+J80/
+.npm/
+.vscode-server/
+.wget-hsts
+.bash_history
+renew_comet.photos
+**/sessions/*
+!**/sessions/.gitkeep
+.cache/public_html/vis/cometVis.bin

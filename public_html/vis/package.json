@@ -1,0 +1,24 @@
+{
+    "name": "visserver",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "engines": {
+        "node": ">=14"
+    },
+    "dependencies": {
+        "compression": "^1.7.4",
+        "express": "^4.17.1",
+        "ffi-napi": "^4.0.3",
+        "http-proxy": "^1.18.1",
+        "httpolyglot": "^0.1.2",
+        "ref-napi": "^3.0.3",
+        "socket.io": "^3.0.3",
+        "three.js": "^0.77.1"
+    },
+    "author": "D. Kurlander",
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    }
+}

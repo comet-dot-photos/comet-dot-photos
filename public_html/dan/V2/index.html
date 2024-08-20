@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+                <title>Comet Viewer - Navigate through over 25,000 Rosetta Mission Images</title>
+                <link rel="shortcut icon" type="image/x-icon" href="./NicePng_comet-png_310313.png"/>
+                <style type="text/css">
+                        html, body {
+                            padding: 0;
+                            margin: 0;
+                            overflow: hidden;
+                        }
+                
+                        canvas {
+                            width: 100%;
+                            height: 100%;
+                        }
+                        
+                        .lil-gui { 
+	                    --width: 280px;
+	                    --name-width: 35%;
+                        }
+                </style>    
+	</head>
+	<body>
+                <script type="importmap">
+                        {
+                                "imports": {
+                                        "three": "./node_modules/three/build/three.module.js",
+                                        "wtd-three-ext": "./node_modules/wtd-three-ext/dist/index.js",
+                                        "wtd-core": "./node_modules/wtd-core/dist/index.js"
+                                }
+                        }
+                </script>
+                <script src="/socket.io/socket.io.js"></script>
+	   	<script type="module" src="./paintCometV2.js"></script>
+        </body>
+</html>
