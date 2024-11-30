@@ -1,0 +1,19 @@
+{
+  "name": "dataonlyserver",
+  "version": "1.0.0",
+  "description": "Simple web server to serve up comet.photos content locally for faster responses.",
+  "main": "localcometserver.js",
+  "scripts": {
+    "start": "cross-env PORT=8081 node dataonlyserver.js",
+    "start-https": "cross-env PORT=8081 CERTFILE=./localhost+2.pem KEYFILE=./localhost+2-key.pem node dataonlyserver.js"
+  },
+  "license": "MIT",
+  "author": "D. Kurlander",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "express": "^4.21.1",
+    "httpolyglot": "^0.1.2"
+  }
+}

@@ -1,0 +1,27 @@
+{
+    "name": "cometserver",
+    "version": "1.0.0",
+    "scripts": {
+        "redirect_server": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem VISFILE=../data/visTableV3.5.bin node cometserver.js",
+        "redirect_pc": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=../dataonlyserver/localhost+2.pem KEYFILE=../dataonlyserver/localhost+2-key.pem VISFILE=../data/visTableV3.5.bin node cometserver.js",
+        "server": "cross-env PORT=8082 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem VISFILE=../data/visTableV3.5.bin node cometserver.js",
+        "local": "cross-env LAUNCHBROWSER=TRUE PORT=8082 VISFILE=../data/visTableV3.5.bin node cometserver.js "
+    },
+    "engines": {
+        "node": ">=14"
+    },
+    "dependencies": {
+        "compression": "^1.7.4",
+        "cross-env": "^7.0.3",
+        "express": "^4.21.1",
+        "httpolyglot": "^0.1.2",
+        "koffi": "^2.9.1",
+        "open": "^10.1.0",
+        "socket.io": "^4.8.0"
+    },
+    "license": "MIT",
+    "author": "D. Kurlander",
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    }
+}

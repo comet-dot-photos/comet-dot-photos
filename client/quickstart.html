@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comet.Photos - Rapidly Filter and View Comet 67P Photos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        header p {
+            font-size: 1.2em;
+        }
+
+        main {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #2980b9;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 1em; /* Adds a blank line (approximately 16px) */
+        }
+
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        code {
+            font-weight: bold;
+             font-size: 1.2em; /* Adjust the size as needed */
+        }
+
+        .download-button {
+            background-color: #2980b9;
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .download-button:hover {
+            background-color: #1e6a99;
+        }
+
+        .step-list {
+            list-style-type: decimal;
+            padding-left: 40px;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .flex-box {
+            flex-basis: 50%;
+            padding: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <h1>Comet.Photos Quickstart</h1>
+    <p>Department of Earth and Planetary Sciences</br>
+    Massachusetts Institute of Technology</p>
+</header>
+
+<main>
+    <section>
+        <h2>What is this?</h2>
+        <p><a href="https://comet.photos">Comet.photos</a> is a web-based tool for filtering and viewing images taken by the OSIRIS NAC instrument on board the European Space Agency’s Rosetta mission to Comet 67P/Churyumov-Gerasimenko. This site was developed by MIT undergraduate <b>Daniel Kurlander</b> under the guidance of <b>Jason Soderblom</b>, <b>Abhinav Jindal</b>, and <b>Samuel Birch</b>. It is freely available to everyone interested in comets and space exploration. Using this website, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.</p>
+    </section>
+    
+    <section>
+        <h2>Step 1: Finding the Region of Interest</h2>
+        <p>In the center of the screen is a 3D model of Comet 67P. Rotate the comet about its center point by using the left mouse button. There 
+            are three ways to zoom in or out on the comet: by using your mouse's scroll wheel, by moving the mouse up or down with the middle button 
+            pressed, or by using a pinching gesture on a trackpad. Rotate and scale the 3D model view in this way until the desired
+            region of interest is visible.</p>
+    </section>
+
+    <section>
+        <h2>Step 2: Painting the Region of Interest</h2>
+        <p>The user indicates the region of interest by painting on the 3D model, with the help of the controls in the <b>Paint Tools</b> 
+            section of the control panel. First, enable painting mode by selecting the <b>Enable Paint</b> checkbox in 
+            the right hand control panel. While this check box is enabled, the mouse is used to paint a region of 
+            interest for retrieving images, rather than manipulating the comet 3D model. The cursor changes to a pink 
+            sphere, which is the 3D paint brush. The 3D paint brush size can be adjusted by either changing the <b>Brush Size</b>
+            slider or accompanying numeric input field (which specify the brush size radius in meters), or by using the mouse's scroll wheel.</p>
+        <p>Once the brush size is set to the desired size, paint on the comet using the left mouse button. 
+            To erase, simply use the right mouse button instead. All of the paint can be cleared (erased) by clicking the 
+            <b>Clear Paint</b> button. The painted region of interest is used to geographically retrieve only images 
+            that include this region. To specify how much of the region of interest must be included in an image for 
+            it to be considered a match, adjust the <b>Percent Overlap</b> slider. 
+            After every paint stroke, the <b>Matches</b> text field updates to show how many of the images match the filter. 
+            To exit paint mode, deselect the <b>Enable Paint</b> checkbox. At any time, you can go back to paint mode to adjust the region of interest.</p>
+    </section>
+    <section>
+        <h2>Step 3: Setting Other Image Filters</h2>
+        <p>After specifying a region of interest, you may want to further filter down the image set 
+            by specifying additional photometric image parameters. This is done in the <b>Image Filters</b> 
+            section of the control panel on the right. For example, by adjusting the 
+            <b>Meters per Pixel</b> slider, you can indicate a maximum or minimum number of meters per pixel for an image to match. 
+            Generally speaking, by reducing this number, you will retrieve images taken closer to the comet. 
+            The <b>Emission Angle</b> slider indicates the maximum and minimum angles between the surface normal and the 
+            spacecraft when taking an image. Reduce this to retrieve only images that appear more "head on" 
+            or increase this to view the region at at a more obtuse angle. The <b>Incidence Angle</b> slider indicates the maximum and minimum angles between 
+            the surface normal and the sun. Reducing this will tend to reduce shadows, and increasing it will show more shadows. 
+            The <b>Phase Angle</b> slider indicates the maximum and minimum angles between the sun and the spacecraft, 
+            taken at the region of interest. Reducing this will also result in less of the selected region being in shadow, but 
+            can also select for certain lighting effects. 
+            As these additional search parameters are adjusted, the <b>Matches</b> field will continue to 
+            update to show the number of images matching the photometric and spatial filters.
+        </p>
+    </section>
+
+    <section>
+        <h2>Step 4: Navigating through the Images</h2>
+        <p>Once the set of more than 27,000 comet images has been filtered down to a more manageable quantity, 
+            you will likely want to start viewing them. You can do so with the controls in the 
+            <b>Image Display and Navigation</b> section of the control panel.</p>
+        <p>First, to start displaying images, choose a display option from the <b>Show Image</b> dropdown control. 
+            Initially this is set to <b>"None"</b>, so no image is displayed. Choosing <b>"Unmapped 2D"</b> will display the image
+            as taken from the Rosetta Narrow Angle Camera, in two dimensions. The last two choices project the image
+            on to the 3D comet model. <b>"Perspective"</b> uses a perspective projection, and <b>"Orthographic"</b> uses an orthographic
+            projection. While the <b>Encircle Region</b> checkbox is checked, a red circle is placed around the region of
+            interest that the user had painted. This makes tracking a specific region much easier when displaying image after image.
+            Note that if you navigate through the filtered images, projecting them onto the comet model, the texture will often
+            appear distorted, because the image was taken from a different vantage point than the Rosetta orbiter camera.
+            To see the view that the image was taken from, select the <b>Spacecraft View</b> checkbox.
+            To see the square representing the field of view of the Rosetta Narrow Angle Camera extended to the comet, 
+            check the <b>Show Viewport</b> checkbox. 
+            Note that the viewport of the image may be at the periphery or outside of the current camera field of view, so you may have to zoom out 
+            (and in some cases rotate the comet) to see the blue square representing the viewport. 
+            To display standard coordinate axes for the comet, check the <b>Axes</b> checkbox.</p>
+        <p>The <b>Image Index</b> slider shows the index of the image in the filtered search results. 
+            You can adjust this slider to view other images. However, to simply move to the next image, 
+            it is easier to click on the <b>Next Image</b> button. 
+            Similarly, to go back to the previous image, click on the <b>Previous Image</b> button.</p>
+        <p>Since images in the filtered set are ordered by the time that they were taken, 
+            you will frequently several nearly identical images in a row. 
+            To quickly advance a day, month, or year, choose the appropriate time period 
+            from the <b>Skip Duration</b> dropdown box. Then use the <b>Skip Forward</b> or <b>Skip Backward</b> 
+            buttons below it to advance to the next or previous image that was taken at least the 
+            specified skip duration from the current image.</p>
+        <p>As you navigate through the filtered image set, it is helpful to look at the text fields in the 
+            <b>Image Data</b> section of the control panel. The <b>Matches</b> field shows how many images 
+            match the spatial and photometric filters, and have been returned by the search, as well as 
+            the total number of images. The <b>File Name</b> field shows the name of the current image's file. 
+            Scientists interested in doing additional research on an interesting image will likely want 
+            to take note of its file name. The <b>Time</b> field shows when image was taken 
+            (in ANSI standard, UTC time format). The <b>Image Info</b> field specifies the index of the 
+            image in the entire data set (#), the meters per pixel of the currently selected image (m), 
+            and if a region of interest is painted, the emission (e), incidence (i), and phase (p) angles in degrees. 
+            If you would like to download a file containing the set of image file names 
+            (mostly of use to comet scientists), click on the <b>Download File Names</b> button.</p>
+        </section>
+
+        <section>
+        <h2>Have a question? Want to send us a comment?</h2>
+        <p>If you have any questions about Comet.Photos, or would like to send us feedback, please email <a href="mailto:info@comet.photos">info@comet.photos</a>.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 MIT Department of Earth, Atmospheric, and Planetary Sciences. All rights reserved.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "three": "^0.154.0",
+    "three-mesh-bvh": "^0.6.3",
+    "three-projected-material": "github:marcofugaro/three-projected-material#master",
+    "wtd-core": "^2.2.0",
+    "wtd-three-ext": "^2.2.0",
+    "wwobjloader2": "^6.0.0"
+  },
+  "license": "MIT",
+  "author": "D. Kurlander",
+  "devDependencies": {
+    "vite": "^4.5.5"
+  }
+}
