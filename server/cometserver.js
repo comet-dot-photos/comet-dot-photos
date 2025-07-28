@@ -23,9 +23,9 @@ var io = socketIO(server);
 
 const port = process.env.PORT || 8080;
 const httpPort = process.env.HTTP_PORT || 8081;
-const VISFILE = process.env.VISFILE || 'cometVis.bin';
+const VISFILE = process.env.VISFILE || 'visTableV2.0.bin';
 const NEW_VISFILE = VISFILE + '.new';
-const VIEWFILE = process.env.VIEWFILE || '../bvh/viewdata_phase1.json'
+const VIEWFILE = process.env.VIEWFILE || 'imageMetadataV2.0.json'
 const REDIRECT = process.env.REDIRECT;
 const localServer = process.env.LAUNCHBROWSER;
 const clientSet = new Set();
@@ -131,10 +131,10 @@ const { exit } = require('process');
 
 //const charPtr = ref.types.CString; // Ensure CString is used for C strings
 
-const BYTESPERROW = 12504;
+const BYTESPERROW = 12504;  // dependent on the shape model
 let fileText;
 
-let libVis, c_load_vbuff, c_check_vis, c_count_vis; // c_check_nRows, c_count_filterarray;;
+let libVis, c_load_vbuff, c_check_vis, c_count_vis; // c_check_nRows, c_count_filterarray
 const obj_dir = __dirname + '/c_build';  // where the arch/os specific libraries live
 function loadCFunctions() {
     let libraryPath = null;
@@ -156,7 +156,7 @@ function loadCFunctions() {
     libVis = koffi.load(libraryPath);
     c_load_vbuff = libVis.func('int load_vbuff(char*, int, int)');
     c_check_vis = libVis.func('void check_vis(int, uint8_t*, uint64_t*)');
-    c_count_vis = libVis.func('int count_vis(uint64_t*)');
+    //c_count_vis = libVis.func('int count_vis(uint64_t*)');
 }
 
 let viewArray, nRows;
@@ -173,10 +173,13 @@ if (process.env.PREPROCESSING) {
 } else {
     loadCFunctions();
     const stats = fs.statSync(VISFILE);
-    nRows = stats.size / BYTESPERROW;             // With this shape model, each row is 12504 bytes, file size is nrows*bytesPerRow;
+    nRows = stats.size / BYTESPERROW;    // each row is BYTESPERROW bytes, file size is nrows*BYTESPERROW;
     if (c_load_vbuff(VISFILE, nRows, BYTESPERROW) == 0)
         console.log(`Successfully loaded ${VISFILE}. nRows = ${nRows}, BYTESPERROW = ${BYTESPERROW}.`);
-    else console.log(`Loading of ${VISFILE} failed.`);   // no message back to client though...
+    else {
+        console.log(`Loading of ${VISFILE} failed.`);   // no message back to client though...
+        exit();
+    }
 }
 
 io.on('connection', function(socket) {
@@ -186,61 +189,50 @@ io.on('connection', function(socket) {
     if (localServer)
         clientSet.add(socket.handshake.query.clientID);
 
-    socket.on('PPclientReadyToStart', function(message) { //message {count:n}, where count is number of images in client's viewArray
-        console.log(`Got a PPclientReadyToStart event with the message ${message}`);
-        console.log(`Type of message.count is ${typeof message.count} and value is ${message.count}`);
-        if (message.count == viewArray.length) {
-            console.log("And client's count is the same as ours!")
-        } else {
-            console.log("But client's count differs from ours!");
-            exit();
-        }
-        socket.emit('PPserverRequestsVisibility', {index: 0, name: viewArray[0].nm});  // start at the beginning...
-    });
-
-    socket.on('PPclientProvidesVisibility', function(message) { // message is {index, name, bbox: {min, max}, depth: {min, max}, visbuffer}
-        console.log(`Got a PPclientProvidesVisibility event for index ${message.index}`);
-        viewArray[message.index].b1 = message.bbox.min;
-        viewArray[message.index].b2 = message.bbox.max;
-        viewArray[message.index].d1 = message.depth.min;
-        viewArray[message.index].d2 = message.depth.max;
-        viewArray[message.index].vb = message.visBuffer;
-//        console.log(`visbuff constructor is ${message.visBuffer.constructor}`)
-//        console.log(`visbuff length is ${message.visBuffer.byteLength}`);
-        if (message.index == viewArray.length-1) {
-            console.log("DONE!!!!!!")
-            // Remove all elements that had no vertices visible (d1 > d2)
-            viewArray = viewArray.filter((val) => val.d1 <= val.d2)
-            // FINISH UP CODE HERE!! WRITE TO FILE!!!
-            fs.writeFileSync(NEW_VISFILE, '');                       // create a new empty file
-            for (let i = 0; i < viewArray.length; i++) {            // append the buffer to the file
-                console.log(`writing line ${i}...`)
-                fs.appendFileSync(NEW_VISFILE, viewArray[i].vb);
-                delete viewArray[i].vb;                             // delete buffer prior to writing json file
+    if (process.env.PREPROCESSING) {    // only process the following two messages if PREPROCESSING is set
+        socket.on('PPclientReadyToStart', function(message) { //message {count:n}, where count is number of images in client's viewArray
+            console.log(`Got a PPclientReadyToStart event with the message ${message}`);
+            console.log(`Type of message.count is ${typeof message.count} and value is ${message.count}`);
+            if (message.count == viewArray.length) {
+                console.log("And client's count is the same as ours!")
+            } else {
+                console.log("But client's count differs from ours!");
+                exit();
             }
-            console.log('Getting ready to write JSON');
-            const jsonString = JSON.stringify(viewArray);           // write out a new json file including new bbox info
-            console.log('After stringify');
-            fs.writeFileSync('viewdata_phase2.json', jsonString);
-            console.log('Done. Files written. Preprocessing complete!')
-        } else {
-            socket.emit('PPserverRequestsVisibility', {index: message.index + 1, name: viewArray[message.index + 1].nm});
-            console.log(`sending PPserverRequestsVisibility: ${message.index + 1}`);
-        }
-    });
+            socket.emit('PPserverRequestsVisibility', {index: 0, name: viewArray[0].nm});  // start at the beginning...
+        });
 
+        socket.on('PPclientProvidesVisibility', function(message) { // message is {index, name, bbox: {min, max}, depth: {min, max}, visbuffer}
+            console.log(`Got a PPclientProvidesVisibility event for index ${message.index}`);
+            viewArray[message.index].b1 = message.bbox.min;
+            viewArray[message.index].b2 = message.bbox.max;
+            viewArray[message.index].d1 = message.depth.min;
+            viewArray[message.index].d2 = message.depth.max;
+            viewArray[message.index].vb = message.visBuffer;
+            if (message.index == viewArray.length-1) {
+                console.log("DONE!!!!!!")
+                // Remove all elements that had no vertices visible (d1 > d2)
+                viewArray = viewArray.filter((val) => val.d1 <= val.d2)
+                // FINISH UP CODE HERE!! WRITE TO FILE!!!
+                fs.writeFileSync(NEW_VISFILE, '');                       // create a new empty file
+                for (let i = 0; i < viewArray.length; i++) {            // append the buffer to the file
+                    console.log(`writing line ${i}...`)
+                    fs.appendFileSync(NEW_VISFILE, viewArray[i].vb);
+                    delete viewArray[i].vb;                             // delete buffer prior to writing json file
+                }
+                console.log('Getting ready to write JSON');
+                const jsonString = JSON.stringify(viewArray);           // write out a new json file including new bbox info
+                console.log('After stringify');
+                fs.writeFileSync('imageMetadata_phase2.json', jsonString);
+                console.log('Done. Files written. Preprocessing complete!')
+            } else {
+                socket.emit('PPserverRequestsVisibility', {index: message.index + 1, name: viewArray[message.index + 1].nm});
+                console.log(`sending PPserverRequestsVisibility: ${message.index + 1}`);
+            }
+        });
+    }
 
-    socket.on('clientRequestsTest', function(message) { //message {test: n}, where n is the test
-        console.log(`Got a clientRequestsTest for test number ${message.test}`);
-        if (message.test === 1) {
-            var libm = ffi.Library('libm', {
-                        'ceil': [ 'double', [ 'double' ] ]
-            });
-            console.log(`The ceil of 1.5 is ${libm.ceil(1.5)}`);
-        } else if (message.test === 2) {
-        }
-    });
-
+    /*
     socket.on('clientRequestsVisCount', function(message) { // message is the visArray
         console.log(`Got a clientRequestsVisCount`);
         //console.log(`visbuff constructor is ${message.constructor}`)
@@ -248,21 +240,29 @@ io.on('connection', function(socket) {
         if (message.byteLength == BYTESPERROW) 
             console.log(`There are ${c_count_vis(message)} matches`)
     });
+    */
 
-    socket.on('clientRequestsVis', function(message) { //message {imgSel: imgSelArray, visAr: visArray}
+    socket.on('clientRequestsVis', function(message) { //message {imgSel: imgSelArray, visAr: visArray, mustMatch: int}
         console.log(`Got a clientRequestsVis`);
-
-        // checks to make sure client cannot cause check_vis to exceed buffers
-        if (message.imgSel.length < (nRows/8)) {
-            console.log(`message.imgSel must be at least${nRows/8} long, but is ${message.imgSel.length} long.`);
-            return;
+        try {
+            // checks to make sure client cannot cause check_vis to exceed buffers
+            if (!Buffer.isBuffer(message.imgSel) || message.imgSel.length != Math.ceil(nRows/8)) {
+                console.log(`message.imgSel must be a Buffer and at least ${Math.ceil(nRows/8)} long.`);
+                return;
+            }
+            if (!Buffer.isBuffer(message.visAr) || message.visAr.length != BYTESPERROW) {
+                console.log(`message.visArray must be a Buffer and ${BYTESPERROW} long.`);
+                return;
+            }
+            if (!Number.isInteger(message.mustMatch)) {
+                console.log('message.mustMatch must be an integer.');
+                return;
+            }
+            c_check_vis(message.mustMatch, message.imgSel, message.visAr);
+            socket.emit('serverProvidesVis', message.imgSel);
+        } catch (error) {  // Additional protection against malformed messages. Perhaps unneeded given earlier checks?
+            console.error(`An error occurred in clientRequestsVis handler: `, error.message);
         }
-        if (message.visAr.length != BYTESPERROW) {
-            console.log(`message.visArray must be ${BYTESPERROW} long, but is ${message.visAr.length} long.`);
-            return;
-        }
-        c_check_vis(message.mustMatch, message.imgSel, message.visAr);
-        socket.emit('serverProvidesVis', message.imgSel);
     });
 
     socket.on('clientShutdown', () => {
