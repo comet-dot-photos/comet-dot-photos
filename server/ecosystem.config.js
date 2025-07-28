@@ -1,28 +1,21 @@
 module.exports = {
   apps : [{
-    name: 'cometserver',
+    name: 'cometserver2',
     script: 'cometserver.js',
     env: {
+    "PORT": "8082",
+    "CERTFILE": "/etc/letsencrypt/live/comet.photos/fullchain.pem",
+    "KEYFILE": "/etc/letsencrypt/live/comet.photos/privkey.pem",
+    "VISFILE": "../data/visTableV2.0.bin"
+    },
+    env_production: {
     "REDIRECT": "TRUE",
 	  "PORT": "443",
     "HTTP_PORT": "80",
     "CERTFILE": "/etc/letsencrypt/live/comet.photos/fullchain.pem",
     "KEYFILE": "/etc/letsencrypt/live/comet.photos/privkey.pem",
-    "VISFILE": "../data/visTableV3.5.bin"
-    },
-  },
-  ],
-
-  deploy : {
-    production : {
-      user : 'SSH_USERNAME',
-      host : 'SSH_HOSTMACHINE',
-      ref  : 'origin/master',
-      repo : 'GIT_REPOSITORY',
-      path : 'DESTINATION_PATH',
-      'pre-deploy-local': '',
-      'post-deploy' : 'npm install && pm2 reload ecosystem.config.js --env production',
-      'pre-setup': ''
+    "VISFILE": "../data/visTableV2.0.bin"
     }
-  }
+  },
+  ]
 };
