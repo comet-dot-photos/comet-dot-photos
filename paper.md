@@ -44,9 +44,9 @@ bibliography: paper.bib
 
 # Summary
 
-In 2004, the European Space Agency's Rosetta mission launched to gather information on Comet 67P/Churyumov-Gerasimenko. This 11 year mission cost nearly 2 billion dollars, took decades to plan and complete, and relied upon the close cooperation of numerous countries. One of Rosetta's sensors, the OSIRIS Narrow Angle Camera, took tens of thousands of the most detailed images of 67P, and these images provide one of the most important data sets to-date for studying comets.
+In 2004, the European Space Agency's Rosetta mission launched to gather information on Comet 67P/Churyumov-Gerasimenko. This 11 year mission took decades to plan and complete, cost roughly 2 billion dollars, and relied upon the close cooperation of numerous countries. One of Rosetta's sensors, the OSIRIS Narrow Angle Camera, took tens of thousands of the most detailed images of 67P, and these images provide one of the most important data sets to-date for studying comets.
 
-However, sifting through the huges collection of images to find those that relate to a particular location on the comet or feature has been a daunting and time consuming task. Because Rosetta had an irregular and changing orbit, it is difficult to predict which images might have captured a particular feature.
+However, sifting through the huge collection of images to find those that relate to a particular location on the comet or feature has been a daunting and time consuming task. Because Rosetta had an irregular and changing orbit, it is difficult to predict which images might have captured a particular feature.
 
 To facilitate the process of finding relevant images, we have built a tool called `Comet.Photos`. The user can manipulate a 3D shape model of 67P, paint a region of interest, and rapidly find all of the images that contain it. These images can then be easily browsed, or the list of images can be downloaded for further study in another tool. Images can be further filtered on other properties, relating to the relative locations of the Rosetta probe, the surface, and the sun.
 
@@ -59,7 +59,14 @@ However, this tool remains inadequate (at least for Rosetta), as it (a) is still
 `Comet.Photos` has been developed to fill this critical gap, providing a powerful solution for spatially targeted image searches and facilitating detailed studies of cometary surface evolution. Users can define a region of interest by interactively selecting the desired region on a 3D model of 67P. In a fraction of a second, the application searches through over 27,000 NAC images to find only those that feature the selected region. In addition to this spatial search filter, `Comet.Photos` allows users to filter images based on their resolution and viewing geometry. To search only images with a fine spatial resolution, users can filter by the image resolution, which represents the linear scale of a pixel on the surface. Three other parameters of interest from a photometric and surface standpoint are the emission angle (the angle between the camera and surface normal), incidence angle (the angle between the Sun and the surface normal), and phase angle (the solid angle between the Sun and camera at the surface). All three of these can be filtered as well. Images matching the search criteria can be displayed in the application, either in their original 2D form or projected onto the 3D model. At the end of a session with `Comet.Photos`, a list containing the IDs of the filtered images can also be downloaded, allowing further analysis with external tools.
 
 
-# Software considerations
+# Software architecture and performance
+
+The software was architected such that it can run locally for maximal performance, or on the web, for greater accessibility. To access the program on the web, requiring no software installation, visit https://comet.photos. Instructions for installing the program locally are available at [XXXX]. When running `Comet.Photos` on a modern computer, all functions, including search and image display, take a small fraction of a second, but also require approximate 14GB of local files (mostly images). The program was architected to also have acceptable performance over the internet. Further information on `Comet.Photo`'s architecture is documented at [@kurlander2025github].
+
+# The user interface
+
+A user manual for `Comet.Photos` is available at https://https://comet.photos/quickstart.html. We also describe a brief session with `Comet.Photos` to more thoroughly document its use. 
+
 
 # Figures
 
@@ -72,7 +79,7 @@ Figure sizes can be customized by adding an optional second parameter:
 
 # Acknowledgements
 
-None of this work would have been possible without the ESA Rosetta project, and the contributions of the Rosetta mission specialists. A number of great software tools and components facilitated the development of Comet.photos [@cabello2023threejs; @vincent2018shapeviewer; @vincent2021shapeviewer; @johnson2023bvh; @fugaro2023threeprojected; @salmen2023objloader2; @martignene2024koffi; @rauch2024socketio; @openjs2024node].
+The European Space Agency's Rosetta mission provided the incredible image dataset [@esa2018rosetta; @esa2024image; @esa2024psa] on which `Comet.Photos` operates. Additional tools extracted metadata from the image dataset [@usgs2023isis] or allowed us to calculate additional information [@esa2022spice] which is needed for `Comet.Photos`' search algorithm. The 3D shape model used by `Comet.Photos` is based on the SHAP7 model [@preusker2017shape] and was provided by [@vincent2021shapeviewer]. A number of great software tools and components facilitated the development of Comet.photos [@cabello2023threejs; @vincent2018shapeviewer;  @johnson2023bvh; @fugaro2023threeprojected; @salmen2023objloader2; @martignene2024koffi; @rauch2024socketio; @openjs2024node].
  
 This research was supported by the Discovery Data Analysis Program (#xxxxxxxxx to J.M.S.), the Heising-Simons Foundation (51 Pegasi b Fellowship to S.P.D.B.), and the MIT UROP Program. We gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made this software possible as he helped us navigate Rosetta’s dataset. A 2023 MIT Open Data Prize for an earlier version of this work also provided recognition and encouragement to continue developing Comet.photos [@fay2023opendata]. Lastly, we thank all the early users of the program for feedback that led to improvements.  
 
