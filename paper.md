@@ -60,7 +60,7 @@ However, this tool remains inadequate (at least for Rosetta), as it (a) is still
 
 # The user interface
 
-`Comet.Photos` is thoroughly documented in its github repository [@kurlander2025github]. It includes a [manual for the user interface] (https://github/comet-dot-photos/comet-dot-photos#user-interface), as well as a [step-by-step example of using the program] (https://github.com/comet-dot-photos/comet-dot-photos#sample-session). 
+`Comet.Photos` is thoroughly documented in its github repository [@kurlander2025github]. It includes a [manual for the user interface](https://github.com/comet-dot-photos/comet-dot-photos#user-interface), as well as a [step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#user-interface-walkthrough). 
 
 # Software architecture and performance
 
