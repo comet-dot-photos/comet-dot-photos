@@ -63,20 +63,14 @@ Although designed for scientists, `Comet.Photos` is also a very user-friendly wa
 # Program details
 
 `Comet.Photos` is thoroughly documented in its github repository [@kurlander2025github]. It includes:
-  - [A user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual)
-  - [A step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example).
-  - [Instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example)
-  - [A description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture)
-  - [A discussion of performance](https://github.com/comet-dot-photos/comet-dot-photos#performance)
 
-# Figures
+>  - [A user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual)
+>  - [A step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example).
+>  - [Instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example)
+>  - [A description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture)
+>  - [A discussion of performance](https://github.com/comet-dot-photos/comet-dot-photos#performance)
 
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
 
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
 
 # Acknowledgements
 
