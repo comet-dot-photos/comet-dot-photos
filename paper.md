@@ -21,6 +21,7 @@ authors:
     equal-contrib: true
     affiliation: 2
   - name: David J. Kurlander
+    orcid: 0009-0008-9551-7243
     equal-contrib: true
     affiliation: 3
     corresponding: true
@@ -62,7 +63,7 @@ Although designed for scientists, `Comet.Photos` is also a very user-friendly wa
 
 # Program details
 
-`Comet.Photos` is thoroughly documented in its github repository [@kurlander2025github], which includes:
+Additional information is available at the `Comet.Photos` github repository [@kurlander2025github], including:
 
 >  - [A user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual)
 >  - [A step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example).
@@ -74,7 +75,7 @@ Although designed for scientists, `Comet.Photos` is also a very user-friendly wa
 
 # Acknowledgements
 
-The ESA's Rosetta mission provided the incredible image dataset [@esa2018rosetta; @esa2024image; @esa2024psa] on which `Comet.Photos` operates. Additional tools helped us extract or calculate necessary metadata from the image dataset [@usgs2023isis, @esa2022spice]. The 3D shape model used by `Comet.Photos` is based on the SHAP7 model [@preusker2017shape] and was provided by [@vincent2021shapeviewer]. A number of great software tools and components facilitated the development of `Comet.Photos` [@cabello2023threejs; @vincent2018shapeviewer;  @johnson2023bvh; @fugaro2023threeprojected; @salmen2023objloader2; @martignene2024koffi; @rauch2024socketio; @openjs2024node].
+The ESA's Rosetta mission provided the remarkable image dataset [@esa2018rosetta; @esa2024image; @esa2024psa] on which `Comet.Photos` operates. Additional tools helped us extract or calculate necessary metadata from the image dataset [@usgs2023isis, @esa2022spice]. The 3D shape model used by `Comet.Photos` is based on the SHAP7 model [@preusker2017shape] and was provided by [@vincent2021shapeviewer]. A number of great software tools and components facilitated the development of `Comet.Photos` [@cabello2023threejs; @vincent2018shapeviewer;  @johnson2023bvh; @fugaro2023threeprojected; @salmen2023objloader2; @martignene2024koffi; @rauch2024socketio; @openjs2024node].
  
 This research was supported by the Discovery Data Analysis Program (#xxxxxxxxx to J.M.S.), the Heising-Simons Foundation (51 Pegasi b Fellowship to S.P.D.B.), and the MIT UROP Program. We gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made this software possible as he helped us navigate Rosetta’s dataset. A 2023 MIT Open Data Prize for an earlier version of this work also provided recognition and encouragement to continue developing `Comet.Photos`[@fay2023opendata]. Lastly, we thank all the early users of the program for feedback that led to improvements.  
 
