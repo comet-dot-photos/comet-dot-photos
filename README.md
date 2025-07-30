@@ -21,17 +21,22 @@ Introduction goes here.
 
 User Manual goes here
 
-## User Interface Walkthrough
+## Step-by-Step Example
 
-User Interface Walkthrough goes here
+Step-by-Step Example goes here
+
+## Installing Locally
+
+Installing Locally goes here.
+
+## Architecture
+
+Architecture discussion goes here
 
 ## Performance 
 
 Performance goes here
 
-## Installing Locally
-
-Installing Locally goes here.
 
 ## Acknowledgments
 
