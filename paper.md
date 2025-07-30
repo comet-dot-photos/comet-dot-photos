@@ -11,7 +11,6 @@ authors:
     orcid: 0009-0009-6828-3266
     equal-contrib: true
     affiliation: 1
-    corresponding: true # (This is how to denote the corresponding author)
   - name: Jason M. Soderblom
     equal-contrib: true
     affiliation: 1
@@ -24,6 +23,7 @@ authors:
   - name: David J. Kurlander
     equal-contrib: true
     affiliation: 3
+    corresponding: true
 affiliations:
  - name: Department of Earth, Atmospheric and Planetary Sciences, Massachusetts Institute of Technology, United States
    index: 1
