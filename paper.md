@@ -58,16 +58,16 @@ However, this tool remains inadequate (at least for Rosetta), as it (a) is still
 
 `Comet.Photos` has been developed to fill this critical gap, providing a powerful solution for spatially targeted image searches and facilitating detailed studies of cometary surface evolution. Users can define a region of interest by interactively selecting the desired region on a 3D model of 67P. In a fraction of a second, the application searches through over 27,000 NAC images to find only those that feature the selected region. In addition to this spatial search filter, `Comet.Photos` allows users to filter images based on their resolution and viewing geometry. To search only images with a fine spatial resolution, users can filter by the image resolution, which represents the linear scale of a pixel on the surface. Three other parameters of interest from a photometric and surface standpoint are the emission angle (the angle between the camera and surface normal), incidence angle (the angle between the Sun and the surface normal), and phase angle (the solid angle between the Sun and camera at the surface). All three of these can be filtered as well. Images matching the search criteria can be displayed in the application, either in their original 2D form or projected onto the 3D model. At the end of a session with `Comet.Photos`, a list containing the IDs of the filtered images can also be downloaded, allowing further analysis with external tools.
 
+Although designed for scientists, `Comet.Photos` is also a very user-friendly way for other astronomy teacher, students, or even people casually interested in the solar system to explore the extraordinary images of 67P. Scientists expecting to make frequent use of `Comet.Photos` will want to install it locally, as then all functions, including search and image display, take only a small fraction of a second running on a modern computer. People casually interested in the program can access it on the web, requiring no software installation, simply by visiting https://comet.photos.
+
 # Program details
 
 `Comet.Photos` is thoroughly documented in its github repository [@kurlander2025github]. It includes:
-  -[A user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual)
-  -[A step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example).
-  -[Instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example)
-  -[A description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture)
-  -[A discussion of performance](https://github.com/comet-dot-photos/comet-dot-photos#performance)
-
-Note that the software was architected such that it can run locally for maximal performance, or on the web, for greater accessibility. To access the program on the web, requiring no software installation, simply visit https://comet.photos. Scientists expecting to make frequent use of `Comet.Photos` will want to install it locally, as then all functions, including search and image display, will take a small fraction of a second running on a modern computer. However, installing locally requires 14GB of local disk space, mainly to host the images.
+  - [A user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual)
+  - [A step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example).
+  - [Instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example)
+  - [A description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture)
+  - [A discussion of performance](https://github.com/comet-dot-photos/comet-dot-photos#performance)
 
 # Figures
 
