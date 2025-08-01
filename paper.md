@@ -63,7 +63,7 @@ Although designed for scientists, `Comet.photos` is also a very user-friendly wa
 
 # Additional information
 
-The source code for `Comet.photos` is available in its github repository [@kurlander2025github], which also includes: [a user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual),[a step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example), [instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#installing-locally), [a description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture),[and a discussion of program performance](https://github.com/comet-dot-photos/comet-dot-photos#performance).
+The `Comet.photos` github repository [@kurlander2025github] includes the source code, as well as a [user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual), a [step-by-step example] (https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example), of using the program, [instructions](https://github.com/comet-dot-photos/comet-dot-photos#installing-locally) for local installation, a description of [the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture), and a discussion of [program performance](https://github.com/comet-dot-photos/comet-dot-photos#performance).
 
 # Acknowledgements
 
