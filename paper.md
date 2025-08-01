@@ -61,15 +61,9 @@ Efforts have been made to mitigate these challenges — for example, ESA has int
 
 Although designed for scientists, `Comet.photos` is also a very user-friendly way for astronomy instructors, students, or anyone interested in the solar system to explore Rosetta's extraordinary images of 67P. Scientists expecting to make frequent use of `Comet.photos` will want to install it locally, as then all functions, including search and image display, seem instantaneous. People casually interested in the program can access it on the web, requiring absolutely no software installation, simply by visiting https://comet.photos.
 
-# Program details
+# Additional information
 
-Additional information is available at the `Comet.photos` github repository [@kurlander2025github], including:
-
->  - [A user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual)
->  - [A step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example).
->  - [Instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#installing-locally)
->  - [A description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture)
->  - [A discussion of program performance](https://github.com/comet-dot-photos/comet-dot-photos#performance)
+The source code for `Comet.photos` is available in its github repository [@kurlander2025github], which also includes: [a user manual](https://github.com/comet-dot-photos/comet-dot-photos#user-manual),[a step-by-step example of using the program](https://github.com/comet-dot-photos/comet-dot-photos#step-by-step-example), [instructions for installing the program locally](https://github.com/comet-dot-photos/comet-dot-photos#installing-locally), [a description of the architecture](https://github.com/comet-dot-photos/comet-dot-photos#architecture),[and a discussion of program performance](https://github.com/comet-dot-photos/comet-dot-photos#performance).
 
 # Acknowledgements
 
