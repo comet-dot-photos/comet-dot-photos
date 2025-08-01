@@ -24,7 +24,7 @@ authors:
     orcid: 0009-0008-9551-7243
     equal-contrib: true
     affiliation: 3
-    corresponding: true
+#    corresponding: true
 affiliations:
  - name: Department of Earth, Atmospheric and Planetary Sciences, Massachusetts Institute of Technology, United States
    index: 1
