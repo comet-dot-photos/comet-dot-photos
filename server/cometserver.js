@@ -5,6 +5,13 @@ const fs = require('fs');
 const koffi = require('koffi');
 const path = require('path');
 
+// Check for data directory
+const dataDir = path.resolve(__dirname, '../data');
+if (!fs.existsSync(dataDir)) {
+    console.error(`ERROR: Required data directory not found at ${dataDir}. Please see the Comet.Photos GitHub page for data installation instructions.`);
+    process.exit(1);
+}
+
 var app = express();
 
 let key = null, cert = null;
