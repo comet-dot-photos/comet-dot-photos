@@ -10,9 +10,13 @@ There are two different usage options for Comet.Photos. People who expect to mak
 * [Motivation](#motivation)
 * [User Manual](#user-manual)
 * [Step-by-Step Example](#step-by-step-example)
-* [Architecture](#architecture)
+* [Design, Architecture, and Implementation](#design-architecture-and-implementation)
+  * [The Data Files](#the-data-files)
+  * [An Implementation Walkthrough](#an-implmentation-walkthrough)
 * [Performance](#performance)
 * [Acknowledgments](#acknowledgments)
+* [References](#references)
+* [Credits](#credits)
 * [How to Report Issues](#how-to-report-issues)
 
 ## Installation
@@ -110,7 +114,7 @@ needed to streamline image retrieval.
 Comet.Photos has been developed to fill this
 critical gap, providing a powerful solution for spatially targeted image
 searches and facilitating detailed studies of cometary surface
-evolution. Users can define a region of interest by interactively
+evolution (Kurlander, 2025). Users can define a region of interest by interactively
 selecting the desired region on a 3D model of 67P. In a fraction of a
 second, the application searches through over 27,000 NAC images to find
 only those that feature the selected region. In addition to this spatial
@@ -738,8 +742,133 @@ this software possible as he helped us navigate Rosetta's dataset.
 Lastly, we thank all the early users of the program for feedback that
 led to improvements.
 
+## References
+
+Acton, C. H. (1996) Ancillary data services of NASA\'s Navigation and
+Ancillary Information Facility. *Planetary and Space Science,* 44(1),
+65--70. <https://doi.org/10.1016/0032-0633(95)00107-7>.
+
+Barrington, M. N., Birch, S. P. D., Jindal, A., Hayes, A. G., Corlies,
+P., & Vincent, J.-B. (2023). Quantifying morphological changes and
+sediment transport pathways on comet 67P/churyumov-gerasimenko. *Journal
+of Geophysical Research: Planets, 128*.
+<https://doi.org/10.1029/2022JE007723>.
+
+Birch, S. P. D., Hayes, A. G., Umurhan, O. M., Tang, Y., Vincent, J.-B.,
+et al. (2019). Migrating scarps as a significant driver for cometary
+surface evolution. *Geophysical Research Letters, 46*.
+<https://doi.org/10.1029/2019GL083982>.
+
+Cabello, R. et al. (2023). three.js: JavaScript 3D Library. June 28,
+2023 Release (Version 154). GitHub.
+<https://github.com/mrdoob/three.js/>.
+
+El-Maarry, M. R., Groussin, O., Thomas, N., Pajola, M., Auger, A.-T., et
+al. (2017). Surface changes on comet 67P/churyumov-gerasimenko suggest a
+more active past. *Science, 355*.
+<https://doi.org/10.1126/science.aak9384>.
+
+ESA. (2018). Rosetta Image Archive Complete.
+<https://www.esa.int/Science_Exploration/Space_Science/Rosetta/Rosetta_image_archive_complete>.
+June 21, 2018.
+
+ESA. (2022). ESA SPICE Service, Rosetta Operational SPICE Kernel
+Dataset, v350. <https://doi.org/10.5270/esa-tyidsbu>.
+
+ESA. (2024a). Archive Image Browser. ESA website.
+<https://imagearchives.esac.esa.int/> .
+
+ESA. (2024b). Planetary Science Archive. ESA website.
+<https://psa.esa.int/>.
+
+Fay, B. (2023). Rewarding Excellence in Open Data. *MIT News.*
+<https://news.mit.edu/2023/rewarding-excellence-in-open-data-1116> .
+November 16.
+
+Fornasier, S., Feller, C., Lee, J.-C., Ferrari, S., Massironi, M., et
+al. (2017). The highly active anhur--bes regions in the
+67P/churyumov--gerasimenko comet: Results from OSIRIS/ROSETTA
+observations. *Monthly Notices of the Royal Astronomical Society, 469*.
+<https://doi.org/10.1093/mnras/stx1275>.
+
+Fornasier, S., Hoang, H. V., Fulle, M., Quirico, E., & Ciarniello, M.
+(2023). Volatile exposures on the 67P/churyumov-gerasimenko nucleus.
+*Astronomy and Astrophysics, 672.*
+<https://doi.org/10.1051/0004-6361/202245614> .
+
+Fugaro, M. (2023). three-projected-material \-- Three.js Material for
+Texture Projection. February 27, 2023 Release (Version 2.2.2). GitHub.
+<https://github.com/marcofugaro/three-projected-material>.
+
+Groussin, O., Sierks, H., Barbieri, C., Lamy, P., Rodrigo, R., et al.
+(2015). Temporal morphological changes in the imhotep region of comet
+67P/churyumov-gerasimenko. *Astronomy and Astrophysics, 583*.
+<https://doi.org/10.1051/0004-6361/201527020>.
+
+Jindal, A. S., Birch, S. P. D., Hayes, A. G., Umurhan, O. M., Marschall,
+R., et al. (2022). Topographically influenced evolution of large-scale
+changes in comet 67P/churyumov gerasimenko's imhotep region. *The
+Planetary Science Journal, 3*. <https://doi.org/10.3847/PSJ/ac7e48>.
+
+Jindal, A. S., Birch, S. P. D., Hayes, A. G., Özyurt, F. P., Issah, A.
+B., et al. (2024). Measuring erosional and depositional patterns across
+comet 67P's imhotep region. *JGR Planets, 129*.
+<https://doi.org/10.1029/2023JE008089>.
+
+Oklay, N., Vincent, J.-B., Fornasier, S., Pajola, M., Besse, S., et al.
+(2016). Variegation of comet 67P churyumov-gerasimenko in regions
+showing activity. *Astronomy and Astrophysics*, *586*.
+https://doi.org/10.1051/0004-6361/201527369
+
+Johnson, G. K. (2023). three-mesh-bvh: A BVH implementation to speed up
+raycasting and enable spatial queries against three.js meshes. July 21,
+2023 Release (Version 0.6.3). GitHub.
+<https://github.com/gkjohnson/three-mesh-bvh> .
+
+Keller, H.U., Barbieri, C., Lamy, P. et al. (2007). OSIRIS -- The
+Scientific Camera System Onboard Rosetta. *Space Sci Rev* **128**,
+433--506. <https://doi.org/10.1007/s11214-006-9128-4>
+
+Kurlander, D. (2025). Comet.Photos Github Repository. (Version 2.0.0). GitHub. <https://github/comet-dot-photos/comet-dot-photos>.
+
+Martignène, N. (2024). Koffi: Fast and Easy-to-Use C FFI Module for
+Node.js. 2024 Release (Version 2.9.1). GitHub.
+<https://github.com/Koromix/koffi>.
+
+OpenJS Foundation. (2024). Node.js -- JavaScript runtime built on
+Chrome\'s V8 engine. October 3, 2024 Release (Version 20.18.0).
+[https://github.com/nodejs/node](https://github.com/nodejs/node/).
+
+Preusker, F. et al. (2017). The Global Meter-Level Shape Model of Comet
+67P/Churyumov-Gerasimenko. *Astronomy and Astrophysics, 607*.
+
+Rauch, G. et al. (2024). Socket.IO -- Bidirectional and low-latency
+communication for every platform. September 21, 2024 Release (Version
+4.8.0). GitHub. <https://github.com/socketio/socket.io>.
+
+Salmen, K. (2023). OBJLoader2 for Three.js. January 30, 2023 Release
+(Version 6.0.0). GitHub. <https://github.com/kaisalmen/WWOBJLoader>.
+
+Shneiderman, B. (1994). Dynamic Queries for Visual Information Seeking.
+*IEEE Software.* November 1994. pp. 70-77.
+
+USGS Astrogeology Science Center. (2023). Integrated Software for
+Imagers and Spectrometers (ISIS) June 10, 2023 Release (Version 8.0.0
+Beta) GitHub. <https://github.com/DOI-USGS/ISIS3>.
+
+Vincent, J.-B. et al. (2018). shapeViewer, A Software for the Scientific
+Mapping and Morphological Analysis of Small Bodies, *LPSC*.
+
+Vincent, J.-B. (2021). shapeViewer. June 8, 2021 Release (Version 4.0.0
+for the Rosetta Mission).
+<https://www.comet-toolbox.com/shapeViewer.html>.
+
+## Credits
+
+Comet.photos was developed by MIT undergraduate Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
+
 ## How to Report Issues
 
-This is how to report issues...
+To report issues, please use the **Issue** tab in the GitHub repository.
 
 [Comet.Photos website]: https://comet.photos/
