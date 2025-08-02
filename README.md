@@ -76,11 +76,175 @@ This should open up a browser on your machine and connect it to your own persona
 
 ## Motivation
 
-Introduction goes here.
+The European Space Agency's (ESA) Rosetta mission to Comet
+67P/Churyumov-Gerasimenko (hereafter, 67P) provided the most
+comprehensive dataset for a comet to date. The OSIRIS Narrow Angle
+Camera (NAC) returned an immense corpus of the most detailed
+high-resolution images, providing unprecedented spatial and temporal
+coverage of a cometary surface (Keller et al., 2007). This extensive
+dataset enables a diverse range of analyses for regions of interest on
+the comet. Multiple images of the same area can be leveraged for
+photometric studies (Oklay et al., 2015; Fornasier et al., 2023), used
+to derive estimates of the local topography through techniques like
+photoclinometry (Jindal et al., 2024), or examined over time to track
+surface evolution and understand how cometary landscapes change
+(Barrington et al., 2023; Jindal et al., 2022; Birch et al., 2019;
+El‐Maarry et al., 2017; Fornasier et al., 2017; Keller et al., 2017; O.
+Groussin et al., 2015). However, as noted by Barrington et al. (2023),
+identifying relevant images for such analyses is a highly challenging
+and time-consuming task, requiring a manual search through ESA's
+Planetary Science Archive (PSA). This difficulty is further compounded
+by Rosetta's variable orbit around 67P, which often results in images of
+the same region appearing vastly different from one another. Efforts
+have been made to mitigate these challenges---for example, ESA has
+introduced an image search capability within the PSA. However, this tool
+remains inadequate (at least for Rosetta), as it (a) is still slow, (b)
+frequently returns incorrect data, and (c) lacks user control over
+filtering searches by image parameters, a crucial feature for assembling
+a manageable dataset without wasting time removing irrelevant images.
+Hence, to fully harness the scientific potential of Rosetta's vast
+dataset and empower researchers to quickly and accurately identify
+relevant observations for analysis, an efficient and intuitive tool is
+needed to streamline image retrieval.
+
+Comet.Photos has been developed to fill this
+critical gap, providing a powerful solution for spatially targeted image
+searches and facilitating detailed studies of cometary surface
+evolution. Users can define a region of interest by interactively
+selecting the desired region on a 3D model of 67P. In a fraction of a
+second, the application searches through over 27,000 NAC images to find
+only those that feature the selected region. In addition to this spatial
+search filter, Comet.Photos also allows users to filter images based on
+their resolution and viewing geometry. To search only images with a fine
+spatial resolution, users can filter by the *image resolution*, which
+represents the linear scale of a pixel on the surface. Three other
+parameters of interest from a photometric and surface standpoint are the
+*emission angle* (the angle between the camera and surface normal),
+*incidence angle* (the angle between the Sun and the surface normal),
+and *phase angle* (the solid angle between the Sun and camera at the
+surface). All three of these can be filtered as well. Images matching
+the search criteria can be displayed in the application, either in their
+original 2D form or projected onto the 3D model. At the end of a session
+with Comet.Photos, a list containing the IDs of the filtered images can
+also be downloaded, allowing further analysis with external tools.
+
+Comet.Photos has been architected so that it can run on the web, requiring
+no software download or installation, or it can be installed and run on a local
+computer for the fastest interaction speeds. One of our key goals has been to
+broaden access to Rosetta's dataset, making it available to people
+regardless of their computing resources or prior experience in planetary
+science. After rigorous internal testing, we are now making this tool
+available to the broader scientific community, educators, and anyone in
+the public interested in exploring the surface of comet 67P.
 
 ## User Manual
 
-User Manual goes here
+![Figure 1 shows initial Comet.Photos window upon startup. A 3D shape model of 67P appears on the left, and a control panel appears on the right.](docs/article/image1.PNG)
+
+Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
+
+### Step 1: Choosing the Region of Interest
+The shape
+model can be rotated or scaled about a point in its interior. Moving the
+mouse with the left button pressed (or dragging a finger on a touch
+device) rotates the shape model. The mouse's scroll wheel (or the common
+two-fingered pinching gesture on touch devices) zooms in or out of the
+shape model for greater detail or more context. The right mouse button
+supports interactively choosing a new center of rotation, and the 3D
+model can be translated parallel to the screen by using
+shift-right-click, or a three fingered panning gesture on touch devices.
+
+Figure 1. Comet.Photos user-interface. On the left side is a 3D shape
+model of 67P that can be rotated and scaled with a mouse or touch, and
+on the right is a panel of controls that help set up an image search.
+
+For a typical research project, the first step is to specify a region of
+interest on the shape model for the image search. This is done by
+interactively 'painting' the relevant region of the comet, using the
+mouse and the **Paint Tools** pane of the control panel (Figure 1).
+After rotating and scaling the shape model to make the region of
+interest visible, the user enters 'paint' mode by selecting the **Enable
+Paint** checkbox. The brush appears at the cursor when positioned over
+the shape model, and this can be made bigger or smaller in paint mode by
+using the scroll wheel, or choosing a specific brush radius (in meters)
+using the **Brush Size** slider. While in paint mode, drawing with the
+left mouse button down (or touching the shape model with a touch
+display) will paint on the shape model. The right mouse button will use
+the brush to erase part of a previously painted region. A **Percent
+Overlap** slider allows the user to specify that images must contain at
+least the given percentage (from 1% to 100%) of the painted region to be
+considered a match. The **Clear Paint** button erases all the paint,
+allowing the region selection to begin anew.
+
+Painting on the shape model automatically filters the images by spatial
+location, but the **Image Filters** pane allows filtering on additional
+properties relating to the viewing geometries (Figure 1). For example,
+the **Meters per Pixel** property specifies that searches should only
+return images within a specified range of image resolutions. The
+**Emission Angle** slider restricts matches to include only those images
+in which the angle between the surface normal and the vector towards the
+camera from the surface match the specified range. At 0^o^ the vector to
+the camera is normal to the surface, while at 90^o^ the camera is at a
+glancing angle to the surface. The **Incidence Angle** slider specifies
+the minimum and maximum angles (in degrees) that the Sun must make
+relative to the surface normal for a match to occur. At 0^o^ the Sun is
+perfectly overhead, and at 90^o^ the Sun is at a glancing angle to the
+surface. The **Phase Angle** slider constrains the search to include
+only those images in which the angle between the sun, the spacecraft,
+and the surface normal falls within the specified range. Note that the
+values for meters per pixel, emission angle, incidence angle, and phase
+angle can vary for every pixel in the image, however the user is
+typically interested in these values within the selected region of
+interest. So for these calculations, we use the average surface position
+and surface normal over this region of interest.
+
+The next pane of the interface controls **Image Display and Navigation**
+(Figure 1). Initially, the **Show Image** selector is set to *None*.
+However, at any time it can be changed to *Unmapped 2D* to display the
+current image as originally taken, or projected onto the comet by
+setting the selector to *Perspective* (for a perspective projection) or
+*Orthographic* (for an orthographic projection). Given the shifting
+camera and comet positions, it can be difficult to visually locate the
+region of interest even in an image that is known to contain it. To
+address this, we added the **Encircle Region** checkbox, which places a
+red circle around the region of interest. Projected images, when viewed
+from an arbitrary perspective, may appear to have some distortions
+because of the viewing angle. To remove those distortions, the user can
+select **Spacecraft View** to see the image projection viewed as if from
+the spacecraft camera's location at the time it was taken. The **Show
+Viewport** checkbox places a blue outline in the plane perpendicular to
+the camera's view, showing the extent of the image. The **Show Axes**
+command displays the *x*, *y*, and *z* axes (red, green, and blue
+respectively) in the comet's standard body-fixed coordinate system
+(67P/C-G_CK). The next control is the **Image Index** slider, which
+allows the user to scan through all of the images matching the current
+search. It has an integer field to the right that shows the current
+image index in the search, and images are sorted ascendingly by the time
+they were taken. The **Next Image** button advances to the next image
+that matches the filters, and the **Previous Image** button displays the
+previous match. Since images taken close together in time often appear
+similar, we provide an option to skip forward or backward in time. The
+**Skip Duration** control specifies how much time should be skipped
+(day, month, or year), and the **Skip Forward** and **Skip Backward**
+buttons advance or revert to the next match at least the specified
+duration from the current match.
+
+Throughout the process of selecting a region of interest or adjusting
+the non-geometric image filters, information on the current match
+appears in the **Image Data** pane (Figure 1). The **Matches** field
+shows how many images match the current search specification. The **File
+Name** field displays the name of the current image (the stem of the ESA
+image filename), and the **Time** field shows when that image was taken
+(the Coordinated Universal Time -- UTC -- in ISO 8061 format). The
+**Image Info** field displays the index of the image (sorted by time) in
+the entire data set. If no region is selected, it also shows the meters
+per pixel (m) for the image. If a region is selected, it will show an
+average meters per pixel (m) of the selected region, as well as the
+average emission (e), incidence (i), and phase (p) angles for the
+selected region for the current image. At any time, the list of matching
+images can be downloaded with the **Download File Names** button, which
+can be helpful for further analysis with the USGS ISIS Tools (USGS
+2023).
 
 ## Step-by-Step Example
 
