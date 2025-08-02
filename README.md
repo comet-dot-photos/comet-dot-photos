@@ -141,7 +141,7 @@ the public interested in exploring the surface of comet 67P.
 
 Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
 
-### Step 1: Choosing the Region of Interest
+### Step 1: Finding the Region of Interest
 Figure 1 shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
 
 <div align="center">
@@ -163,6 +163,8 @@ supports interactively choosing a new center of rotation, and the 3D
 model can be translated parallel to the screen by using
 shift-right-click, or a three fingered panning gesture on touch devices.
 
+### Step 2: Painting the Region of Interest
+
 For a typical research project, the first step is to specify a region of
 interest on the shape model for the image search. This is done by
 interactively 'painting' the relevant region of the comet, using the
@@ -179,7 +181,9 @@ the brush to erase part of a previously painted region. A **Percent
 Overlap** slider allows the user to specify that images must contain at
 least the given percentage (from 1% to 100%) of the painted region to be
 considered a match. The **Clear Paint** button erases all the paint,
-allowing the region selection to begin anew.
+allowing the region selection to begin anew.  After every paint stroke, the **Matches** text field updates to show how many of the images match the filter. To exit paint mode, deselect the Enable Paint checkbox. At any time, you can go back to paint mode to adjust the region of interest.
+
+### Step 3: Setting Other Image Filters
 
 Painting on the shape model automatically filters the images by spatial
 location, but the **Image Filters** pane allows filtering on additional
@@ -202,6 +206,8 @@ angle can vary for every pixel in the image, however the user is
 typically interested in these values within the selected region of
 interest. So for these calculations, we use the average surface position
 and surface normal over this region of interest.
+
+### Step 4: Navigating through the Images
 
 The next pane of the interface controls **Image Display and Navigation**
 (Figure 1). Initially, the **Show Image** selector is set to *None*.
@@ -237,8 +243,7 @@ duration from the current match.
 Throughout the process of selecting a region of interest or adjusting
 the non-geometric image filters, information on the current match
 appears in the **Image Data** pane (Figure 1). The **Matches** field
-shows how many images match the current search specification. The **File
-Name** field displays the name of the current image (the stem of the ESA
+shows how many images match the current search specification. The **File Name** field displays the name of the current image (the stem of the ESA
 image filename), and the **Time** field shows when that image was taken
 (the Coordinated Universal Time -- UTC -- in ISO 8061 format). The
 **Image Info** field displays the index of the image (sorted by time) in
