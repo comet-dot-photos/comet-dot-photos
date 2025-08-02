@@ -143,8 +143,8 @@ the public interested in exploring the surface of comet 67P.
   <a id="fig1"></a>
   <img src="docs/article/Fig1.PNG" alt="Comet.Photos Initial Window">
 </div>
-<div style="margin-top: 4px; margin-bottom: 12px; font-size: 50%; font-style: italic;">
-  <em>Figure 1 shows initial Comet.Photos window upon startup. A 3D shape model of 67P appears on the left, and a control panel appears on the right.</em>
+<div>
+  <em>Figure 1. Comet.Photos user-interface. On the left side is a 3D shape model of 67P that can be rotated and scaled with a mouse or touch, and on the right is a panel of controls that help set up an image search.</em>
 </div>
 <br>
 
