@@ -243,7 +243,8 @@ duration from the current match.
 Throughout the process of selecting a region of interest or adjusting
 the non-geometric image filters, information on the current match
 appears in the **Image Data** pane (Figure 1). The **Matches** field
-shows how many images match the current search specification. The **File Name** field displays the name of the current image (the stem of the ESA
+shows how many images match the current search specification. 
+The **File Name** field displays the name of the current image (the stem of the ESA
 image filename), and the **Time** field shows when that image was taken
 (the Coordinated Universal Time -- UTC -- in ISO 8061 format). The
 **Image Info** field displays the index of the image (sorted by time) in
@@ -258,8 +259,141 @@ can be helpful for further analysis with the USGS ISIS Tools (USGS
 
 ## Step-by-Step Example
 
-Step-by-Step Example goes here
+After loading the initial web page, we use the left mouse button to
+rotate the comet, and the scroll wheel to zoom in on a region with a
+cluster of three boulders which are visible in the 3D shape model and
+merit further examination (Figure 2). We select the **Enable Paint**
+checkbox, adjust the brush size, and paint the three boulders.
 
+<div align="center">
+  <a id="fig2"></a>
+  <img src="docs/article/Fig2.PNG" alt="Comet.Photos After Paint">
+</div>
+<div>
+  <em>Figure 2. Painting an area of interest. With the <b>Enable Paint</b> checkbox set, we paint a region of the comet in which three large boulders are visible in the shape model.</em>
+</div>
+<br>
+
+
+Immediately upon painting the region, a search is performed, and the
+**Matches** field updates to show us that 4,168 images were found,
+containing at least 75% of the painted region (as specified in the
+**Percent Overlap** control). That is still a lot of images, and the
+vast majority were taken far enough away from 67P, such that they
+display little detail of our region of interest. Therefore, we adjust
+the **Meters Per Pixel** slider so that only images with a fine enough
+resolution to identify surface changes, representing one meter per pixel
+or less, will be retrieved. This reduces the number of matches to 585.
+We then set the **Show Image** control to *Perspective*, to map the
+first image onto the shape model via a perspective transformation
+(Figure 3a). Because **Encircle Region** is selected by default, a red
+circle shows the location of the three boulders. We click **Next Image**
+repeatedly to then see additional image matches projected onto the shape
+model (Figure 3b).
+
+<div align="center">
+  <a id="fig3"></a>
+  <img src="docs/article/Comet-Projection-2-High.PNG" alt="Two image projections onto Comet 67P">
+</div>
+<div>
+  <em>Figure 3. Two different images projected onto the shape model, showing the region of interest circled in red. Looking at the <b>Time</b> field, we see these were taken in (a) late August and (b) early September of 2014.</em>
+</div>
+<br>
+
+Note that both of these projections appear to have bands or gaps in
+them. This is because we are viewing them from a different vantage point
+than what was acquired by Rosetta, where there is either an imperfect
+match between shape model facets and image pixels and/or because various
+facets were hidden from view at the time of acquisition. To view the
+current image (e.g., Figure 3b) from Rosetta's perspective (position,
+camera direction and camera up-vector) at the time the image was taken,
+we check the **Spacecraft View** setting (Figure 4a). Although this
+image is projected onto the shape model, it still appears very similar
+to the original image, with any minor variations due to the underlying
+shape model. We can also compare the two images by switching the **Show
+Image** control to *Unmapped 2D*, displaying the original images (Figure
+4b). Although these images are indeed very similar, projecting a 2D
+image in 3D can add rendering artifacts, so often the *Unmapped 2D*
+image presents the best view.
+
+<div align="center">
+  <a id="fig4"></a>
+  <img src="docs/article/Comet-from-SpaceCraft-2-High.PNG" alt="Views of the region of interest from Rosetta.">
+</div>
+<div>
+  <em>Figure 4. Views of the region of interest from Rosetta. (a) An image projected onto the 3D shape model. (b) The original 2D image.</em>
+</div>
+<br>
+
+Initially we want to view images with shadows, because shadows can
+accentuate surface detail. We set the **Incidence Angle** to be
+77^o^-90^o^, restricting our results to only those images with the Sun
+at an extreme angle to the surface. Immediately the results are updated,
+and we see there are 25 such images of the region of interest, (Figure
+5). Examining the **Image Info** field of the image retrieved in Figure
+5a, we see that the incidence angle is 83^o^. With the Sun so low on the
+horizon, two of the boulders are hidden in shadow from the ridge above,
+yet the red circle helps us identify the one visible boulder that
+remains within our region of interest. We advance to the next image of
+the resulting subset, (Figure 5b) another heavily shadowed image, which
+has an incidence of 78^o^ at the region of interest.
+
+<div align="center">
+  <a id="fig5"></a>
+  <img src="docs/article/Comet-Incidence-High.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
+</div>
+<div>
+  <em>Figure 5. Two images of the region of interest with high angle of incidence, and hence heavily shadowed. (a) Image with an incidence angle of 83&deg, partially shadowed by a nearby ridge; (b) Image with incidence angle of 78&deg.</em>
+</div>
+<br>
+
+Next, we decide to see the best close-up images of these three boulders
+in profile. We restore the **Incidence Angle** filter to the original
+setting of 0^o^-90^o^, because we no longer care about shadows, set the
+**Meters Per Pixel** slider to 0-0.3 m, and set the **Emission Angle**
+to 75^o^-90^o^. There are 11 matches. Again, the red circle helps us
+identify the relevant boulders of our region of interest because there
+are other boulders of similar sizes nearby (Figure 6).
+
+<div align="center">
+  <a id="fig6"></a>
+  <img src="docs/article/Comet-Emission-High.png" alt="Two close-up images of the boulders in profile.">
+</div>
+<div>
+  <em>Figure 6. Two close-up images of the boulders in profile. (a) Image with a sample resolution of 0.16 meters<sup>2</sup>/pixel and emission angle of 78&deg; (b) Image with a sample resolution of 0.14 meters<sup>2</sub>/pixel and emission angle of 88&deg.</em>
+</div>
+<br>
+
+We began this session by painting three boulders that were visible in
+the 3D shape model; however, it is also important to be able to search
+for features not discernable in the shape model alone. Comet.Photos
+supports a process of iterative refinement, where a new region of
+interest can be painted on a previously retrieved image, setting up a
+new search. This step can be repeated as necessary to converge on a
+known feature or serendipitously explore new ones. For example, earlier
+in Figure 4a, we retrieved an image of three boulders. Upon closer
+examination, we see two very small circular features in that image that
+we would like to explore in greater detail. The current version of the
+application only supports painting on an image that is projected in
+*Perspective* mode, so we ensure that this mode is chosen. We then
+select the **Enable Paint** checkbox, and then click **Clear Paint** to
+erase the previous region of interest. Next, we paint the two small
+circular features (Figure 7a). This matches 430 images with the **Meters
+Per Pixel** slider set to 0-1.0. We adjust this slider to 0-0.2 to
+retrieve only the images taken closest to the region of interest,
+resulting in 35 image matches. For the best image quality, we set **Show
+Image** to *Unmapped 2D*. One of the matches, reveals that the two
+craters are actually part of a large cluster of similar features (Figure
+7b).
+
+<div align="center">
+  <a id="fig7"></a>
+  <img src="docs/article/Crater-High-Option-2.png" alt="Specifying a new search by iterative refinement.">
+</div>
+<div>
+  <em>Figure 7. Specifying a new search by iterative refinement. (a) A boulder image from an earlier search (Figure 4a) with a crater detail painted as the new area of interest; (b) A close-up image match revealing additional craters.</em>
+</div>
+<br>
 
 ## Architecture
 
