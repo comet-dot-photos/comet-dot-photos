@@ -360,8 +360,8 @@ are other boulders of similar sizes nearby (Figure 6).
   <img src="docs/article/Comet-Emission-High.png" alt="Two close-up images of the boulders in profile.">
 </div>
 <div>
-  <em>Figure 6. Two close-up images of the boulders in profile. (a) Image with a sample resolution of 0.16 meters<sup>2</sup>/pixel and emission angle of 78&deg; (b) Image with a sample resolution of 0.14 meters<sup>2<sub>/pixel
-  and emission angle of 88&deg.</em>
+  <em>Figure 6. Two close-up images of the boulders in profile. (a) Image with a sample resolution of 0.16 meters<sup>2</sup>/pixel and emission angle of 78&deg; (b) Image with a sample resolution
+  of 0.14 meters<sup>2</sub>/pixel and emission angle of 88&deg.</em>
 </div>
 <br>
 
