@@ -148,8 +148,8 @@ Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region o
 ### Step 1: Finding the Region of Interest
 Figure 1 shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
 
+<a id="fig1"></a>
 <div align="center">
-  <a id="fig1"></a>
   <img src="docs/article/Fig1.PNG" alt="Comet.Photos Initial Window">
 </div>
 <div>
