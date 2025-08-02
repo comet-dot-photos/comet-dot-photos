@@ -396,13 +396,325 @@ craters are actually part of a large cluster of similar features (Figure
 </div>
 <br>
 
-## Architecture
+## Design, Architecture, and Implementation
 
-Architecture discussion goes here
+The design and architecture of Comet.Photos were driven by the goals
+that the program be widely and easily accessible, fast, and intuitive.
+One of the initial decision points was whether the software should be
+web-based, or a locally installed executable. Given our limited
+resources, we did not anticipate being able to build a program that
+would run directly on Windows, MacOS, and Linux variants, and this would
+limit its accessibility. Furthermore, some people are hesitant to
+install software locally due to the effort, risk, and storage required,
+the latter being significant due to the number of OSIRIS images.
+However, visiting a web site is easy and relatively safe. While ardent
+planetary scientists might be willing to install a program on their own
+machine, we aimed to build a tool that could also be used by students
+and the broader public, with little upfront investment. Furthermore,
+with web applications, updates and bug fixes can be deployed seamlessly,
+avoiding extra user effort.
+
+A web-based architecture, however, is in some ways counter-indicated by
+the next goal, which is speed. Interactions over the internet can be
+slowed down by transport time. Furthermore, personal computers are
+generally fast and have GPUs for speedy graphics processing. This led to
+the decision to build a client-server application, where the client,
+running as a program in the browser, performs most of the operations,
+including the graphics manipulation (taking advantage of the GPU), and
+the server is responsible for only delivering data files and the final
+step of visibility determination. This final step of visibility
+determination uses a large data file that would take too much time to
+transport to the client (Section 4). To make the program fast and
+responsive, we chose to precompute much of the information that we need
+to perform the queries, (including this large visibility table),
+reducing the overhead at runtime. There is also the option to run the
+program entirely locally on one's laptop or PC to avoid any noticeable
+internet data delays. In such cases, one can choose to have some or all
+of the server's functions running on their own machine by installing the
+software manually, with their own personal server running on the same
+computer as the client.
+
+To make Comet.Photos intuitive and easy to use, we implemented image
+search in the user interface as *dynamic queries*. According to
+(Shneiderman, 1994), *"Dynamic queries let users 'fly through' databases
+by adjusting widgets and viewing the animated results. In studies, users
+reacted to this approach with an enthusiasm more commonly associated
+with video games."* Adjustments to Comet.photo's search parameters,
+through the manipulation of sliders and checkboxes, immediately update
+the data set visually. Painting on a 3D shape model of the comet also
+updates the search results in real time to include only those images
+that feature the painted region, in whatever overlap the user decides.
+We aimed to build a scientific tool that would be engaging, intuitive,
+and even fun to use.
+
+Comet.Photos consists of two major components: a client that runs in a
+local browser, and a server. The client's responsibilities include:
+rendering and transforming the 3D shape model, displaying the user
+interface and responding to user interactions, paint operations,
+filtering the data set via properties such as incidence angle or
+emission angle, performing the initial pass on determining region of
+interest image matches, and requesting various data from the server. The
+server is a web server, with special capabilities implemented with
+node.js (OpenJS Foundation, 2024). It delivers data files to the client,
+and performs the last phase of the visibility calculations to determine
+which images contain the painted region of interest. The next section
+describes the data files used by the program, and the following section
+explains how the program works over the course of an example session
+similar to that described earlier in Section 2.2.
+
+### The Data Files
+
+There are three core data files used by Comet.Photos. The first is a 3D
+shape model of 67P. This shape model is
+stereo-photogrammetrically-derived SHAP7 shape model created at the
+German Aerospace Center (DLR) (Preusker 2017). The specific shape model
+file that we use is the same one incorporated in the openly-available
+shapeViewer program (Vincent 2018, 2021). The shape model has 100,002
+vertices and 200,000 triangular facets. We chose this shape model
+because it has enough detail to identify major features, but not so many
+vertices and facets that the visibility computations would become
+prohibitively slow or the model would become too slow to load, as both
+increase linearly with the facet or vertex count. Importantly, we choose
+to determine visibility of the vertices, not the facets, because there
+are fewer vertices and these vertices are discrete points in the shape
+model. Therefore, when the user paints the 3D shape model, we consider
+which vertices are painted, not which facets. This makes visibility
+calculations faster, without adversely affecting the user experience.
+
+The second data file is the *image metadata*, which is an array of
+dictionaries, with one dictionary for each image in the data set
+containing information related to that image. The image metadata is
+computed in a preprocessing step and includes information from three
+sources. Data extracted from the original OSIRIS NAC .IMG file headers
+include the image resolution, the time the image was taken, and the name
+of the image. Metadata computed from the SPICE (Acton 1996) kernels
+associated with the Rosetta mission (ESA 2022), which include the
+position of the spacecraft at the time of the image, the camera viewing
+vector and "up" vector, and the position of the Sun. Finally, a third
+type of metadata is computed by doing visibility calculations on the 3D
+shape model using the spacecraft position and camera vectors calculated
+in the previous step for every NAC image. For the portion of the comet
+that we calculate to be visible to the spacecraft at the time the image
+was taken, we store the axis-aligned bounding as well as the minimum and
+maximum distances along the camera vector. All positions and vectors are
+in the comet's fixed-body coordinate system, and the image metadata
+array is ordered ascendingly according to the time each image was taken.
+
+The third data file is the *visibility table*. This table includes rows,
+one for every image in the data set. Each row is a bit field, with one
+bit for every vertex on the 3D shape model. During a preprocessing step,
+we simulate the viewing configuration of every image in the data by
+creating a virtual scene with the 3D shape model and Rosetta's camera
+configuration as represented in the image metadata. From the virtual
+camera, we cast a ray to every vertex in the shape model to determine
+whether it would be visible in an image taken by the simulated Rosetta
+camera, and store this information, a single bit for every vertex set as
+1 for visible, 0 for non-visible, as a row in the visibility table.
+Later on, at runtime, when we decide whether a painted region of
+interest is visible in one of the images, we take a bitfield of all the
+vertices in the shape model, with the painted vertices represented by
+1's, and then AND this with the visibility bitfield for that image
+stored in the visibility table. The number of 1-bits in the result is
+the number of painted vertices that would be visible in a given image.
+Logical operations such as AND are very fast, but we still would prefer
+not to check the painted region of interest against every row in the
+table. Therefore, during the preprocessing step of determining the
+vertices that are visible for each image, we also compute a bounding box
+of the visible vertices, and store this back into the image metadata for
+each image, as mentioned above. The client does its own bounding box
+tests before requesting a visibility test from the server. If the
+bounding box of the painted vertices does not intersect the bounding box
+of visible vertices for an image, as stored in the image metadata, then
+that image does not contain any of the region of interest, and that
+image is omitted from the set to query from the server.
+
+In terms of data volumes, the 3D shape model is approximately 7 MB, and
+the image metadata is approximately 14 MB. However, they are both
+compressed by the server before they are transmitted to the client,
+reducing them to less than a third of their original sizes. The
+visibility table is much larger, at approximately 325 MB, so
+pragmatically it must remain on the server. In addition to the three
+core data files, Comet.Photos hosts 13.5 GB of comet image files in JPG
+format on the server. These images are individually retrieved and
+displayed by the client while navigating through search results.
+
+### An Implementation Walkthrough
+
+In this section we describe how the client and server interact, and
+process the data files in a session similar to the one described in
+Section 2. The client runs as a program in the browser, and the server
+handles web file requests as well visibility operations.
+
+Figure 8 shows the interactions between the client and server. Upon
+browsing to the server (<https://comet.photos>), the client receives a
+small HTML file (Figure 7, #1) that, when loaded in the browser,
+requests and runs the JavaScript program (Figure 7, #2). This in turn
+requests the 3D shape model of 67P (Figure 7, #3) and the image metadata
+file in JSON format (Figure 7, #4), which are sent in parallel from the
+server. Then, the client displays the 3D shape model using the Three.js
+JavaScript library for 3D rendering (Cabello 2023). Using a virtual
+trackball control, the 3D shape model can be rotated about its center
+with the left mouse button, and the camera can be moved nearer or
+further from the comet via the scroll wheel. Touch and pen gestures are
+also supported.
+
+<div align="center">
+  <a id="fig8"></a>
+  <img src="docs/article/Client-Server-Diagram.svg" alt="Comet.photo's client-server model.">
+</div>
+<div>
+  <em>Figure 8. The flow of information in Comet.photo's client-server model.
+Requests from the client are indicated by light grey dashed arrows and
+these requests always precede the server's responses which appear as
+dark solid arrows. In response to client requests, the server sends (1)
+the initial HTML page, (2) the JavaScript program, (3) the 3D shape
+model of 67P, (4) the image metadata which contains information such as
+spacecraft location and camera direction for each image, (5) visibility
+responses, providing indices of images that contain the painted region
+of interest (ROI), and (6) a requested image of the comet in JPG form.
+Steps 1-4 only happen at start-up. Step 5 is repeated whenever the
+region of interest is updated. Step 6 is repeated whenever the user
+requests to see a new image from the data set. In this diagram, there
+are n images and m vertices in the comet's shape model.</em>
+</div>
+<br>
+
+The user can turn on paint mode, and paint the shape model using a 3D
+spherical brush. To make painting smooth and interactive, even with a
+large number of vertices, we use Johnson's bounding volume hierarchy
+package (Johnson 2023), which employs spatial partitioning to speed up
+raycasting and other spatial queries. This library was also used to
+speed up raycasting during the creation of the visibility table in the
+preprocessing step (Section 4.1). Our painting routines are adapted from
+Johnson's "collectTriangles" example, modified to paint vertices rather
+than triangles. To support this, we employ an indexed shape model of the
+comet, in which the same vertex can being reused for multiple facets.
+This shape model is imported with Three.js' OBJLoader2 extension (Salmen
+2023). When the mouse button is released after painting, we identify
+which vertices were selected to be part of the region of interest, as
+well as the average position and surface normal of the painted vertices.
+Since we are using an indexed shape model, Three.js automatically
+pre-calculates a normal for each vertex by averaging the normals of the
+connected facets, making this fast and easy.
+
+A bounding box is calculated for the painted region, which is compared
+against the bounding box in every image's metadata dictionary. If the
+boxes do not intersect, that image cannot depict any of the region of
+interest. This is a rapid way of ruling out many of the non-matches. For
+those images that still might match, the client has the server do a more
+extensive visibility check using the visibility table. As described
+above, the server is sent an array indicating the images that still need
+to be checked as well as a bit array indicating the painted vertices.
+This bit-array representing the region of interest and the bit array of
+each image that passed the bounding box test are AND'ed together on the
+server (Section 4.1) with the resulting bit field containing the number
+of painted vertices that would be visible in that image's camera / comet
+configuration. To further speed things up, the server, written in
+JavaScript, loads optimized C code, using the Koffi foreign function
+interface (Martignène, 2024) to more efficiently perform bit operations.
+The AND'ing is done in 64-bit sized chunks which can be executed in a
+single operation on modern architectures. The server sends an array back
+to the client indicating which images passed the final visibility check
+(Figure 7, #5). Unlike the other server requests and responses which
+occur over http/https, this request and response are sent via Socket.IO
+to accommodate the large non-web-standard data types transmitted (Rauch,
+2024).
+
+Search results are generated in the following way. All of the image
+filters represented by sliders in the control panel (**Meters per
+Pixel**, **Emission Angle**, **Incidence Angle**, and **Phase Angle**)
+are the results of geometric/vector math on information contained in the
+image metadata -- such as spacecraft camera location and Sun location --
+combined with information from the painted region of interest (average
+position and average surface normal). For example, when we filter on the
+emission angle, for every image metadata, we test if the angle between
+the average surface normal in the region of interest and the vector from
+the average position in the region of interest to the spacecraft camera
+falls within the range specified by the slider. The client stores a
+'filter byte' for each image, with each bit indicating a specific filter
+that has passed or failed on this image, 1 if it has failed, and 0 if it
+has passed. After applying the filters, only those images whose filter
+byte is 0 have passed all of the filters, and are included in the result
+set. When a single filter changes, the others typically need not be
+retested, since the image's current pass/fail state of every filter is
+persisted independently in this byte. The one exception is that after
+changes to the region of interest, the visibility and geometric filters
+need to be re-run because the geometric filters use the average position
+and surface normal of the painted region. Nevertheless, filter
+operations are performed very quickly: as the user adjusts a slider, or
+lifts the paintbrush from the 3D shape model, the result set updates in
+real-time.
+
+The results are ordered ascendingly by the time each image was taken, a
+decision made to assist scientists studying how the comet's landscapes
+change through time. The interface shows a single image match at a time,
+referred to as the current match, and the **Image Index** slider, as
+well as the **Next**/**Previous** and Interval **Skip Forward**/**Skip
+Backward** buttons. These buttons therefore allow the user to navigate
+forward and backwards in time through the matches to watch how the
+surface evolves. This has proven to be an exceptionally powerful
+capability, as it rapidly allows for determination of any surface
+activity. Whenever there is a current match, information about the match
+is shown in the **Image Data** pane of the control panel. This
+information includes the image's name, the time it was taken, the index
+of the image in the complete data set, and if a region of interest has
+been painted, the average meters per pixel, emission, incidence, and
+phase angles for that region. When the **Show Image** control is set to
+display an image, the client requests a JPG file for the current image
+from the server (Figure 7, #6). When **Show Image** is set to either
+*Perspective* or *Orthographic*, we texture map the image onto the 3D
+shape model at the appropriate location (using the camera information
+stored in the image metadata to do so). With **Show Image** set to
+*Perspective*, we use Fugaro's three-projected-material package for
+Three.js (Fugaro, 2023), which supports texture mapping via perspective
+projections. With **Show Image** set to *Orthographic* we use the
+Three.js decal construct for displaying the texture map. They have
+different advantages but are subject to certain imaging artifacts that
+can be avoided with **Show Image** set to *Unmapped 2D*, which displays
+the image on an overlay canvas above the Three.js canvas. To help draw
+the user's eye to the region of interest, if Encircle Region is checked,
+Comet.Photos will draw a circle around the region of interest, projected
+onto the overlay canvas. The center of the circle is the previously
+calculated average painted position transformed to screen pixel
+coordinates. The radius of the circle is the maximum distance from the
+center to all of the painted vertices transformed to screen pixel
+coordinates.
 
 ## Performance 
 
-Performance goes here
+Searches with Comet.Photos are fast. Using an ordinary PC on the West
+Coast of the United States (AMD Ryzen 7 3700X with an NVIDIA GeForce RTX
+2080 GPU), and having the server run on a virtual private server hosted
+on the East Coast (a Linux-based server which is limited to four cores
+of a Xeon CPU E5-2680 v4 running at 2.40GHz and 8GB of memory), there is
+little lag. The 3D shape model can be manipulated at 100 frames per
+second. Thanks to the BVH spatial partitioning package (Johnson, 2023),
+painting a region of interest can also be done at 100 frames per second.
+Even accessed from an iPhone 13, the refresh rate is a respectable 44
+frames per second. Filtering through the 27,000+ images for those that
+show the region of interest usually takes a fraction of a second -- thus
+allowing blinking between images. Filtering the images according to
+properties like emission angle and incidence angle is completed before
+the mouse is lifted from the slider. The most noticeable lag occurs when
+the client requests image JPGs from the server across the continent,
+however this still typically takes under a second per image. As tested
+over a virtual private network, transferring data to other continents is
+slower, but still usable. We expect the performance to increase as we
+move the server to a machine hosted at MIT in the near future.
+
+To make the program run even faster, we support the installation of the
+entire system, including server, client, and data files, on a personal
+desktop or laptop computer. The software can be installed on 64-bit
+Windows, Macs, and several varieties of Linux. We have packaged up the
+software in a 14GB file that can be downloaded and installed according
+to the directions at <https://comet.photos/install.html>. With all of
+the software running locally on the PC described above, all of the
+operations are instantaneous: spatial searches across the entire image
+library run typically around 50 milliseconds, filters such as emission
+angle and incidence angle typically take around 4 milliseconds. But the
+primary benefit of running the program locally is that the image files
+do not need to be transmitted over the internet, typically loading in
+less than 16 milliseconds.
 
 ## Acknowledgments
 
