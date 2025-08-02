@@ -293,7 +293,7 @@ model (Figure 3b).
 
 <div align="center">
   <a id="fig3"></a>
-  <img src="docs/article/Comet-Projection-2-High.PNG" alt="Two image projections onto Comet 67P">
+  <img src="docs/article/Comet-Projection-2-High.png" alt="Two image projections onto Comet 67P">
 </div>
 <div>
   <em>Figure 3. Two different images projected onto the shape model, showing the region of interest circled in red. Looking at the <b>Time</b> field, we see these were taken in (a) late August and (b) early September of 2014.</em>
@@ -318,7 +318,7 @@ image presents the best view.
 
 <div align="center">
   <a id="fig4"></a>
-  <img src="docs/article/Comet-from-SpaceCraft-2-High.PNG" alt="Views of the region of interest from Rosetta.">
+  <img src="docs/article/Comet-from-SpaceCraft-2-High.png" alt="Views of the region of interest from Rosetta.">
 </div>
 <div>
   <em>Figure 4. Views of the region of interest from Rosetta. (a) An image projected onto the 3D shape model. (b) The original 2D image.</em>
