@@ -6,13 +6,13 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 ## Table of contents
 
-* [Installation](#installion)
+* [Installation](#installation)
 * [Motivation](#motivation)
 * [User Manual](#user-manual)
 * [Step-by-Step Example](#step-by-step-example)
 * [Design, Architecture, and Implementation](#design-architecture-and-implementation)
   * [The Data Files](#the-data-files)
-  * [An Implementation Walkthrough](#an-implmentation-walkthrough)
+  * [An Implementation Walkthrough](#an-implementation-walkthrough)
 * [Performance](#performance)
 * [Acknowledgments](#acknowledgments)
 * [References](#references)
