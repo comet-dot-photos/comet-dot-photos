@@ -718,7 +718,25 @@ less than 16 milliseconds.
 
 ## Acknowledgments
 
-Acknowledgments go here.
+The ESA\'s Rosetta mission provided Comet.Photos with a remarkable image
+dataset (ESA, 2018, 2024a, 2024b). Additional tools assisted the
+extraction or calculation of necessary metadata from this dataset (ESA,
+2022; USGS, 2023). The 3D shape model used by Comet.Photos is based on
+the SHAP7 model (Preusker et al., 2017), provided by (Vincent, 2021). A
+number of great software tools and components facilitated the
+development of Comet.Photos (Cabello, 2023; Fugaro, 2023; Johnson, 2023;
+Martignène, 2024; OpenJS Foundation, 2024; Rauch, 2024; Salmen, 2023;
+Vincent, 2021). 
+
+This research was supported by the Discovery Data Analysis Program
+(#xxxxxxxxx to J.M.S.), the Heising-Simons Foundation (51 Pegasi b
+Fellowship to S.P.D.B.), and the MIT UROP Program. A 2023 MIT Open Data
+Prize for an earlier version of this work also provided recognition and
+encouragement to continue developing Comet.Photos (Fay, 2023). We
+gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made
+this software possible as he helped us navigate Rosetta's dataset.
+Lastly, we thank all the early users of the program for feedback that
+led to improvements.
 
 ## How to Report Issues
 
