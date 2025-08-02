@@ -192,12 +192,12 @@ the **Meters per Pixel** property specifies that searches should only
 return images within a specified range of image resolutions. The
 **Emission Angle** slider restricts matches to include only those images
 in which the angle between the surface normal and the vector towards the
-camera from the surface match the specified range. At 0^o^ the vector to
-the camera is normal to the surface, while at 90^o^ the camera is at a
+camera from the surface match the specified range. At 0° the vector to
+the camera is normal to the surface, while at 90° the camera is at a
 glancing angle to the surface. The **Incidence Angle** slider specifies
 the minimum and maximum angles (in degrees) that the Sun must make
-relative to the surface normal for a match to occur. At 0^o^ the Sun is
-perfectly overhead, and at 90^o^ the Sun is at a glancing angle to the
+relative to the surface normal for a match to occur. At 0° the Sun is
+perfectly overhead, and at 90° the Sun is at a glancing angle to the
 surface. The **Phase Angle** slider constrains the search to include
 only those images in which the angle between the sun, the spacecraft,
 and the surface normal falls within the specified range. Note that the
@@ -327,16 +327,16 @@ image presents the best view.
 
 Initially we want to view images with shadows, because shadows can
 accentuate surface detail. We set the **Incidence Angle** to be
-77^o^-90^o^, restricting our results to only those images with the Sun
+77°-90°, restricting our results to only those images with the Sun
 at an extreme angle to the surface. Immediately the results are updated,
 and we see there are 25 such images of the region of interest, (Figure
 5). Examining the **Image Info** field of the image retrieved in Figure
-5a, we see that the incidence angle is 83^o^. With the Sun so low on the
+5a, we see that the incidence angle is 83°. With the Sun so low on the
 horizon, two of the boulders are hidden in shadow from the ridge above,
 yet the red circle helps us identify the one visible boulder that
 remains within our region of interest. We advance to the next image of
 the resulting subset, (Figure 5b) another heavily shadowed image, which
-has an incidence of 78^o^ at the region of interest.
+has an incidence of 78° at the region of interest.
 
 <div align="center">
   <a id="fig5"></a>
@@ -349,9 +349,9 @@ has an incidence of 78^o^ at the region of interest.
 
 Next, we decide to see the best close-up images of these three boulders
 in profile. We restore the **Incidence Angle** filter to the original
-setting of 0^o^-90^o^, because we no longer care about shadows, set the
+setting of 0°-90°, because we no longer care about shadows, set the
 **Meters Per Pixel** slider to 0-0.3 m, and set the **Emission Angle**
-to 75^o^-90^o^. There are 11 matches. Again, the red circle helps us
+to 75°-90°. There are 11 matches. Again, the red circle helps us
 identify the relevant boulders of our region of interest because there
 are other boulders of similar sizes nearby (Figure 6).
 
