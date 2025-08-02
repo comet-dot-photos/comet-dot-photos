@@ -39,18 +39,24 @@ Congratulations! You have now installed Comet.Photos. Advance to the Starting Co
 
 ### Installation from Github (more steps)
 
-1. Node.js is a popular JavaScript runtime required by Comet.Photos, which can be downloaded from https://nodejs.org/. You can simply install the LTS version from the home page, and if prompted, there is no need to install any extras.
+1. Install Node.js
+
+Node.js is a popular JavaScript runtime required by Comet.Photos, which can be downloaded from https://nodejs.org/. You can simply install the LTS version from the home page, and if prompted, there is no need to install any extras.
 
 2. Fetch the Comet.Photos release from Github.
+
 Get a copy of the release from the Comet.Photos repository (Explanation here)
 
 3. Extract the files from the .zip or .tar.gz
+
 If you are installing from Github, we should know how to unpack the archive onto your local computer.
 
 4. Install the dependencies.
+
 Go into the top level folder (Comet.Photos), and type: **npm install**
 
 5. Download and Install the data
+
 The dataset is too large to include in Github, so it needs to be downloaded and unpacked as an additional step. Download the packed data set by clicking here (comet-photos-data-v2.0.tar.gz)[https://comet-photos-data-v2.0.tar.gz]. Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! Move this file to your Comet.Photos directory if it is not there already. Open up a terminal, shell, or cmd window, and navigate to the folder that holds this .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-data-v2.0.tar.gz** to allow your machine to trust the download.
 
 If you haven't done so already, open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. Then, no matter what kind of computer you have, run the following command in the terminal to extract the files from the package:
