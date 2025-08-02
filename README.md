@@ -67,9 +67,9 @@ This may take up to 10 minutes as there are plenty of files to unpack. After the
 
 As mentioned before, you can always start a web-based session with Comet.Photos by simply navigating to https://comet.photos. However, if you have installed Comet.Photos locally, simply run one of these scripts from the Comet.Photos directory:
 
-On Windows: **RUN_ME_ON_WINDOWS.cmd**
-On macOS: **RUN_ME_ON_MAC.command**
-On Linux: **RUN_ME_ON_LINUX.sh**
+> * On Windows: **RUN_ME_ON_WINDOWS.cmd**
+> * On macOS: **RUN_ME_ON_MAC.command**
+> * On Linux: **RUN_ME_ON_LINUX.sh**
 
 This should open up a browser on your machine and connect it to your own personal comet.photos server running locally. If you have any difficulties, email info@comet.photos, and we'll try to help.
 
