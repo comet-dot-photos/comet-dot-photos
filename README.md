@@ -23,7 +23,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
 
-There are two ways to install Comet.Photos locally: from a tar archive, or from github. Installing from the tar archive is easiest, while installing from github may be preferable for people hoping to contribute to the project.
+There are two ways to install Comet.Photos locally: from a tar archive, or from GitHub. Installing from the tar archive is easiest, while installing from GitHub may be preferable for people hoping to contribute to the project.
 
 ### Option 1: Installation from a tar file (easiest)
 
@@ -42,19 +42,19 @@ This may take up to 10 minutes as there are plenty of files to unpack. After the
 
 Congratulations! You have now installed Comet.Photos. Advance to the [Starting Comet.Photos](#starting-cometphotos) section to learn how to start up the app.
 
-### Option 2: Installation from Github (more steps)
+### Option 2: Installation from GitHub (more steps)
 
 1. Install Node.js
 
 Node.js is a popular JavaScript runtime required by Comet.Photos, which can be downloaded from https://nodejs.org/. You can simply install the LTS version from the home page, and if prompted, there is no need to install any extras.
 
-2. Fetch the Comet.Photos release from Github.
+2. Fetch the Comet.Photos release from GitHub.
 
 Get a copy of the release from the Comet.Photos repository (Explanation here)
 
 3. Extract the files from the .zip or .tar.gz
 
-If you are installing from Github, we should know how to unpack the archive onto your local computer.
+If you are installing from GitHub, we should know how to unpack the archive onto your local computer.
 
 4. Install the dependencies.
 
@@ -62,7 +62,7 @@ Go into the top level folder (Comet.Photos), and type: **npm install**
 
 5. Download and install the data folder contents
 
-The dataset is too large to include in Github, so it needs to be downloaded and unpacked as an additional step. Download the packed data set by clicking here [comet-photos-data-v2.0.tar.gz](https://comet.photos/comet-photos-data-v2.0.tar.gz). Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! Move this file to your Comet.Photos directory if it is not there already. Open up a terminal, shell, or cmd window, and navigate to the folder that holds this .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-data-v2.0.tar.gz** to allow your machine to trust the download.
+The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the packed data set by clicking here [comet-photos-data-v2.0.tar.gz](https://comet.photos/comet-photos-data-v2.0.tar.gz). Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! Move this file to your Comet.Photos directory if it is not there already. Open up a terminal, shell, or cmd window, and navigate to the folder that holds this .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-data-v2.0.tar.gz** to allow your machine to trust the download.
 
 If you haven't done so already, open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. Then, no matter what kind of computer you have, run the following command in the terminal to extract the files from the package:
 **tar xzf comet-photos-data-v2.0.tar.gz**
@@ -709,7 +709,7 @@ entire system, including server, client, and data files, on a personal
 desktop or laptop computer. The software can be installed on 64-bit
 Windows, Macs, and several varieties of Linux. We have packaged up the
 software in a 14GB file that can be downloaded and installed according
-to the directions at <https://comet.photos/install.html>. With all of
+to the directions in the [Installation Section](#installation). With all of
 the software running locally on the PC described above, all of the
 operations are instantaneous: spatial searches across the entire image
 library run typically around 50 milliseconds, filters such as emission
@@ -827,7 +827,7 @@ Keller, H.U., Barbieri, C., Lamy, P. et al. (2007). OSIRIS -- The
 Scientific Camera System Onboard Rosetta. *Space Sci Rev* **128**,
 433--506. <https://doi.org/10.1007/s11214-006-9128-4>
 
-Kurlander, D. (2025). Comet.Photos Github Repository. (Version 2.0.0). GitHub. <https://github/comet-dot-photos/comet-dot-photos>.
+Kurlander, D. (2025). Comet.Photos Github Repository. (Version 2.0.0). GitHub. <https://github.com/comet-dot-photos/comet-dot-photos>.
 
 Martignène, N. (2024). Koffi: Fast and Easy-to-Use C FFI Module for
 Node.js. 2024 Release (Version 2.9.1). GitHub.
