@@ -21,7 +21,7 @@ People wanting to try out Comet.Photos can simply run it in a web browser by vis
 
 There are two ways to install Comet.Photos locally: from a tar archive, or from github. Installing from the tar archive is easiest, while installing from github may be preferable for people hoping to contribute to the project.
 
-### Installation from a tar file (easiest)
+### Option 1: Installation from a tar file (easiest)
 
 1. Install Node.js.
 
@@ -35,9 +35,9 @@ If you haven't done so already, open up a terminal, shell, or cmd window, and na
 **tar xzf comet-photos-v2.0.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
 
-Congratulations! You have now installed Comet.Photos. Advance to the Starting Comet.Photos section to learn how to start up the app.
+Congratulations! You have now installed Comet.Photos. Advance to the [Starting Comet.Photos](#starting-cometphotos) section to learn how to start up the app.
 
-### Installation from Github (more steps)
+### Option 2: Installation from Github (more steps)
 
 1. Install Node.js
 
@@ -61,7 +61,7 @@ The dataset is too large to include in Github, so it needs to be downloaded and 
 
 If you haven't done so already, open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. Then, no matter what kind of computer you have, run the following command in the terminal to extract the files from the package:
 **tar xzf comet-photos-data-v2.0.tar.gz**
-This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed, and you can move on to the next step, starting Comet.Photos.
+This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed, and you can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
 
 ### Starting Comet.Photos
 
