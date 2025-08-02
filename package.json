@@ -1,0 +1,13 @@
+{
+  "name": "comet-dot-photos",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "install": "npm --prefix client install && npm --prefix server install"
+  },
+  "engines": {
+        "node": ">=14"
+  },
+  "license": "MIT",
+  "author": "D. Kurlander"
+}

@@ -21,8 +21,5 @@
         "socket.io": "^4.8.0"
     },
     "license": "MIT",
-    "author": "D. Kurlander",
-    "devDependencies": {
-        "nodemon": "^3.0.1"
-    }
+    "author": "D. Kurlander"
 }
