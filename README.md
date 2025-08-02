@@ -21,7 +21,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 ## Installation
 
-People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best experience. Installing Comet.Photos locally does require about 14GB of disk space (and an addition 14GB during the install process, which is freed up afterwards), mostly for the comet image files, but when the image files are local, it feels like all operations are instantaneous.
+People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
 
 There are two ways to install Comet.Photos locally: from a tar archive, or from github. Installing from the tar archive is easiest, while installing from github may be preferable for people hoping to contribute to the project.
 
@@ -33,9 +33,10 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 2. Download and unpack the Comet.Photos release
 
-Download the packaged comet.photos runtime by clicking here: [comet-photos-v2.0.tar.gz](https://comet.photos/comet-photos-v2.0.tar.gz). This will start copying the file to your browser's download folder. However due to the quantity of photos, this may take some time, so be prepared. Get a cup of coffee, or get some sleep, depending on your Internet speed. When the download completes, move the file to the folder where you want the Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds Comet.Photos.tar. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v2.0.tar.gz** to allow your machine to trust the download.
+Download the packaged comet.photos runtime by clicking here: [comet-photos-v2.0.tar.gz](https://comet.photos/comet-photos-v2.0.tar.gz). This will start copying the file to your browser's download folder. However due to the quantity of photos, this may take some time, so be prepared. Get a cup of coffee, or get some sleep, depending on your Internet speed. When the download completes, move the file to the folder where you want the
+Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v2.0.tar.gz** to allow your machine to trust the download.
 
-If you haven't done so already, open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. Then, no matter what kind of computer you have, run the following command in the terminal to extract the files from the package:
+Run the following command in the terminal to extract the files from the package:
 **tar xzf comet-photos-v2.0.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
 
@@ -93,8 +94,7 @@ to derive estimates of the local topography through techniques like
 photoclinometry (Jindal et al., 2024), or examined over time to track
 surface evolution and understand how cometary landscapes change
 (Barrington et al., 2023; Jindal et al., 2022; Birch et al., 2019;
-El‐Maarry et al., 2017; Fornasier et al., 2017; Keller et al., 2017; O.
-Groussin et al., 2015). However, as noted by Barrington et al. (2023),
+El‐Maarry et al., 2017; Fornasier et al., 2017; Keller et al., 2017; Groussin et al., 2015). However, as noted by Barrington et al. (2023),
 identifying relevant images for such analyses is a highly challenging
 and time-consuming task, requiring a manual search through ESA's
 Planetary Science Archive (PSA). This difficulty is further compounded
@@ -172,7 +172,7 @@ shift-right-click, or a three fingered panning gesture on touch devices.
 For a typical research project, the first step is to specify a region of
 interest on the shape model for the image search. This is done by
 interactively 'painting' the relevant region of the comet, using the
-mouse and the **Paint Tools** pane of the control panel (see Figure 1).
+mouse and the **Paint Tools** pane of the control panel (see [Figure 1](#fig1)).
 After rotating and scaling the shape model to make the region of
 interest visible, the user enters 'paint' mode by selecting the **Enable
 Paint** checkbox. The brush appears at the cursor when positioned over
@@ -191,7 +191,7 @@ allowing the region selection to begin anew.  After every paint stroke, the **Ma
 
 Painting on the shape model automatically filters the images by spatial
 location, but the **Image Filters** pane allows filtering on additional
-properties relating to the viewing geometries (Figure 1). For example,
+properties relating to the viewing geometries ([Figure 1](#fig1)). For example,
 the **Meters per Pixel** property specifies that searches should only
 return images within a specified range of image resolutions. The
 **Emission Angle** slider restricts matches to include only those images
@@ -214,7 +214,7 @@ and surface normal over this region of interest.
 ### Step 4: Navigating through the Images
 
 The next pane of the interface controls **Image Display and Navigation**
-(Figure 1). Initially, the **Show Image** selector is set to *None*.
+([Figure 1](#fig1)). Initially, the **Show Image** selector is set to *None*.
 However, at any time it can be changed to *Unmapped 2D* to display the
 current image as originally taken, or projected onto the comet by
 setting the selector to *Perspective* (for a perspective projection) or
@@ -246,7 +246,7 @@ duration from the current match.
 
 Throughout the process of selecting a region of interest or adjusting
 the non-geometric image filters, information on the current match
-appears in the **Image Data** pane (Figure 1). The **Matches** field
+appears in the **Image Data** pane ([Figure 1](#fig1)). The **Matches** field
 shows how many images match the current search specification. 
 The **File Name** field displays the name of the current image (the stem of the ESA
 image filename), and the **Time** field shows when that image was taken
@@ -258,7 +258,7 @@ average meters per pixel (m) of the selected region, as well as the
 average emission (e), incidence (i), and phase (p) angles for the
 selected region for the current image. At any time, the list of matching
 images can be downloaded with the **Download File Names** button, which
-can be helpful for further analysis with the USGS ISIS Tools (USGS
+can be helpful for further analysis with the USGS ISIS Tools (USGS,
 2023).
 
 ## Step-by-Step Example
@@ -266,7 +266,7 @@ can be helpful for further analysis with the USGS ISIS Tools (USGS
 After loading the initial web page, we use the left mouse button to
 rotate the comet, and the scroll wheel to zoom in on a region with a
 cluster of three boulders which are visible in the 3D shape model and
-merit further examination (Figure 2). We select the **Enable Paint**
+merit further examination ([Figure 2](#fig2)). We select the **Enable Paint**
 checkbox, adjust the brush size, and paint the three boulders.
 
 <div align="center">
@@ -290,10 +290,10 @@ resolution to identify surface changes, representing one meter per pixel
 or less, will be retrieved. This reduces the number of matches to 585.
 We then set the **Show Image** control to *Perspective*, to map the
 first image onto the shape model via a perspective transformation
-(Figure 3a). Because **Encircle Region** is selected by default, a red
+([Figure 3a](#fig3)). Because **Encircle Region** is selected by default, a red
 circle shows the location of the three boulders. We click **Next Image**
 repeatedly to then see additional image matches projected onto the shape
-model (Figure 3b).
+model ([Figure 3b](#fig3)).
 
 <div align="center">
   <a id="fig3"></a>
@@ -309,14 +309,13 @@ them. This is because we are viewing them from a different vantage point
 than what was acquired by Rosetta, where there is either an imperfect
 match between shape model facets and image pixels and/or because various
 facets were hidden from view at the time of acquisition. To view the
-current image (e.g., Figure 3b) from Rosetta's perspective (position,
+current image (e.g., [Figure 3b](#fig3)) from Rosetta's perspective (position,
 camera direction and camera up-vector) at the time the image was taken,
-we check the **Spacecraft View** setting (Figure 4a). Although this
+we check the **Spacecraft View** setting ([Figure 4a](#fig4)). Although this
 image is projected onto the shape model, it still appears very similar
 to the original image, with any minor variations due to the underlying
 shape model. We can also compare the two images by switching the **Show
-Image** control to *Unmapped 2D*, displaying the original images (Figure
-4b). Although these images are indeed very similar, projecting a 2D
+Image** control to *Unmapped 2D*, displaying the original images ([Figure 4b](#fig4)). Although these images are indeed very similar, projecting a 2D
 image in 3D can add rendering artifacts, so often the *Unmapped 2D*
 image presents the best view.
 
@@ -333,13 +332,12 @@ Initially we want to view images with shadows, because shadows can
 accentuate surface detail. We set the **Incidence Angle** to be
 77°-90°, restricting our results to only those images with the Sun
 at an extreme angle to the surface. Immediately the results are updated,
-and we see there are 25 such images of the region of interest, (Figure
-5). Examining the **Image Info** field of the image retrieved in Figure
+and we see there are 25 such images of the region of interest, ([Figure 5](#fig5)). Examining the **Image Info** field of the image retrieved in Figure
 5a, we see that the incidence angle is 83°. With the Sun so low on the
 horizon, two of the boulders are hidden in shadow from the ridge above,
 yet the red circle helps us identify the one visible boulder that
 remains within our region of interest. We advance to the next image of
-the resulting subset, (Figure 5b) another heavily shadowed image, which
+the resulting subset, ([Figure 5b](#fig5)) another heavily shadowed image, which
 has an incidence of 78° at the region of interest.
 
 <div align="center">
@@ -357,7 +355,7 @@ setting of 0°-90°, because we no longer care about shadows, set the
 **Meters Per Pixel** slider to 0-0.3 m, and set the **Emission Angle**
 to 75°-90°. There are 11 matches. Again, the red circle helps us
 identify the relevant boulders of our region of interest because there
-are other boulders of similar sizes nearby (Figure 6).
+are other boulders of similar sizes nearby ([Figure 6](#fig6)).
 
 <div align="center">
   <a id="fig6"></a>
@@ -383,7 +381,7 @@ application only supports painting on an image that is projected in
 *Perspective* mode, so we ensure that this mode is chosen. We then
 select the **Enable Paint** checkbox, and then click **Clear Paint** to
 erase the previous region of interest. Next, we paint the two small
-circular features (Figure 7a). This matches 430 images with the **Meters
+circular features ([Figure 7a](#fig7)). This matches 430 images with the **Meters
 Per Pixel** slider set to 0-1.0. We adjust this slider to 0-0.2 to
 retrieve only the images taken closest to the region of interest,
 resulting in 35 image matches. For the best image quality, we set **Show
@@ -428,7 +426,7 @@ including the graphics manipulation (taking advantage of the GPU), and
 the server is responsible for only delivering data files and the final
 step of visibility determination. This final step of visibility
 determination uses a large data file that would take too much time to
-transport to the client (Section 4). To make the program fast and
+transport to the client (see [The Data Files](#the-data-files)). To make the program fast and
 responsive, we chose to precompute much of the information that we need
 to perform the queries, (including this large visibility table),
 reducing the overhead at runtime. There is also the option to run the
@@ -471,7 +469,7 @@ similar to that described earlier in Section 2.2.
 There are three core data files used by Comet.Photos. The first is a 3D
 shape model of 67P. This shape model is
 stereo-photogrammetrically-derived SHAP7 shape model created at the
-German Aerospace Center (DLR) (Preusker 2017). The specific shape model
+German Aerospace Center (DLR) (Preusker, 2017). The specific shape model
 file that we use is the same one incorporated in the openly-available
 shapeViewer program (Vincent 2018, 2021). The shape model has 100,002
 vertices and 200,000 triangular facets. We chose this shape model
@@ -491,8 +489,8 @@ containing information related to that image. The image metadata is
 computed in a preprocessing step and includes information from three
 sources. Data extracted from the original OSIRIS NAC .IMG file headers
 include the image resolution, the time the image was taken, and the name
-of the image. Metadata computed from the SPICE (Acton 1996) kernels
-associated with the Rosetta mission (ESA 2022), which include the
+of the image. Metadata computed from the SPICE (Acton, 1996) kernels
+associated with the Rosetta mission (ESA, 2022), which include the
 position of the spacecraft at the time of the image, the camera viewing
 vector and "up" vector, and the position of the Sun. Finally, a third
 type of metadata is computed by doing visibility calculations on the 3D
@@ -551,12 +549,12 @@ handles web file requests as well visibility operations.
 
 Figure 8 shows the interactions between the client and server. Upon
 browsing to the server (<https://comet.photos>), the client receives a
-small HTML file (Figure 7, #1) that, when loaded in the browser,
-requests and runs the JavaScript program (Figure 7, #2). This in turn
-requests the 3D shape model of 67P (Figure 7, #3) and the image metadata
-file in JSON format (Figure 7, #4), which are sent in parallel from the
+small HTML file ([Figure 7, #1](#fig7)), that, when loaded in the browser,
+requests and runs the JavaScript program ([Figure 7, #2](#fig7)). This in turn
+requests the 3D shape model of 67P ([Figure 7, #3](#fig7)) and the image metadata
+file in JSON format ([Figure 7, #4](#fig7)), which are sent in parallel from the
 server. Then, the client displays the 3D shape model using the Three.js
-JavaScript library for 3D rendering (Cabello 2023). Using a virtual
+JavaScript library for 3D rendering (Cabello, 2023). Using a virtual
 trackball control, the 3D shape model can be rotated about its center
 with the left mouse button, and the camera can be moved nearer or
 further from the comet via the scroll wheel. Touch and pen gestures are
@@ -586,10 +584,10 @@ are n images and m vertices in the comet's shape model.</em>
 The user can turn on paint mode, and paint the shape model using a 3D
 spherical brush. To make painting smooth and interactive, even with a
 large number of vertices, we use Johnson's bounding volume hierarchy
-package (Johnson 2023), which employs spatial partitioning to speed up
+package (Johnson, 2023), which employs spatial partitioning to speed up
 raycasting and other spatial queries. This library was also used to
 speed up raycasting during the creation of the visibility table in the
-preprocessing step (Section 4.1). Our painting routines are adapted from
+preprocessing step (see [The Data Files](#the-data-files)). Our painting routines are adapted from
 Johnson's "collectTriangles" example, modified to paint vertices rather
 than triangles. To support this, we employ an indexed shape model of the
 comet, in which the same vertex can being reused for multiple facets.
@@ -611,7 +609,7 @@ above, the server is sent an array indicating the images that still need
 to be checked as well as a bit array indicating the painted vertices.
 This bit-array representing the region of interest and the bit array of
 each image that passed the bounding box test are AND'ed together on the
-server (Section 4.1) with the resulting bit field containing the number
+server (see [The Data Files](#the-data-files)) with the resulting bit field containing the number
 of painted vertices that would be visible in that image's camera / comet
 configuration. To further speed things up, the server, written in
 JavaScript, loads optimized C code, using the Koffi foreign function
@@ -619,14 +617,14 @@ interface (Martignène, 2024) to more efficiently perform bit operations.
 The AND'ing is done in 64-bit sized chunks which can be executed in a
 single operation on modern architectures. The server sends an array back
 to the client indicating which images passed the final visibility check
-(Figure 7, #5). Unlike the other server requests and responses which
+([Figure 7, #5](#fig7)). Unlike the other server requests and responses which
 occur over http/https, this request and response are sent via Socket.IO
 to accommodate the large non-web-standard data types transmitted (Rauch,
 2024).
 
 Search results are generated in the following way. All of the image
-filters represented by sliders in the control panel (**Meters per
-Pixel**, **Emission Angle**, **Incidence Angle**, and **Phase Angle**)
+filters represented by sliders in the control panel (**Meters per Pixel**,
+ **Emission Angle**, **Incidence Angle**, and **Phase Angle**)
 are the results of geometric/vector math on information contained in the
 image metadata -- such as spacecraft camera location and Sun location --
 combined with information from the painted region of interest (average
@@ -665,7 +663,7 @@ of the image in the complete data set, and if a region of interest has
 been painted, the average meters per pixel, emission, incidence, and
 phase angles for that region. When the **Show Image** control is set to
 display an image, the client requests a JPG file for the current image
-from the server (Figure 7, #6). When **Show Image** is set to either
+from the server ([Figure 7, #6](#fig7)). When **Show Image** is set to either
 *Perspective* or *Orthographic*, we texture map the image onto the 3D
 shape model at the appropriate location (using the camera information
 stored in the image metadata to do so). With **Show Image** set to
