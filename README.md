@@ -139,6 +139,11 @@ the public interested in exploring the surface of comet 67P.
 
 ## User Manual
 
+Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
+
+### Step 1: Choosing the Region of Interest
+Figure 1 shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
+
 <div align="center">
   <a id="fig1"></a>
   <img src="docs/article/Fig1.PNG" alt="Comet.Photos Initial Window">
@@ -148,9 +153,6 @@ the public interested in exploring the surface of comet 67P.
 </div>
 <br>
 
-Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
-
-### Step 1: Choosing the Region of Interest
 The shape
 model can be rotated or scaled about a point in its interior. Moving the
 mouse with the left button pressed (or dragging a finger on a touch
@@ -161,14 +163,10 @@ supports interactively choosing a new center of rotation, and the 3D
 model can be translated parallel to the screen by using
 shift-right-click, or a three fingered panning gesture on touch devices.
 
-Figure 1. Comet.Photos user-interface. On the left side is a 3D shape
-model of 67P that can be rotated and scaled with a mouse or touch, and
-on the right is a panel of controls that help set up an image search.
-
 For a typical research project, the first step is to specify a region of
 interest on the shape model for the image search. This is done by
 interactively 'painting' the relevant region of the comet, using the
-mouse and the **Paint Tools** pane of the control panel (Figure 1).
+mouse and the **Paint Tools** pane of the control panel (see Figure 1).
 After rotating and scaling the shape model to make the region of
 interest visible, the user enters 'paint' mode by selecting the **Enable
 Paint** checkbox. The brush appears at the cursor when positioned over
