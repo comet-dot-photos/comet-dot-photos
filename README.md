@@ -146,7 +146,7 @@ the public interested in exploring the surface of comet 67P.
 Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
 
 ### Step 1: Finding the Region of Interest
-Figure 1 shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
+[Figure 1](#fig1) shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
 
 <a id="fig1"></a>
 <div align="center">
@@ -269,8 +269,8 @@ cluster of three boulders which are visible in the 3D shape model and
 merit further examination ([Figure 2](#fig2)). We select the **Enable Paint**
 checkbox, adjust the brush size, and paint the three boulders.
 
+<a id="fig2"></a>
 <div align="center">
-  <a id="fig2"></a>
   <img src="docs/article/Fig2.PNG" alt="Comet.Photos After Paint">
 </div>
 <div>
@@ -295,8 +295,8 @@ circle shows the location of the three boulders. We click **Next Image**
 repeatedly to then see additional image matches projected onto the shape
 model ([Figure 3b](#fig3)).
 
+<a id="fig3"></a>
 <div align="center">
-  <a id="fig3"></a>
   <img src="docs/article/Comet-Projection-2-High.png" alt="Two image projections onto Comet 67P">
 </div>
 <div>
@@ -319,8 +319,8 @@ Image** control to *Unmapped 2D*, displaying the original images ([Figure 4b](#f
 image in 3D can add rendering artifacts, so often the *Unmapped 2D*
 image presents the best view.
 
+<a id="fig4"></a>
 <div align="center">
-  <a id="fig4"></a>
   <img src="docs/article/Comet-from-SpaceCraft-2-High.png" alt="Views of the region of interest from Rosetta.">
 </div>
 <div>
@@ -340,8 +340,8 @@ remains within our region of interest. We advance to the next image of
 the resulting subset, ([Figure 5b](#fig5)) another heavily shadowed image, which
 has an incidence of 78° at the region of interest.
 
+<a id="fig5"></a>
 <div align="center">
-  <a id="fig5"></a>
   <img src="docs/article/Comet-Incidence-High.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
 </div>
 <div>
@@ -357,8 +357,8 @@ to 75°-90°. There are 11 matches. Again, the red circle helps us
 identify the relevant boulders of our region of interest because there
 are other boulders of similar sizes nearby ([Figure 6](#fig6)).
 
+<a id="fig6"></a>
 <div align="center">
-  <a id="fig6"></a>
   <img src="docs/article/Comet-Emission-High.png" alt="Two close-up images of the boulders in profile.">
 </div>
 <div>
@@ -374,7 +374,7 @@ supports a process of iterative refinement, where a new region of
 interest can be painted on a previously retrieved image, setting up a
 new search. This step can be repeated as necessary to converge on a
 known feature or serendipitously explore new ones. For example, earlier
-in Figure 4a, we retrieved an image of three boulders. Upon closer
+in [Figure 4a](#fig4), we retrieved an image of three boulders. Upon closer
 examination, we see two very small circular features in that image that
 we would like to explore in greater detail. The current version of the
 application only supports painting on an image that is projected in
@@ -389,8 +389,8 @@ Image** to *Unmapped 2D*. One of the matches, reveals that the two
 craters are actually part of a large cluster of similar features (Figure
 7b).
 
+<a id="fig7"></a>
 <div align="center">
-  <a id="fig7"></a>
   <img src="docs/article/Crater-High-Option-2.png" alt="Specifying a new search by iterative refinement.">
 </div>
 <div>
@@ -547,7 +547,7 @@ process the data files in a session similar to the one described in
 Section 2. The client runs as a program in the browser, and the server
 handles web file requests as well visibility operations.
 
-Figure 8 shows the interactions between the client and server. Upon
+[Figure 8, #1](#fig8) shows the interactions between the client and server. Upon
 browsing to the server (<https://comet.photos>), the client receives a
 small HTML file ([Figure 7, #1](#fig7)), that, when loaded in the browser,
 requests and runs the JavaScript program ([Figure 7, #2](#fig7)). This in turn
@@ -560,8 +560,8 @@ with the left mouse button, and the camera can be moved nearer or
 further from the comet via the scroll wheel. Touch and pen gestures are
 also supported.
 
+<a id="fig8"></a>
 <div align="center">
-  <a id="fig8"></a>
   <img src="docs/article/Client-Server-Diagram.svg" alt="Comet.photo's client-server model.">
 </div>
 <div>
