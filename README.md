@@ -386,8 +386,7 @@ Per Pixel** slider set to 0-1.0. We adjust this slider to 0-0.2 to
 retrieve only the images taken closest to the region of interest,
 resulting in 35 image matches. For the best image quality, we set **Show
 Image** to *Unmapped 2D*. One of the matches, reveals that the two
-craters are actually part of a large cluster of similar features (Figure
-7b).
+craters are actually part of a large cluster of similar features ([Figure 7b](#fig7)).
 
 <a id="fig7"></a>
 <div align="center">
@@ -547,12 +546,12 @@ process the data files in a session similar to the one described in
 Section 2. The client runs as a program in the browser, and the server
 handles web file requests as well visibility operations.
 
-[Figure 8, #1](#fig8) shows the interactions between the client and server. Upon
+[Figure 8](#fig8) shows the interactions between the client and server. Upon
 browsing to the server (<https://comet.photos>), the client receives a
-small HTML file ([Figure 7, #1](#fig7)), that, when loaded in the browser,
-requests and runs the JavaScript program ([Figure 7, #2](#fig7)). This in turn
-requests the 3D shape model of 67P ([Figure 7, #3](#fig7)) and the image metadata
-file in JSON format ([Figure 7, #4](#fig7)), which are sent in parallel from the
+small HTML file ([Figure 8, #1](#fig8)), that, when loaded in the browser,
+requests and runs the JavaScript program ([Figure 8, #2](#fig8)). This in turn
+requests the 3D shape model of 67P ([Figure 8, #3](#fig8)) and the image metadata
+file in JSON format ([Figure 8, #4](#fig8)), which are sent in parallel from the
 server. Then, the client displays the 3D shape model using the Three.js
 JavaScript library for 3D rendering (Cabello, 2023). Using a virtual
 trackball control, the 3D shape model can be rotated about its center
@@ -617,7 +616,7 @@ interface (Martignène, 2024) to more efficiently perform bit operations.
 The AND'ing is done in 64-bit sized chunks which can be executed in a
 single operation on modern architectures. The server sends an array back
 to the client indicating which images passed the final visibility check
-([Figure 7, #5](#fig7)). Unlike the other server requests and responses which
+([Figure 8, #5](#fig8)). Unlike the other server requests and responses which
 occur over http/https, this request and response are sent via Socket.IO
 to accommodate the large non-web-standard data types transmitted (Rauch,
 2024).
@@ -663,7 +662,7 @@ of the image in the complete data set, and if a region of interest has
 been painted, the average meters per pixel, emission, incidence, and
 phase angles for that region. When the **Show Image** control is set to
 display an image, the client requests a JPG file for the current image
-from the server ([Figure 7, #6](#fig7)). When **Show Image** is set to either
+from the server ([Figure 8, #6](#fig8)). When **Show Image** is set to either
 *Perspective* or *Orthographic*, we texture map the image onto the 3D
 shape model at the appropriate location (using the camera information
 stored in the image metadata to do so). With **Show Image** set to
