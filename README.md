@@ -35,7 +35,7 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 2. Download and unpack the Comet.Photos release
 
-Download the packaged comet.photos runtime by clicking here: [comet-photos-v2.0.tar.gz](https://comet.photos/comet-photos-v2.0.tar.gz). This will start copying the file to your browser's download folder. However due to the quantity of photos, this may take some time, so be prepared. Get a cup of coffee, or get some sleep, depending on your Internet speed. When the download completes, move the file to the folder where you want the
+Download the packaged Comet.Photos release by clicking here: [comet-photos-v2.0.tar.gz](https://comet.photos/comet-photos-v2.0.tar.gz). This will start copying the file to your browser's download folder. However due to the quantity of photos, this may take some time, so be prepared. Get a cup of coffee, or get some sleep, depending on your Internet speed. When the download completes, move the file to the folder where you want the
 Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v2.0.tar.gz** to allow your machine to trust the download.
 
 Run the following command in the terminal to extract the files from the package:
@@ -63,7 +63,7 @@ Go into the top level folder (Comet.Photos), and type: **npm install** which wil
 4. Download and install the dataset into the /data subdirectory.
 
 The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [comet-photos-data-v2.0.tar.gz](https://comet.photos/comet-photos-data-v2.0.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
-**tar xzf comet-photos-data-v2.0.tar.gz**
+**tar -xzf comet-photos-data-v2.0.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed, and you can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
 
 ### Starting Comet.Photos
@@ -74,7 +74,7 @@ As mentioned before, you can always start a web-based session with Comet.Photos 
  * On macOS: **RUN_ME_ON_MAC.command**
  * On Linux: **RUN_ME_ON_LINUX.sh**
 
-This should open up a browser on your machine and connect it to your own personal comet.photos server running locally. If you have any difficulties, email info@comet.photos, and we'll try to help.
+This should open up a browser on your machine and connect it to your own personal Comet.Photos server running locally.
 
 ### Testing the Installation
 
@@ -144,7 +144,7 @@ the public interested in exploring the surface of comet 67P.
 
 ## User Manual
 
-Using Comet.photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
+Using Comet.Photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
 
 ### Step 1: Finding the Region of Interest
 [Figure 1](#fig1) shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
@@ -854,4 +854,4 @@ If you have questions about Comet.Photos, or would like to help with its develop
 
 ## Credits
 
-Comet.photos was developed by MIT undergraduate Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
+Comet.Photos was developed by MIT undergraduate Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
