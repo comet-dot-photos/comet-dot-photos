@@ -24,7 +24,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
 
-There are two ways to install Comet.Photos locally: from a tar archive, or from GitHub. Installing from the tar archive is easiest, while installing from GitHub may be preferable for people hoping to contribute to the project.
+There are two ways to install Comet.Photos locally: from a tar archive, or from GitHub. Installing from the tar archive is easiest and is highly recommended (option 1), while installing from GitHub may be preferable for people hoping to contribute to the project (option 2).
 
 ### Option 1: Installation from a tar file (easiest)
 
@@ -45,30 +45,23 @@ Congratulations! You have now installed Comet.Photos. Advance to the [Starting C
 
 ### Option 2: Installation from GitHub (more steps)
 
+Option 2 is intended for developers who plan to modify or contribute to the project, and know how to use git. In this option, the source code is installed from GitHub, but the data files are installed from a .tar.gz archive (because the data is too large to store in GitHub). 
+
 1. Install Node.js
 
 Node.js is a popular JavaScript runtime required by Comet.Photos, which can be downloaded from https://nodejs.org/. You can simply install the LTS version from the home page, and if prompted, there is no need to install any extras.
 
 2. Fetch the Comet.Photos release from GitHub.
 
-Get a copy of the release from the Comet.Photos repository (Explanation here)
+Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos** (or whatever git operations you prefer). If you are on a mac, cd to the Comet.Photos directory in a terminal window, and run **xattr -r -d com.apple.quarantine ./ ** which will remove Apple's quarantine bit on all the files in the tree.
 
-3. Extract the files from the .tar.gz archive.
+3. Install the dependencies.
 
-If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v2.0.tar.gz** to allow your machine to trust the download.
+Go into the top level folder (Comet.Photos), and type: **npm install** which will install the node_modules for all package dependencies in both the client/ and server/ subdirectories.
 
-Run the following command in the terminal to extract the files from the package:
-**tar xzf comet-photos-v2.0.tar.gz**
+4. Download and install the dataset into the /data subdirectory.
 
-4. Install the dependencies.
-
-Go into the top level folder (Comet.Photos), and type: **npm install**
-
-5. Download and install the data folder contents
-
-The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the packed data set by clicking here [comet-photos-data-v2.0.tar.gz](https://comet.photos/comet-photos-data-v2.0.tar.gz). Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! Move this file to your Comet.Photos directory if it is not there already. Open up a terminal, shell, or cmd window, and navigate to the folder that holds this .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-data-v2.0.tar.gz** to allow your machine to trust the download.
-
-If you haven't done so already, open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. Then, no matter what kind of computer you have, run the following command in the terminal to extract the files from the package:
+The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [comet-photos-data-v2.0.tar.gz](https://comet.photos/comet-photos-data-v2.0.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
 **tar xzf comet-photos-data-v2.0.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed, and you can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
 
