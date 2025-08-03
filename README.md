@@ -691,7 +691,7 @@ primary benefit of running the program locally is that the image files
 do not need to be transmitted over the internet, typically loading in
 less than 16 milliseconds. 
 
-However, when the program is run over the web, it is harder to provide 
+However, when the program is accessed over the web, it is harder to provide 
 meaningful performance figures, since they will be affected by system
 load and internet speeds. When the PC described above accesses https://comet.server
 (currently hosted on a Linux-based virtual private server on the opposite coast of 
