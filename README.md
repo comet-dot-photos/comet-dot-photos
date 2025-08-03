@@ -17,9 +17,9 @@ There are two different usage options for Comet.Photos. People who expect to mak
 * [Performance](#performance)
 * [Acknowledgments](#acknowledgments)
 * [References](#references)
-* [Credits](#credits)
 * [How to Report Issues](#how-to-report-issues)
 * [How to Help Out](#how-to-help-out)
+* [Credits](#credits)
 
 ## Installation
 
@@ -844,10 +844,6 @@ Vincent, J.-B. (2021). shapeViewer. June 8, 2021 Release (Version 4.0.0
 for the Rosetta Mission).
 <https://www.comet-toolbox.com/shapeViewer.html>.
 
-## Credits
-
-Comet.photos was developed by MIT undergraduate Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
-
 ## How to Report Issues
 
 To report issues or seek support, please use the **Issues** tab of the GitHub repository.
@@ -855,3 +851,7 @@ To report issues or seek support, please use the **Issues** tab of the GitHub re
 ## How to Help Out
 
 If you have questions about Comet.Photos, or would like to help with its development, please post in the **Discussions** section of the GitHub repository. 
+
+## Credits
+
+Comet.photos was developed by MIT undergraduate Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
