@@ -18,6 +18,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 * [References](#references)
 * [Credits](#credits)
 * [How to Report Issues](#how-to-report-issues)
+* [How to Help Out](#how-to-help-out)
 
 ## Installation
 
@@ -52,9 +53,12 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 Get a copy of the release from the Comet.Photos repository (Explanation here)
 
-3. Extract the files from the .zip or .tar.gz
+3. Extract the files from the .tar.gz archive.
 
-If you are installing from GitHub, we should know how to unpack the archive onto your local computer.
+If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v2.0.tar.gz** to allow your machine to trust the download.
+
+Run the following command in the terminal to extract the files from the package:
+**tar xzf comet-photos-v2.0.tar.gz**
 
 4. Install the dependencies.
 
@@ -866,6 +870,10 @@ Comet.photos was developed by MIT undergraduate Daniel Kurlander under the guida
 
 ## How to Report Issues
 
-To report issues, please use the **Issue** tab in the GitHub repository.
+To report issues or seek support, please use the **Issues** tab of the GitHub repository.
+
+## How to Help Out
+
+If you have questions about Comet.Photos, or would like to help with its development, please post in the **Discussions** section of the GitHub repository. 
 
 [Comet.Photos website]: https://comet.photos/
