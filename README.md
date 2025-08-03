@@ -680,7 +680,7 @@ coordinates.
 
 ## Performance 
 
-When Comet.Photos installed on a personal desktop or laptop computer,
+When Comet.Photos is installed locally on a personal desktop or laptop computer,
 operations feel instantaneous. As measured on a Windows PC with an
 AMD Ryzen 7 3700X processor and an NVIDIA GeForce RTX 2080 GPU, 
 spatial searches across the entire image library run typically
