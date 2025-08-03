@@ -7,7 +7,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 ## Table of contents
 
 * [Installation](#installation)
-* [Testing the Installation](#testing)
+* [Testing the Installation](#testing-the-installation)
 * [Motivation](#motivation)
 * [User Manual](#user-manual)
 * [Step-by-Step Example](#step-by-step-example)
