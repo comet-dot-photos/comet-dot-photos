@@ -680,10 +680,10 @@ coordinates.
 
 ## Performance 
 
-When Comet.Photos is installed locally on a personal desktop or laptop computer,
+When Comet.Photos is installed locally on a desktop or laptop computer,
 operations feel instantaneous. As measured on a Windows PC with an
 AMD Ryzen 7 3700X processor and an NVIDIA GeForce RTX 2080 GPU, 
-spatial searches across the entire image library run typically
+spatial searches across the entire image library (27,000+ images) run typically
 around 50 milliseconds, filters such as emission
 angle and incidence angle typically take around 4 milliseconds, and 
 painting or manipulating the comet model can be done at 100 frames per second. But the
@@ -697,7 +697,7 @@ load and internet speeds. When the PC described above accesses https://comet.ser
 (currently hosted on a Linux-based virtual private server on the opposite coast of 
 the United States, and which is limited to four cores
 of a Xeon CPU E5-2680 v4 running at 2.40GHz and 8GB of memory), searches typically
-take under a second in low load conditions, but browsing to a new image can take
+complete in under a second during low load conditions, but browsing to a new image can take
 several seconds or longer due to internet transfer time. 
 
 
