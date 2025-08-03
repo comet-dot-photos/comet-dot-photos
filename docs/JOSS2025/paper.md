@@ -9,20 +9,20 @@ tags:
 authors:
   - name: Daniel A. Kurlander
     orcid: 0009-0009-6828-3266
-    equal-contrib: true
+#    equal-contrib: true
     affiliation: 1
   - name: Jason M. Soderblom
-    equal-contrib: true
+#    equal-contrib: true
     affiliation: 1
   - name: Abhinav S. Jindal
-    equal-contrib: true
+#   equal-contrib: true
     affiliation: 2
   - name: Samuel P. D. Birch
-    equal-contrib: true
+#    equal-contrib: true
     affiliation: 2
   - name: David J. Kurlander
     orcid: 0009-0008-9551-7243
-    equal-contrib: true
+#    equal-contrib: true
     affiliation: 3
 #    corresponding: true
 affiliations:
