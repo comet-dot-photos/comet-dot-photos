@@ -39,7 +39,7 @@ Download the packaged comet.photos runtime by clicking here: [comet-photos-v2.0.
 Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v2.0.tar.gz** to allow your machine to trust the download.
 
 Run the following command in the terminal to extract the files from the package:
-**tar xzf comet-photos-v2.0.tar.gz**
+**tar -xzf comet-photos-v2.0.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
 
 Congratulations! You have now installed Comet.Photos. Advance to the [Starting Comet.Photos](#starting-cometphotos) section to learn how to start up the app.
@@ -54,7 +54,7 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 2. Fetch the Comet.Photos release from GitHub.
 
-Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos** (or whatever git operations you prefer). If you are on a mac, cd to the Comet.Photos directory in a terminal window, and run **xattr -r -d com.apple.quarantine ./** which will remove Apple's quarantine bit on all the files in the tree.
+Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos** and **git checkout -b my-new-branch** (or whatever git operations you prefer). If you are on a mac, cd to the Comet.Photos directory in a terminal window, and run **xattr -r -d com.apple.quarantine ./** which will remove Apple's quarantine bit on all the files in the tree.
 
 3. Install the dependencies.
 
