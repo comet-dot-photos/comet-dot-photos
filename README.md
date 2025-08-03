@@ -692,10 +692,10 @@ do not need to be transmitted over the internet, typically loading in
 less than 16 milliseconds. 
 
 However, when the program is accessed over the web, it is harder to provide 
-meaningful performance figures, since they will be affected by system
+meaningful performance figures, since they are affected by system
 load and internet speeds. When the PC described above accesses https://comet.server
-(currently hosted on a Linux-based virtual private server on the opposite coast of 
-the United States, and which is limited to four cores
+(currently a Linux-based virtual private server on the opposite coast of 
+the United States, limited to four cores
 of a Xeon CPU E5-2680 v4 running at 2.40GHz and 8GB of memory), searches typically
 complete in under a second during low load conditions, but browsing to a new image can take
 several seconds or longer due to internet transfer time. 
