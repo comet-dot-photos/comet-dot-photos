@@ -680,39 +680,26 @@ coordinates.
 
 ## Performance 
 
-Searches with Comet.Photos are fast. Using an ordinary PC on the West
-Coast of the United States (AMD Ryzen 7 3700X with an NVIDIA GeForce RTX
-2080 GPU), and having the server run on a virtual private server hosted
-on the East Coast (a Linux-based server which is limited to four cores
-of a Xeon CPU E5-2680 v4 running at 2.40GHz and 8GB of memory), there is
-little lag. The 3D shape model can be manipulated at 100 frames per
-second. Thanks to the BVH spatial partitioning package (Johnson, 2023),
-painting a region of interest can also be done at 100 frames per second.
-Even accessed from an iPhone 13, the refresh rate is a respectable 44
-frames per second. Filtering through the 27,000+ images for those that
-show the region of interest usually takes a fraction of a second -- thus
-allowing blinking between images. Filtering the images according to
-properties like emission angle and incidence angle is completed before
-the mouse is lifted from the slider. The most noticeable lag occurs when
-the client requests image JPGs from the server across the continent,
-however this still typically takes under a second per image. As tested
-over a virtual private network, transferring data to other continents is
-slower, but still usable. We expect the performance to increase as we
-move the server to a machine hosted at MIT in the near future.
-
-To make the program run even faster, we support the installation of the
-entire system, including server, client, and data files, on a personal
-desktop or laptop computer. The software can be installed on 64-bit
-Windows, Macs, and various varieties of Linux. We have packaged up the
-software in a 14GB file that can be downloaded and installed according
-to the directions in the [Installation Section](#installation). With all of
-the software running locally on the PC described above, all of the
-operations are instantaneous: spatial searches across the entire image
-library run typically around 50 milliseconds, filters such as emission
-angle and incidence angle typically take around 4 milliseconds. But the
+When Comet.Photos installed on a personal desktop or laptop computer,
+operations feel instantaneous. As measured on a Windows PC with an
+AMD Ryzen 7 3700X processor and an NVIDIA GeForce RTX 2080 GPU, 
+spatial searches across the entire image library run typically
+around 50 milliseconds, filters such as emission
+angle and incidence angle typically take around 4 milliseconds, and 
+painting or manipulating the comet model can be done at 100 frames per second. But the
 primary benefit of running the program locally is that the image files
 do not need to be transmitted over the internet, typically loading in
-less than 16 milliseconds.
+less than 16 milliseconds. 
+
+However, when the program is run over the web, it is harder to provide 
+meaningful performance figures, since they will be affected by system
+load and internet speeds. When the PC described above accesses https://comet.server
+(currently hosted on a Linux-based virtual private server on the opposite coast of 
+the United States, and which is limited to four cores
+of a Xeon CPU E5-2680 v4 running at 2.40GHz and 8GB of memory), searches typically
+take under a second in low load conditions, but browsing to a new image can take
+several seconds or longer due to internet transfer time. 
+
 
 ## Acknowledgments
 
