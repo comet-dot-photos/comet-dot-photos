@@ -1,8 +1,8 @@
 # Comet.Photos
 
-Comet.Photos allows for fast spatial search of images from the Rosetta comet mission, specifically images from Osiris' Narrow Angle Camera, which provide the most detailed images of Comet 67P. Users of Comet.Photos can paint a region of interest on a 3D model of the comet, optionally specifying various lighting / geometry parameters, and in a fraction of a second, all matching images are found and made available for browsing, either projected onto the comet 3D shape model, or in their original 2D form.
+Comet.Photos allows for fast spatial search of images from the Rosetta comet mission, specifically images from Osiris' Narrow Angle Camera, which captured the most detailed images of Comet 67P. Users of Comet.Photos can paint a region of interest on a 3D model of the comet, optionally specifying various lighting / geometry parameters. In a fraction of a second, all matching images are found and made available for browsing, either projected onto the comet 3D shape model, or in their original 2D form.
 
-There are two different usage options for Comet.Photos. People who expect to make frequent use of the software for their research are encouraged to install the program locally on their computer for best performance, with seemingly instantaneous feedback. However, people casually interested in trying out Comet.Photos can access the latest version at https://comet.photos to take it out for a spin. 
+There are two different usage options for Comet.Photos. People who expect to make frequent use of the software for their research are encouraged to install the program locally on their computer for best performance, with seemingly instantaneous feedback. However, people casually interested in trying out Comet.Photos can access the latest version at https://comet.photos to take it out for a spin without installing any software. 
 
 ## Table of contents
 
@@ -22,9 +22,9 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 ## Installation
 
-People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
+People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best user experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
 
-There are two ways to install Comet.Photos locally: from a tar archive, or from GitHub. Installing from the tar archive is easiest and is highly recommended (option 1), while installing from GitHub may be preferable for people hoping to contribute to the project (option 2).
+There are two ways to install Comet.Photos locally: from a tar archive (option 1), or from GitHub (option 2). Installing from the tar archive is easiest and is highly recommended, while installing from GitHub may be preferable for people hoping to contribute to the project.
 
 ### Option 1: Installation from a tar file (easiest)
 
@@ -53,7 +53,7 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 2. Fetch the Comet.Photos release from GitHub.
 
-Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos** (or whatever git operations you prefer). If you are on a mac, cd to the Comet.Photos directory in a terminal window, and run **xattr -r -d com.apple.quarantine ./ ** which will remove Apple's quarantine bit on all the files in the tree.
+Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos** (or whatever git operations you prefer). If you are on a mac, cd to the Comet.Photos directory in a terminal window, and run **xattr -r -d com.apple.quarantine ./** which will remove Apple's quarantine bit on all the files in the tree.
 
 3. Install the dependencies.
 
@@ -117,11 +117,11 @@ second, the application searches through over 27,000 NAC images to find
 only those that feature the selected region. In addition to this spatial
 search filter, Comet.Photos also allows users to filter images based on
 their resolution and viewing geometry. To search only images with a fine
-spatial resolution, users can filter by the *image resolution*, which
+spatial resolution, users can filter by *meters per pixel*, which
 represents the linear scale of a pixel on the surface. Three other
 parameters of interest from a photometric and surface standpoint are the
 *emission angle* (the angle between the camera and surface normal),
-*incidence angle* (the angle between the Sun and the surface normal),
+*incidence angle* (the angle between the Sun and surface normal),
 and *phase angle* (the solid angle between the Sun and camera at the
 surface). All three of these can be filtered as well. Images matching
 the search criteria can be displayed in the application, either in their
@@ -182,15 +182,15 @@ the brush to erase part of a previously painted region. A **Percent
 Overlap** slider allows the user to specify that images must contain at
 least the given percentage (from 1% to 100%) of the painted region to be
 considered a match. The **Clear Paint** button erases all the paint,
-allowing the region selection to begin anew.  After every paint stroke, the **Matches** text field updates to show how many of the images match the filter. To exit paint mode, deselect the Enable Paint checkbox. At any time, you can go back to paint mode to adjust the region of interest.
+allowing the region selection to begin anew.  After every paint stroke, the **Matches** text field updates to show how many of the images match the filter. To exit paint mode, deselect the **Enable Paint** checkbox. At any time, you can go back to paint mode to adjust the region of interest.
 
 ### Step 3: Setting Other Image Filters
 
 Painting on the shape model automatically filters the images by spatial
-location, but the **Image Filters** pane allows filtering on additional
-properties relating to the viewing geometries ([Figure 1](#fig1)). For example,
+location, but the **Image Filters** pane (see [Figure 1](#fig1)) allows filtering on additional
+properties relating to the viewing geometries. For example,
 the **Meters per Pixel** property specifies that searches should only
-return images within a specified range of image resolutions. The
+return images within a specified range of spatial resolutions. The
 **Emission Angle** slider restricts matches to include only those images
 in which the angle between the surface normal and the vector towards the
 camera from the surface match the specified range. At 0° the vector to
@@ -211,7 +211,7 @@ and surface normal over this region of interest.
 ### Step 4: Navigating through the Images
 
 The next pane of the interface controls **Image Display and Navigation**
-([Figure 1](#fig1)). Initially, the **Show Image** selector is set to *None*.
+(see [Figure 1](#fig1)). Initially, the **Show Image** selector is set to *None*.
 However, at any time it can be changed to *Unmapped 2D* to display the
 current image as originally taken, or projected onto the comet by
 setting the selector to *Perspective* (for a perspective projection) or
@@ -243,7 +243,7 @@ duration from the current match.
 
 Throughout the process of selecting a region of interest or adjusting
 the non-geometric image filters, information on the current match
-appears in the **Image Data** pane ([Figure 1](#fig1)). The **Matches** field
+appears in the **Image Data** pane (see [Figure 1](#fig1)). The **Matches** field
 shows how many images match the current search specification. 
 The **File Name** field displays the name of the current image (the stem of the ESA
 image filename), and the **Time** field shows when that image was taken
@@ -303,16 +303,13 @@ model ([Figure 3b](#fig3)).
 
 Note that both of these projections appear to have bands or gaps in
 them. This is because we are viewing them from a different vantage point
-than what was acquired by Rosetta, where there is either an imperfect
-match between shape model facets and image pixels and/or because various
-facets were hidden from view at the time of acquisition. To view the
+than that of the camera when the image was taken by Rosetta, so parts of the surface that are visible to us were hidden from view when the image was taken. To view the
 current image (e.g., [Figure 3b](#fig3)) from Rosetta's perspective (position,
 camera direction and camera up-vector) at the time the image was taken,
 we check the **Spacecraft View** setting ([Figure 4a](#fig4)). Although this
 image is projected onto the shape model, it still appears very similar
 to the original image, with any minor variations due to the underlying
-shape model. We can also compare the two images by switching the **Show
-Image** control to *Unmapped 2D*, displaying the original images ([Figure 4b](#fig4)). Although these images are indeed very similar, projecting a 2D
+shape model. We can also compare the two images by switching the **Show Image** control to *Unmapped 2D*, which displays the original image ([Figure 4b](#fig4)). Although these images are indeed very similar, projecting a 2D
 image in 3D can add rendering artifacts, so often the *Unmapped 2D*
 image presents the best view.
 
@@ -329,8 +326,7 @@ Initially we want to view images with shadows, because shadows can
 accentuate surface detail. We set the **Incidence Angle** to be
 77°-90°, restricting our results to only those images with the Sun
 at an extreme angle to the surface. Immediately the results are updated,
-and we see there are 25 such images of the region of interest, ([Figure 5](#fig5)). Examining the **Image Info** field of the image retrieved in Figure
-5a, we see that the incidence angle is 83°. With the Sun so low on the
+and we see there are 25 such images of the region of interest ([Figure 5a](#fig5)). Examining the **Image Info** field of the image retrieved in [Figure 5a](#fig5), we see that the incidence angle is 83°. With the Sun so low on the
 horizon, two of the boulders are hidden in shadow from the ridge above,
 yet the red circle helps us identify the one visible boulder that
 remains within our region of interest. We advance to the next image of
@@ -349,10 +345,10 @@ has an incidence of 78° at the region of interest.
 Next, we decide to see the best close-up images of these three boulders
 in profile. We restore the **Incidence Angle** filter to the original
 setting of 0°-90°, because we no longer care about shadows, set the
-**Meters Per Pixel** slider to 0-0.3 m, and set the **Emission Angle**
-to 75°-90°. There are 11 matches. Again, the red circle helps us
+**Meters Per Pixel** slider to 0-0.3 m²/pixel, and set the **Emission Angle**
+to 75°-90°. There are 11 matches, the first of which is shown in [Figure 6a](#fig6). The red circle helps us
 identify the relevant boulders of our region of interest because there
-are other boulders of similar sizes nearby ([Figure 6](#fig6)).
+are other boulders of similar sizes nearby. We advance to the next image, wich is shown in ([Figure 6b](#fig6)). Here the boulders are in profile, nearly camouflaged against a precipice, and the red circle helps us locate them.
 
 <a id="fig6"></a>
 <div align="center">
@@ -457,13 +453,13 @@ node.js (OpenJS Foundation, 2024). It delivers data files to the client,
 and performs the last phase of the visibility calculations to determine
 which images contain the painted region of interest. The next section
 describes the data files used by the program, and the following section
-explains how the program works over the course of an example session
-similar to that described earlier in Section 2.2.
+explains how the program works over the course of a session
+similar to that described earlier in the [Step-By-Step Example](#step-by-step-example).
 
 ### The Data Files
 
 There are three core data files used by Comet.Photos. The first is a 3D
-shape model of 67P. This shape model is
+shape model of 67P. This shape model is the
 stereo-photogrammetrically-derived SHAP7 shape model created at the
 German Aerospace Center (DLR) (Preusker, 2017). The specific shape model
 file that we use is the same one incorporated in the openly-available
@@ -486,7 +482,7 @@ computed in a preprocessing step and includes information from three
 sources. Data extracted from the original OSIRIS NAC .IMG file headers
 include the image resolution, the time the image was taken, and the name
 of the image. Metadata computed from the SPICE (Acton, 1996) kernels
-associated with the Rosetta mission (ESA, 2022), which include the
+associated with the Rosetta mission (ESA, 2022) include the
 position of the spacecraft at the time of the image, the camera viewing
 vector and "up" vector, and the position of the Sun. Finally, a third
 type of metadata is computed by doing visibility calculations on the 3D
@@ -507,13 +503,13 @@ configuration as represented in the image metadata. From the virtual
 camera, we cast a ray to every vertex in the shape model to determine
 whether it would be visible in an image taken by the simulated Rosetta
 camera, and store this information, a single bit for every vertex set as
-1 for visible, 0 for non-visible, as a row in the visibility table.
-Later on, at runtime, when we decide whether a painted region of
+1 for visible and 0 for non-visible, as a row in the visibility table.
+Later on, at runtime, to decide whether a painted region of
 interest is visible in one of the images, we take a bitfield of all the
 vertices in the shape model, with the painted vertices represented by
 1's, and then AND this with the visibility bitfield for that image
 stored in the visibility table. The number of 1-bits in the result is
-the number of painted vertices that would be visible in a given image.
+the number of painted vertices which are visible in that image.
 Logical operations such as AND are very fast, but we still would prefer
 not to check the painted region of interest against every row in the
 table. Therefore, during the preprocessing step of determining the
@@ -541,15 +537,15 @@ displayed by the client while navigating through search results.
 In this section we describe how the client and server interact, and
 process the data files in a session similar to the one described in
 Section 2. The client runs as a program in the browser, and the server
-handles web file requests as well visibility operations.
+handles web file requests as well visibility operations. When Comet.Photos is running on the web, the client and server are two different machines, but when running locally, the client and server reside on the same computer.
 
 [Figure 8](#fig8) shows the interactions between the client and server. Upon
-browsing to the server (<https://comet.photos>), the client receives a
+browsing to the server, the client receives a
 small HTML file ([Figure 8, #1](#fig8)), that, when loaded in the browser,
 requests and runs the JavaScript program ([Figure 8, #2](#fig8)). This in turn
 requests the 3D shape model of 67P ([Figure 8, #3](#fig8)) and the image metadata
 file in JSON format ([Figure 8, #4](#fig8)), which are sent in parallel from the
-server. Then, the client displays the 3D shape model using the Three.js
+server. Then the client displays the 3D shape model using the Three.js
 JavaScript library for 3D rendering (Cabello, 2023). Using a virtual
 trackball control, the 3D shape model can be rotated about its center
 with the left mouse button, and the camera can be moved nearer or
@@ -603,7 +599,7 @@ those images that still might match, the client has the server do a more
 extensive visibility check using the visibility table. As described
 above, the server is sent an array indicating the images that still need
 to be checked as well as a bit array indicating the painted vertices.
-This bit-array representing the region of interest and the bit array of
+This bit-array representing the region of interest and the visibility bit array of
 each image that passed the bounding box test are AND'ed together on the
 server (see [The Data Files](#the-data-files)) with the resulting bit field containing the number
 of painted vertices that would be visible in that image's camera / comet
@@ -646,7 +642,7 @@ real-time.
 The results are ordered ascendingly by the time each image was taken, a
 decision made to assist scientists studying how the comet's landscapes
 change through time. The interface shows a single image match at a time,
-referred to as the current match, and the **Image Index** slider, as
+referred to as the current match, and other matches can be viewed by using the **Image Index** slider, as
 well as the **Next**/**Previous** and Interval **Skip Forward**/**Skip
 Backward** buttons. These buttons therefore allow the user to navigate
 forward and backwards in time through the matches to watch how the
@@ -663,19 +659,19 @@ from the server ([Figure 8, #6](#fig8)). When **Show Image** is set to either
 *Perspective* or *Orthographic*, we texture map the image onto the 3D
 shape model at the appropriate location (using the camera information
 stored in the image metadata to do so). With **Show Image** set to
-*Perspective*, we use Fugaro's three-projected-material package for
+*Perspective*, we use the three-projected-material package for
 Three.js (Fugaro, 2023), which supports texture mapping via perspective
 projections. With **Show Image** set to *Orthographic* we use the
 Three.js decal construct for displaying the texture map. They have
 different advantages but are subject to certain imaging artifacts that
 can be avoided with **Show Image** set to *Unmapped 2D*, which displays
 the image on an overlay canvas above the Three.js canvas. To help draw
-the user's eye to the region of interest, if Encircle Region is checked,
+the user's eye to the region of interest, if **Encircle Region** is checked,
 Comet.Photos will draw a circle around the region of interest, projected
 onto the overlay canvas. The center of the circle is the previously
 calculated average painted position transformed to screen pixel
 coordinates. The radius of the circle is the maximum distance from the
-center to all of the painted vertices transformed to screen pixel
+center to all of the painted vertices after they have been transformed to screen pixel
 coordinates.
 
 ## Performance 
@@ -703,7 +699,7 @@ move the server to a machine hosted at MIT in the near future.
 To make the program run even faster, we support the installation of the
 entire system, including server, client, and data files, on a personal
 desktop or laptop computer. The software can be installed on 64-bit
-Windows, Macs, and several varieties of Linux. We have packaged up the
+Windows, Macs, and various varieties of Linux. We have packaged up the
 software in a 14GB file that can be downloaded and installed according
 to the directions in the [Installation Section](#installation). With all of
 the software running locally on the PC described above, all of the
@@ -729,7 +725,7 @@ Vincent, 2021). 
 This research was supported by the Discovery Data Analysis Program
 (#xxxxxxxxx to J.M.S.), the Heising-Simons Foundation (51 Pegasi b
 Fellowship to S.P.D.B.), and the MIT UROP Program. A 2023 MIT Open Data
-Prize for an earlier version of this work also provided recognition and
+Prize for an earlier version of this work provided recognition and
 encouragement to continue developing Comet.Photos (Fay, 2023). We
 gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made
 this software possible as he helped us navigate Rosetta's dataset.
@@ -740,7 +736,7 @@ led to improvements.
 
 Acton, C. H. (1996) Ancillary data services of NASA\'s Navigation and
 Ancillary Information Facility. *Planetary and Space Science,* 44(1),
-65--70. <https://doi.org/10.1016/0032-0633(95)00107-7>.
+65-70. <https://doi.org/10.1016/0032-0633(95)00107-7>.
 
 Barrington, M. N., Birch, S. P. D., Jindal, A., Hayes, A. G., Corlies,
 P., & Vincent, J.-B. (2023). Quantifying morphological changes and
@@ -809,11 +805,6 @@ B., et al. (2024). Measuring erosional and depositional patterns across
 comet 67P's imhotep region. *JGR Planets, 129*.
 <https://doi.org/10.1029/2023JE008089>.
 
-Oklay, N., Vincent, J.-B., Fornasier, S., Pajola, M., Besse, S., et al.
-(2016). Variegation of comet 67P churyumov-gerasimenko in regions
-showing activity. *Astronomy and Astrophysics*, *586*.
-https://doi.org/10.1051/0004-6361/201527369
-
 Johnson, G. K. (2023). three-mesh-bvh: A BVH implementation to speed up
 raycasting and enable spatial queries against three.js meshes. July 21,
 2023 Release (Version 0.6.3). GitHub.
@@ -828,6 +819,11 @@ Kurlander, D. (2025). Comet.Photos Github Repository. (Version 2.0.0). GitHub. <
 Martignène, N. (2024). Koffi: Fast and Easy-to-Use C FFI Module for
 Node.js. 2024 Release (Version 2.9.1). GitHub.
 <https://github.com/Koromix/koffi>.
+
+Oklay, N., Vincent, J.-B., Fornasier, S., Pajola, M., Besse, S., et al.
+(2016). Variegation of comet 67P churyumov-gerasimenko in regions
+showing activity. *Astronomy and Astrophysics*, *586*.
+https://doi.org/10.1051/0004-6361/201527369
 
 OpenJS Foundation. (2024). Node.js -- JavaScript runtime built on
 Chrome\'s V8 engine. October 3, 2024 Release (Version 20.18.0).
@@ -868,5 +864,3 @@ To report issues or seek support, please use the **Issues** tab of the GitHub re
 ## How to Help Out
 
 If you have questions about Comet.Photos, or would like to help with its development, please post in the **Discussions** section of the GitHub repository. 
-
-[Comet.Photos website]: https://comet.photos/
