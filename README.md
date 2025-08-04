@@ -415,11 +415,12 @@ To make the program fast and responsive, we pre-computed much of the
 information needed
 to perform the image queries.  We essentially determine in advance which vertices of
 our 3D model of 67P would have been visible in every single image, and store that
-information in a large visibility table, reducing the calculations needed at run-time. We also pre-calculate other information for every image, such as the location of the Rosetta spacecraft, the camera's view direction and "up" vector, and store this also advance, so these calculations need not be done at query time. 
+information in a large visibility table, reducing the calculations needed at run-time. We also pre-calculate other information for every image, such as the location of the Rosetta spacecraft, the camera's view direction and "up" vector, and store this in advance, so these calculations need not be done at query time. 
  
 
 To make the program widely and easily accessible, we implemented a client-server application, which can be run entirely on a local computer, or remotely via the web. This is important
-because having the image files locally allows for the fastest user experience, but
+because having the image files locally allows for the fastest, smoothest user experience, 
+which is important to frequent users, but
 casual users might be reluctant to install the 14GB dataset of comet image files.
 The client, running as a program in the browser, performs most of the operations,
 including the graphics manipulation (taking advantage of the GPU), displaying the user
@@ -427,7 +428,7 @@ interface and responding to user interactions, paint operations,
 filtering the dataset via properties such as incidence angle or
 emission angle, performing the initial pass on determining spatial image matches, and requesting various data from the server. The server is responsible for only delivering data files and the final
 step of visibility determination. This final step of visibility
-determination uses the large pre-computed visibility table described above, which is too large to
+determination uses the pre-computed visibility table described above, which is too large to
 transport to the client (see [The Data Files](#the-data-files)). This client-server
 model, using a browser for user-interaction and rendering, also made it easier to
 support a cross-platform program (Windows, Macs, and Linux) with a consistent user experience,
