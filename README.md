@@ -434,6 +434,8 @@ model, using a browser for user-interaction and rendering, also made it easier t
 support a cross-platform program (Windows, Macs, and Linux) with a consistent user experience,
 further fulfilling our accessibility goals.
 
+The code was designed to be portable, easily maintained, and extensible to spatial searches of images acquired by other planetary science missions.
+
 ### The Data Files
 
 There are three core data files used by Comet.Photos. The first is a 3D
