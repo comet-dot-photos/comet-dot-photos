@@ -405,7 +405,7 @@ by adjusting widgets and viewing the animated results. In studies, users
 reacted to this approach with an enthusiasm more commonly associated
 with video games."* Adjustments to Comet.photo's search parameters,
 through the manipulation of sliders and checkboxes, immediately update
-the data set visually. Painting on a 3D shape model of the comet also
+the result set visually. Painting on a 3D shape model of the comet also
 updates the search results in real time to include only those images
 that feature the painted region.
 We aimed to build a scientific tool that would be engaging, intuitive,
