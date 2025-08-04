@@ -397,7 +397,7 @@ craters are actually part of a large cluster of similar features ([Figure 7b](#f
 ## Design, Architecture, and Implementation
 
 The design and architecture of Comet.Photos were driven by the goals
-that the program be intuitive, fast, and both widely and easily accessible.
+that the program be intuitive and fast, as well as widely and easily accessible.
 To make Comet.Photos intuitive and easy to use, we implemented image
 search in the user interface as *dynamic queries*. According to
 (Shneiderman, 1994), *"Dynamic queries let users 'fly through' databases
