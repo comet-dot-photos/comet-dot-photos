@@ -23,7 +23,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 ## Installation
 
-People wanting to try out Comet.Photos can simply run it in a web browser by visiting https://comet.photos. However, we suggest that scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best user experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
+Scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best user experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
 
 There are two ways to install Comet.Photos locally: from a tar archive (option 1), or from GitHub (option 2). Installing from the tar archive is easiest and is highly recommended, while installing from GitHub may be preferable for people hoping to contribute to the project.
 
@@ -68,7 +68,7 @@ This may take up to 10 minutes as there are plenty of files to unpack. After the
 
 ### Starting Comet.Photos
 
-As mentioned before, you can always start a web-based session with Comet.Photos by simply navigating to https://comet.photos. However, if you have installed Comet.Photos locally, simply run one of these scripts from the Comet.Photos directory:
+After you have installed Comet.Photos locally, simply run one of these scripts from the Comet.Photos directory:
 
  * On Windows: **RUN_ME_ON_WINDOWS.cmd**
  * On macOS: **RUN_ME_ON_MAC.command**
@@ -264,7 +264,7 @@ can be helpful for further analysis with the USGS ISIS Tools (USGS,
 
 ## Step-by-Step Example
 
-After loading the initial web page, we use the left mouse button to
+After starting up Comet.Photos, we use the left mouse button to
 rotate the comet, and the scroll wheel to zoom in on a region with a
 cluster of three boulders which are visible in the 3D shape model and
 merit further examination ([Figure 2](#fig2)). We select the **Enable Paint**
@@ -397,41 +397,7 @@ craters are actually part of a large cluster of similar features ([Figure 7b](#f
 ## Design, Architecture, and Implementation
 
 The design and architecture of Comet.Photos were driven by the goals
-that the program be widely and easily accessible, fast, and intuitive.
-One of the initial decision points was whether the software should be
-web-based, or a locally installed executable. Given our limited
-resources, we did not anticipate being able to build a program that
-would run directly on Windows, MacOS, and Linux variants, and this would
-limit its accessibility. Furthermore, some people are hesitant to
-install software locally due to the effort, risk, and storage required,
-the latter being significant due to the number of OSIRIS images.
-However, visiting a web site is easy and relatively safe. While ardent
-planetary scientists might be willing to install a program on their own
-machine, we aimed to build a tool that could also be used by students
-and the broader public, with little upfront investment. Furthermore,
-with web applications, updates and bug fixes can be deployed seamlessly,
-avoiding extra user effort.
-
-A web-based architecture, however, is in some ways counter-indicated by
-the next goal, which is speed. Interactions over the internet can be
-slowed down by transport time. Furthermore, personal computers are
-generally fast and have GPUs for speedy graphics processing. This led to
-the decision to build a client-server application, where the client,
-running as a program in the browser, performs most of the operations,
-including the graphics manipulation (taking advantage of the GPU), and
-the server is responsible for only delivering data files and the final
-step of visibility determination. This final step of visibility
-determination uses a large data file that would take too much time to
-transport to the client (see [The Data Files](#the-data-files)). To make the program fast and
-responsive, we chose to precompute much of the information that we need
-to perform the queries, (including this large visibility table),
-reducing the overhead at runtime. There is also the option to run the
-program entirely locally on one's laptop or PC to avoid any noticeable
-internet data delays. In such cases, one can choose to have some or all
-of the server's functions running on their own machine by installing the
-software manually, with their own personal server running on the same
-computer as the client.
-
+that the program be intuitive, fast, and both widely and easily accessible.
 To make Comet.Photos intuitive and easy to use, we implemented image
 search in the user interface as *dynamic queries*. According to
 (Shneiderman, 1994), *"Dynamic queries let users 'fly through' databases
@@ -441,24 +407,31 @@ with video games."* Adjustments to Comet.photo's search parameters,
 through the manipulation of sliders and checkboxes, immediately update
 the data set visually. Painting on a 3D shape model of the comet also
 updates the search results in real time to include only those images
-that feature the painted region, in whatever overlap the user decides.
+that feature the painted region.
 We aimed to build a scientific tool that would be engaging, intuitive,
 and even fun to use.
 
-Comet.Photos consists of two major components: a client that runs in a
-local browser, and a server. The client's responsibilities include:
-rendering and transforming the 3D shape model, displaying the user
+To make the program fast and responsive, we pre-computed much of the
+information needed
+to perform the image queries.  We essentially determine in advance which vertices of
+our 3D model of 67P would have been visible in every single image, and store that
+information in a large visibility table, reducing the calculations needed at run-time. We also pre-calculate other information for every image, such as the location of the Rosetta spacecraft, the camera's view direction and "up" vector, and store this also advance, so these calculations need not be done at query time. 
+ 
+
+To make the program widely and easily accessible, we implemented a client-server application, which can be run entirely on a local computer, or remotely via the web. This is important
+because having the image files locally allows for the fastest user experience, but
+casual users might be reluctant to install the 14GB dataset of comet image files.
+The client, running as a program in the browser, performs most of the operations,
+including the graphics manipulation (taking advantage of the GPU), displaying the user
 interface and responding to user interactions, paint operations,
-filtering the data set via properties such as incidence angle or
-emission angle, performing the initial pass on determining region of
-interest image matches, and requesting various data from the server. The
-server is a web server, with special capabilities implemented with
-node.js (OpenJS Foundation, 2024). It delivers data files to the client,
-and performs the last phase of the visibility calculations to determine
-which images contain the painted region of interest. The next section
-describes the data files used by the program, and the following section
-explains how the program works over the course of a session
-similar to that described earlier in the [Step-By-Step Example](#step-by-step-example).
+filtering the dataset via properties such as incidence angle or
+emission angle, performing the initial pass on determining spatial image matches, and requesting various data from the server. The server is responsible for only delivering data files and the final
+step of visibility determination. This final step of visibility
+determination uses the large pre-computed visibility table described above, which is too large to
+transport to the client (see [The Data Files](#the-data-files)). This client-server
+model, using a browser for user-interaction and rendering, also made it easier to
+support a cross-platform program (Windows, Macs, and Linux) with a consistent user experience,
+further fulfilling our accessibility goals.
 
 ### The Data Files
 
