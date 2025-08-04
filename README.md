@@ -830,4 +830,4 @@ If you have questions about Comet.Photos, or would like to help with its develop
 
 ## Credits
 
-Comet.Photos was developed by MIT undergraduate Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
+Comet.Photos was developed by Daniel Kurlander under the guidance of Jason Soderblom, Abhinav Jindal, and Samuel Birch. David Kurlander contributed additional features for v2.
