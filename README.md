@@ -434,7 +434,7 @@ model, using a browser for user-interaction and rendering, also made it easier t
 support a cross-platform program (Windows, Macs, and Linux) with a consistent user experience,
 further fulfilling our accessibility goals.
 
-The code was designed to be portable, easily maintained, and extensible to spatial searches of images acquired by other planetary science missions.
+The code was designed to be portable, maintainable, and extensible for spatial searches of images from other planetary science missions.
 
 ### The Data Files
 
