@@ -459,7 +459,7 @@ The second data file is the *image metadata*, which is an array of
 dictionaries, with one dictionary for each image in the data set
 containing information related to that image. The image metadata is
 computed in a preprocessing step and includes information from three
-sources. Data extracted from the original OSIRIS NAC .IMG file headers
+sources. Data extracted from the original OSIRIS NAC .IMG file headers and filenames
 include the image resolution, the time the image was taken, and the name
 of the image. Metadata computed from the SPICE (Acton, 1996) kernels
 associated with the Rosetta mission (ESA, 2022) include the
