@@ -330,7 +330,7 @@ Initially we want to view images with shadows, because shadows can
 accentuate surface detail. We set the **Incidence Angle** to be
 77°-90°, restricting our results to only those images with the Sun
 at an extreme angle to the surface. Immediately the results are updated,
-and we see there are 25 such images of the region of interest ([Figure 5a](#fig5)). Examining the **Image Info** field of the image retrieved in [Figure 5a](#fig5), we see that the incidence angle is 83°. With the Sun so low on the
+and we see there are 25 such images of the region of interest ([Figure 5a](#fig5)). Examining the **Image Info** field of the image shown in this figure, we see that the incidence angle is 83°. With the Sun so low on the
 horizon, two of the boulders are hidden in shadow from the ridge above,
 yet the red circle helps us identify the one visible boulder that
 remains within our region of interest. We advance to the next image of
