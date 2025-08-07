@@ -2,8 +2,8 @@ import * as THREE from './node_modules/three/build/three.module.js'; //should be
 import {DecalGeometry} from './node_modules/three/examples/jsm/geometries/DecalGeometry.js';
 
 export class CometView {
-    static FOV = 2.20746; //Based on campt results - 2.21 in .IMG header
-    static defaultRes = 2048;
+    static FOV;                     // set in paintComet:init according to dataset
+    static defaultRes;              // set in paintComet:init according to dataset
     static MAX_COMET_WIDTH = 4.0;   // Comet does not extend beyond this distance from origin
     static EXTRA_CLIP_FAR = 400;      // this will mostly avoid clipping if we zoom out w/ trackball control, since far is not updated
     static map;     // We choose to make the map a class var because we keep the last view's map until the new one's loaded
