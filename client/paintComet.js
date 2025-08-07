@@ -9,15 +9,15 @@ import {CometView, NormalDepth} from './cometView.js';
 
 const dataset = {
 	model:"cg-dlr_spg-shap7-v1.0_200Kfacets.obj",
-	metadata: "imageMetadataV2.0.json",
+	metaData: "imageMetadataV2.0.json",
+	visTable: "visTableV2.0.bin",
 	FOV: 2.20746,
 	defaultRes: 2048,
 	initialEye: [100, 100, 100],
 	longName: "NAC Comet Photos",
 	shortName: "NAC",
-	subFolder: "",
-	shapeFolder: "",
-
+	dataFolder: "",
+	modelFolder: "",
 };
 
 let urlPrefix = "";
@@ -40,7 +40,9 @@ let oldCOR, deltaCOR, intervalCOR = 1, t0COR = -1;
 let debugMode = false, preprocessMode = false;
 let startTimer, endTimer;	// just for measuring speed
 
-function generateSessionID() {	// from https://www.codegrepper.com. Only really used when running server locally
+// Store a session ID for the server. Only used when running locally to shutdown
+//   the server after all clients disconnect
+function generateSessionID() {	
 	return '_' + Math.random().toString(36).substring(2, 11);
  };
 
@@ -50,14 +52,22 @@ var socket = io({
 	},
   });
 
-const BRUSH_RED = 0xf1;
+// Specify Colors
+const PAINT_RED = 241, PAINT_GREEN = 178, PAINT_BLUE = 171;	  // color of painted region
+const BRUSH_COLOR = 0xEC407A; // color of brush sphere
+const COR_COLOR = 0x007090; // color of center of rotation sphere
+const VISIBLE_BLUE= 249;  // blue component - for preprocessing visibility
+const COMETGREYVAL = 255;
+const COMETCOLOR = COMETGREYVAL<<16 | COMETGREYVAL<<8 | COMETGREYVAL;
 
+// Filter failure bit position codes
 const FAIL_MPP = 1;
 const FAIL_EMISSION = 2;
 const FAIL_PHASE = 4;
 const FAIL_BBOX = 8;
 const FAIL_INCIDENCE = 16;
 
+// Time constants
 const msDay = 86400000;
 const msMonth = 2628000000;
 const msYear = 31536000000;
@@ -67,11 +77,7 @@ const zPoint4 = new THREE.Vector3(0,0,4);
 const yPoint4 = new THREE.Vector3(0,4,0);
 const xPoint4 = new THREE.Vector3(4,0,0);
 
-const COMETGREYVAL = 255;
-const COMETCOLOR = COMETGREYVAL<<16 | COMETGREYVAL<<8 | COMETGREYVAL;
 const MINBRUSHSIZE = 5, MAXBRUSHSIZE = 200, INITBRUSHSIZE = 100;
-const VISIBLE_BLUE= 249;	// visibility blue :-) - made a unique byte so we only have to check blues
-const BRUSH_BLUE= 0xAB;		// this breaks if paint color changes
 const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Perspective", SI_ORTHOGRAPHIC = "Orthographic";
 
 var currentIndex = 0;
@@ -113,19 +119,14 @@ function updatePaintBuffer() {
 }
 
 function setNthBit(i, bitArray) {
-	// Calculate the index of the element in the bit array
 	let index = Math.floor(i / 8);
-	// Calculate the position of the bit within the element
 	let pos = i % 8;
-	// Set the i'th bit to 1 using bitwise OR
 	bitArray[index] |= (1 << pos);
 }
+
 function getNthBit(n, bitArray) {
-	// Calculate the index of the element in the bit array
 	let index = Math.floor(n / 8);
-	// Calculate the position of the bit within the element
 	let pos = n % 8;
-	// Get the value of the n'th bit using bitwise AND
 	return (bitArray[index] & (1 << pos)) >> pos;
 }
 
@@ -144,7 +145,7 @@ const params = {
 	brushSize: INITBRUSHSIZE,
 	paint: false,
 	clear: function() {
-		colorArray.fill( 255 );
+		colorArray.fill(COMETGREYVAL);
 		colorAttr.needsUpdate = true;
 		numPainted = 0;
 		updateAllFilters(ogPhotoArray);
@@ -193,7 +194,7 @@ const params = {
         let norm = new THREE.Vector3(0, 0, 0);
         let thisVec = new THREE.Vector3();
 		for (let i = 0; i < cometGeometry.attributes.color.array.length; i+=3) {
-			if (cometGeometry.attributes.color.array[i] == BRUSH_RED) {
+			if (cometGeometry.attributes.color.array[i] == PAINT_RED) {
 	                thisVec.fromArray(cometGeometry.attributes.position.array, i);
 					roiBoundingBox.expandByPoint(thisVec);
                     loc.add(thisVec);
@@ -444,7 +445,7 @@ function init() {
         cometGeometry = object3d.children[0].geometry;
         cometGeometry.computeVertexNormals();                
         colorArray = new Uint8Array( cometGeometry.attributes.position.count * 3 );
-		colorArray.fill(255);
+		colorArray.fill(COMETGREYVAL);
 		colorAttr = new THREE.BufferAttribute( colorArray, 3, true );
 		colorAttr.setUsage( THREE.DynamicDrawUsage );
 		cometGeometry.setAttribute( 'color', colorAttr );
@@ -471,13 +472,13 @@ function init() {
 
 	const brushGeometry = new THREE.SphereGeometry(1, 40, 40);
 	const brushMaterial = new THREE.MeshStandardMaterial( {
-		color: 0xEC407A,
+		color: BRUSH_COLOR,
 		roughness: 0.75,
 		metalness: 0,
 		transparent: true,
 		opacity: 0.5,
 		premultipliedAlpha: true,
-		emissive: 0xEC407A,
+		emissive: BRUSH_COLOR,
 		emissiveIntensity: 0.5,
 	} );
 	const brushMesh = new THREE.Mesh(brushGeometry, brushMaterial);
@@ -486,13 +487,13 @@ function init() {
 
 	const CORGeometry = new THREE.SphereGeometry(.05, 40, 40);
 	const CORMaterial = new THREE.MeshStandardMaterial( {
-		color: 0x007090,
+		color: COR_COLOR,
 		roughness: 0.75,
 		metalness: 0,
 		transparent: true,
 		opacity: .5,
 		premultipliedAlpha: true,
-		emissive: 0x007090,
+		emissive: COR_COLOR,
 		emissiveIntensity: 1.0, //0.5,
 	} );
 	CORMesh = new THREE.Mesh(CORGeometry, CORMaterial);
@@ -999,7 +1000,7 @@ function init() {
         const dotLimit = Math.cos(params.filterAngle * Math.PI / 180.);
     
         for (let i = 0; i < cometGeometry.attributes.position.array.length; i+=3) {
-            if (colorArray[i] == BRUSH_RED) {
+            if (colorArray[i] == PAINT_RED) {
                 // first do normals check
                 const vertToSC = v.clone().sub(sc);
                 const scToVertNormed = vertToSC.clone().negate().normalize();
@@ -1124,7 +1125,7 @@ function init() {
 	};
 
 
-	const url = preprocessMode ? "imageMetadata_phase1.json" : urlPrefix + dataset.metadata; // hardwired json file - not ideal
+	const url = preprocessMode ? "imageMetadata_phase1.json" : urlPrefix + dataset.metaData; // hardwired json file - not ideal
 	fetch(url) 	// Fetch the JSON file
 	.then(response => response.json()) // Parse the response as JSON
 	.then(data => {  // Now "data" contains the parsed JSON object
@@ -1200,17 +1201,19 @@ function init() {
 					} );
 
 					if ( mouseType === 0 || mouseType === 2 ) {
-						r = 1, g = 1, b = 1;
-						if ( mouseType === 0 ) {
-							r = 15;
-							g = 78;
-							b = 85;
+						r = g = b = COMETGREYVAL;  // erase the paint
+						if ( mouseType === 0 ) {   // set the paint color
+							r = PAINT_RED;
+							g = PAINT_GREEN;
+							b = PAINT_BLUE;;
 						}
 						for ( let i = 0, l = indices.length; i < l; i ++ ) {
-							const i2 = indexAttr.getX( indices[ i ] );
-							colorAttr.setX( i2, r );
-							colorAttr.setY( i2, g );
-							colorAttr.setZ( i2, b );
+							const vertexIndex = indexAttr.getX(indices[i]);
+							const colorIndex = vertexIndex * 3;
+							colorArray[colorIndex] = r;
+							colorArray[colorIndex+1] = g;
+							colorArray[colorIndex+2] = b;
+
 						}
 						colorAttr.needsUpdate = true;
 					}
@@ -1441,7 +1444,6 @@ let computeVisibleVertices = function (paintVisible = true) {
 	console.log("ComputeVisible time = %f milliseconds", window.performance.now() - startTime);
 	if (paintVisible) console.log(`Visible vertex count = ${countVertices(VISIBLE_BLUE)}`);
 	if (paintVisible) expandPaint(1);
-	// if (paintVisible) console.log(`Number of vertices still painted = ${countVertices(BRUSH_BLUE)}`);   // DEBUG	
 }
 
 const M2DIST = (.001*(CometView.defaultRes/2)) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
