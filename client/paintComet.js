@@ -7,6 +7,19 @@ import { OBJLoader2 } from './node_modules/wwobjloader2/dist/OBJLoader2.js';
 import ProjectedMaterial from '../node_modules/three-projected-material/build/ProjectedMaterial.module.js';
 import {CometView, NormalDepth} from './cometView.js';
 
+const dataset = {
+	model:"cg-dlr_spg-shap7-v1.0_200Kfacets.obj",
+	metadata: "imageMetadataV2.0.json",
+	FOV: 2.20746,
+	defaultRes: 2048,
+	initialEye: [100, 100, 100],
+	longName: "NAC Comet Photos",
+	shortName: "NAC",
+	subFolder: "",
+	shapeFolder: "",
+
+};
+
 let urlPrefix = "";
 let stats;
 let scene, camera, renderer, controls, colorArray, colorAttr, r, b, g;
@@ -63,80 +76,6 @@ const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Perspecti
 
 var currentIndex = 0;
 
-/*
-function findSquare(paint){
-	var boundingBox = new THREE.Box3();
-	const raycaster = new THREE.Raycaster();
-	raycaster.firstHitOnly = true;
-	var vertex_plane = new THREE.Vector3();
-	let tl_plane = new THREE.Vector3();
-	let tr_plane = new THREE.Vector3();
-	let br_plane = new THREE.Vector3();
-	let bl_plane = new THREE.Vector3();
-	const TLRay = new THREE.Ray(cometView.sc_position, cometView.top_left_dir);
-	const TRRay = new THREE.Ray(cometView.sc_position, cometView.top_right_dir);
-	const BRRay = new THREE.Ray(cometView.sc_position, cometView.bottom_right_dir);
-	const BLRay = new THREE.Ray(cometView.sc_position, cometView.bottom_left_dir);
-	TLRay.intersectPlane(cometView.image_plane, tl_plane);
-	TRRay.intersectPlane(cometView.image_plane, tr_plane);
-	BRRay.intersectPlane(cometView.image_plane, br_plane);
-	BLRay.intersectPlane(cometView.image_plane, bl_plane);
-
-
-
-
-	//vertex_ray initially points in unused direction it is set before first real use
-	//normal is random unit vector
-	var vertex_ray = new THREE.Ray(cometView.sc_position, cometView.normal);
-	var minDistAlongNormal = 999999999999999999;
-	var maxDistAlongNormal = 0; //talk to dad about if this is too fragile
-	for (let i = 0; i < cometGeometry.attributes.position.array.length; i+=3) {
-		const errorTolerance = 0.000001
-		const pseudoVertex = new THREE.Vector3(cometGeometry.attributes.position.array[i] + errorTolerance,
-			cometGeometry.attributes.position.array[i+1] + errorTolerance, 
-			cometGeometry.attributes.position.array[i+2] + errorTolerance);
-		
-		const sc_to_vertex = pseudoVertex.clone().sub(cometView.sc_position);
-		const vertex_dir = sc_to_vertex.clone().normalize();
-		vertex_ray.direction = vertex_dir;
-
-		vertex_ray.intersectPlane(cometView.image_plane, vertex_plane);
-		
-		const v1 = tl_plane.clone().sub(vertex_plane);
-		const v2 = tr_plane.clone().sub(vertex_plane);
-		const v3 = br_plane.clone().sub(vertex_plane);
-		const v4 = bl_plane.clone().sub(vertex_plane);
-		
-		const interior_sum = v1.angleTo(v2) + v2.angleTo(v3) + v3.angleTo(v4) + v4.angleTo(v1);
-		//if in bounding box
-		if (interior_sum > 2*Math.PI-errorTolerance) {
-			raycaster.set(cometView.sc_position, vertex_dir);
-			const res = raycaster.intersectObject(targetMesh, true);
-			if (res.length > 0) {
-				if(res[0].point.clone().sub(pseudoVertex).length() < 0.01) {
-					boundingBox.expandByPoint(res[0].point);
-					const distAlongNormal = sc_to_vertex.dot(cometView.normal);
-					if (paint) {
-						cometGeometry.attributes.color.array[i] = 0;
-						cometGeometry.attributes.color.array[i+1] = 0;
-						cometGeometry.attributes.color.array[i+2] = 255;
-					}
-					if (distAlongNormal > maxDistAlongNormal) {
-						maxDistAlongNormal = distAlongNormal;
-					}
-					if (distAlongNormal < minDistAlongNormal) {
-						minDistAlongNormal = distAlongNormal;
-					}
-				}
-			}
-		}
-	}
-	colorAttr.needsUpdate = true;	
-	cometView.setMaxDistAlongNormal(maxDistAlongNormal);
-	cometView.setMinDistAlongNormal(minDistAlongNormal);
-}
-*/
-
 function initBBOXBitBuffer(nPhotos) {
 	if (typeof bboxBitBuffer === "undefined") {
 		const numBytes = Math.ceil(nPhotos/8);
@@ -190,7 +129,7 @@ function getNthBit(n, bitArray) {
 	return (bitArray[index] & (1 << pos)) >> pos;
 }
 
-//clock
+//clock - used for benchmarking
 const clock = new THREE.Clock();
 clock.start();
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -464,6 +403,9 @@ function init() {
 	overlayCanvas.width = window.innerWidth;
 	overlayCanvas.height = window.innerHeight;
 
+	CometView.FOV = dataset.FOV;			// Load relevant dataset parameters
+	CometView.defaultRes = dataset.defaultRes;
+
 	// scene setup
 	scene = new THREE.Scene();
 	
@@ -495,7 +437,7 @@ function init() {
 	}
 	createAxes();
 
-	const modelPath = urlPrefix + 'cg-dlr_spg-shap7-v1.0_200Kfacets.obj'; 
+	const modelPath = urlPrefix + dataset.model; 
 	const objLoader2 = new OBJLoader2().setUseIndices(true);
 
 	const loadData = (object3d) => {
@@ -559,7 +501,7 @@ function init() {
 
 	//camera setup
 	camera = new THREE.PerspectiveCamera( CometView.FOV, window.innerWidth / window.innerHeight, 0.1, 500);
-	camera.position.set(100, 100, 100);
+	camera.position.set(...dataset.initialEye);
 	camera.updateProjectionMatrix();
 
 	// stats setup
@@ -1182,7 +1124,7 @@ function init() {
 	};
 
 
-	const url = preprocessMode ? "imageMetadata_phase1.json" : urlPrefix + "imageMetadataV2.0.json"; // hardwired json file - not ideal
+	const url = preprocessMode ? "imageMetadata_phase1.json" : urlPrefix + dataset.metadata; // hardwired json file - not ideal
 	fetch(url) 	// Fetch the JSON file
 	.then(response => response.json()) // Parse the response as JSON
 	.then(data => {  // Now "data" contains the parsed JSON object
