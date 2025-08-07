@@ -1,7 +1,7 @@
 import * as THREE from './node_modules/three/build/three.module.js'; //should be good
 import {DecalGeometry} from './node_modules/three/examples/jsm/geometries/DecalGeometry.js';
 
-export class CometInfo {
+export class CometView {
     static FOV = 2.20746; //Based on campt results - 2.21 in .IMG header
     static defaultRes = 2048;
     static MAX_COMET_WIDTH = 4.0;   // Comet does not extend beyond this distance from origin
@@ -25,14 +25,14 @@ export class CometInfo {
         this.maxDistAlongNormal = photoDict.d2;
         this.distToPlane = this.minDistAlongNormal; // Have this over above nearest point - formerly (this.minDistAlongNormal + this.maxDistAlongNormal) / 2.0;
         this.ogIndex = photoDict.ogIndex;
-        this.imageRes = ('rz' in photoDict) ? photoDict.rz : CometInfo.defaultRes;
+        this.imageRes = ('rz' in photoDict) ? photoDict.rz : CometView.defaultRes;
    
         this.normal = new THREE.Vector3(...photoDict.cv);
         this.up = new THREE.Vector3(...photoDict.up);
         this.computeViewRect();
  
         this.tag = photoDict.nm;
-        this.jpgPath = CometInfo.urlPrefix + 'J80/' + photoDict.nm.substring(1, 7) + '/' + photoDict.nm + '.jpg'
+        this.jpgPath = CometView.urlPrefix + 'J80/' + photoDict.nm.substring(1, 7) + '/' + photoDict.nm + '.jpg'
  
         this.fileName = photoDict.nm;
         this.time = photoDict.ti;
@@ -43,7 +43,7 @@ export class CometInfo {
 
     computeViewRect () {
         this.planeCenter = this.sc_position.clone().add(this.normal.clone().setLength(this.distToPlane));
-        this.imageWidth = Math.tan(Math.PI*CometInfo.FOV/180.0) * this.distToPlane;
+        this.imageWidth = Math.tan(Math.PI*CometView.FOV/180.0) * this.distToPlane;
         this.halfWidth = this.imageWidth/2.0;
         const midTopLineVec = this.up.clone().setLength(this.halfWidth);
         const midRightLineVec = midTopLineVec.clone().applyAxisAngle(this.normal, Math.PI/2.0);
@@ -69,24 +69,24 @@ export class CometInfo {
     }
 
     loadImage(onLoadFunc) {
-        CometInfo.lastRequestedImg = this.name;
-        const loader = new THREE.TextureLoader(CometInfo.mgr, function(texture) { console.log('Load manager loaded texture: %s', texture.filename);});  // this line is needed, but loadManager argument only necessary for callback
+        CometView.lastRequestedImg = this.name;
+        const loader = new THREE.TextureLoader(CometView.mgr, function(texture) { console.log('Load manager loaded texture: %s', texture.filename);});  // this line is needed, but loadManager argument only necessary for callback
         const startTime = performance.now();
         loader.load(this.jpgPath, onLoadFunc);
 
-        CometInfo.mgr.onLoad = function () {
+        CometView.mgr.onLoad = function () {
             const endTime = performance.now();
             console.log('Texture loading time: %f ms', endTime-startTime);
         }
     }
 
     applyToCamera(camera, orbControls, aspect = 0) {
-        camera.fov = CometInfo.FOV;
+        camera.fov = CometView.FOV;
         if (aspect == 0) aspect = window.innerWidth / window.innerHeight;
         camera.aspect = aspect;
         camera.near = .1;
         const scToComet = this.sc_position.clone().length();
-        camera.far = scToComet + CometInfo.MAX_COMET_WIDTH + CometInfo.EXTRA_CLIP_FAR; // EXTRA_CLIP_FAR allows us to zoom out 
+        camera.far = scToComet + CometView.MAX_COMET_WIDTH + CometView.EXTRA_CLIP_FAR; // EXTRA_CLIP_FAR allows us to zoom out 
         camera.position.set(this.sc_position.x, this.sc_position.y, this.sc_position.z);
         camera.up.set(this.up.x, this.up.y, this.up.z);
         camera.lookAt(this.planeCenter.x, this.planeCenter.y, this.planeCenter.z);
@@ -128,16 +128,16 @@ export class CometInfo {
         this.imageFresh = false;
         let view = this;
         function onDecalLoaded(texture) {
-            if (CometInfo.lastRequestedImg != view.name) {
+            if (CometView.lastRequestedImg != view.name) {
                 texture.dispose();
                 return;
             } 
 
-            let oldMap = CometInfo.map;
-            let oldDecal = CometInfo.decal;
-            CometInfo.map = texture;
+            let oldMap = CometView.map;
+            let oldDecal = CometView.decal;
+            CometView.map = texture;
             const decalMaterial = new THREE.MeshPhongMaterial({
-                map: CometInfo.map,
+                map: CometView.map,
                 transparent: true,  // what do the scientists want?
                 depthTest: true,
                 depthWrite: false,
@@ -152,8 +152,8 @@ export class CometInfo {
             euler.setFromRotationMatrix(orientation);
             const size = new THREE.Vector3(view.imageWidth, view.imageWidth, view.imageDepthAlongNormal+0.05);
             const decalGeometry = new DecalGeometry(mesh, lookAt, euler, size);
-            CometInfo.decal = new THREE.Mesh(decalGeometry, decalMaterial); //should this be a const??
-            scene.add(CometInfo.decal);
+            CometView.decal = new THREE.Mesh(decalGeometry, decalMaterial); //should this be a const??
+            scene.add(CometView.decal);
             view.imageFresh = true;
             // Cleanup
             if (oldDecal) {
@@ -167,12 +167,12 @@ export class CometInfo {
     }
 
     removeDecal(scene) {
-        if (CometInfo.decal) {
-            const oldDecal = CometInfo.decal;
+        if (CometView.decal) {
+            const oldDecal = CometView.decal;
             scene.remove(oldDecal);
             oldDecal.geometry.dispose();
             oldDecal.material.dispose();
-            CometInfo.decal = null;
+            CometView.decal = null;
         }
      }
 
@@ -180,13 +180,13 @@ export class CometInfo {
         this.imageFresh = false;
         let view = this;
         function onProjectionLoaded(texture) {
-            if (CometInfo.lastRequestedImg != view.name) {
+            if (CometView.lastRequestedImg != view.name) {
                 texture.dispose();
                 return;
             } 
 
-            let oldMap = CometInfo.map;
-            CometInfo.map = texture;
+            let oldMap = CometView.map;
+            CometView.map = texture;
             material.texture = texture;
             material.camera = new THREE.PerspectiveCamera();
             view.applyToCamera(material.camera, null, 1.0); // clone the current camera, but set viewing properties for image
@@ -202,12 +202,12 @@ export class CometInfo {
     }
 
     removeProjection (material) {
-        if (CometInfo.map) {
+        if (CometView.map) {
             /*
-            CometInfo.map.dispose();
-            CometInfo.map = null;
+            CometView.map.dispose();
+            CometView.map = null;
             */
-            material.texture = CometInfo.blankTexture;
+            material.texture = CometView.blankTexture;
             material.texture.isTextureProjected = false;
             material.needsUpdate = true;
         }
@@ -217,13 +217,13 @@ export class CometInfo {
         let view = this;
         this.imageFresh = false;
         function onOverlayImageLoaded(texture) {
-            if (CometInfo.lastRequestedImg != view.name) {
+            if (CometView.lastRequestedImg != view.name) {
                 texture.dispose();
                 return;
             }
 
-            const oldMap = CometInfo.map;
-            CometInfo.map = texture;
+            const oldMap = CometView.map;
+            CometView.map = texture;
             view.imageFresh = true;
 
             // cleanup for oldMap
@@ -234,9 +234,9 @@ export class CometInfo {
 
     /*
     removeImageForOverlay() {
-        if (CometInfo.map) {
-            CometInfo.map.dispose();
-            CometInfo.map = null;
+        if (CometView.map) {
+            CometView.map.dispose();
+            CometView.map = null;
         }
     }
     */
