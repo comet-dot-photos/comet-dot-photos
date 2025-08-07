@@ -5,7 +5,7 @@ import { TrackballControls } from './node_modules/three/examples/jsm/controls/Tr
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree, CONTAINED, INTERSECTED, NOT_INTERSECTED } from './node_modules/three-mesh-bvh/src/index.js';
 import { OBJLoader2 } from './node_modules/wwobjloader2/dist/OBJLoader2.js';
 import ProjectedMaterial from '../node_modules/three-projected-material/build/ProjectedMaterial.module.js';
-import {CometInfo, NormalDepth} from './cometInfo.js';
+import {CometView, NormalDepth} from './cometView.js';
 
 let urlPrefix = "";
 let stats;
@@ -14,7 +14,7 @@ let threeCanvas, overlayCanvas;
 let targetMesh, cometMaterial, cometGeometry;
 let mouse = new THREE.Vector2();
 let mouseType = - 1;
-let cometInfo = null;
+let cometView = null;
 let ogPhotoArray, dynamicArray;
 let avgNormal, avgPosition, roiBoundingBox;
 let applyGeoFilter, updateAllFilters, download;
@@ -73,21 +73,21 @@ function findSquare(paint){
 	let tr_plane = new THREE.Vector3();
 	let br_plane = new THREE.Vector3();
 	let bl_plane = new THREE.Vector3();
-	const TLRay = new THREE.Ray(cometInfo.sc_position, cometInfo.top_left_dir);
-	const TRRay = new THREE.Ray(cometInfo.sc_position, cometInfo.top_right_dir);
-	const BRRay = new THREE.Ray(cometInfo.sc_position, cometInfo.bottom_right_dir);
-	const BLRay = new THREE.Ray(cometInfo.sc_position, cometInfo.bottom_left_dir);
-	TLRay.intersectPlane(cometInfo.image_plane, tl_plane);
-	TRRay.intersectPlane(cometInfo.image_plane, tr_plane);
-	BRRay.intersectPlane(cometInfo.image_plane, br_plane);
-	BLRay.intersectPlane(cometInfo.image_plane, bl_plane);
+	const TLRay = new THREE.Ray(cometView.sc_position, cometView.top_left_dir);
+	const TRRay = new THREE.Ray(cometView.sc_position, cometView.top_right_dir);
+	const BRRay = new THREE.Ray(cometView.sc_position, cometView.bottom_right_dir);
+	const BLRay = new THREE.Ray(cometView.sc_position, cometView.bottom_left_dir);
+	TLRay.intersectPlane(cometView.image_plane, tl_plane);
+	TRRay.intersectPlane(cometView.image_plane, tr_plane);
+	BRRay.intersectPlane(cometView.image_plane, br_plane);
+	BLRay.intersectPlane(cometView.image_plane, bl_plane);
 
 
 
 
 	//vertex_ray initially points in unused direction it is set before first real use
 	//normal is random unit vector
-	var vertex_ray = new THREE.Ray(cometInfo.sc_position, cometInfo.normal);
+	var vertex_ray = new THREE.Ray(cometView.sc_position, cometView.normal);
 	var minDistAlongNormal = 999999999999999999;
 	var maxDistAlongNormal = 0; //talk to dad about if this is too fragile
 	for (let i = 0; i < cometGeometry.attributes.position.array.length; i+=3) {
@@ -96,11 +96,11 @@ function findSquare(paint){
 			cometGeometry.attributes.position.array[i+1] + errorTolerance, 
 			cometGeometry.attributes.position.array[i+2] + errorTolerance);
 		
-		const sc_to_vertex = pseudoVertex.clone().sub(cometInfo.sc_position);
+		const sc_to_vertex = pseudoVertex.clone().sub(cometView.sc_position);
 		const vertex_dir = sc_to_vertex.clone().normalize();
 		vertex_ray.direction = vertex_dir;
 
-		vertex_ray.intersectPlane(cometInfo.image_plane, vertex_plane);
+		vertex_ray.intersectPlane(cometView.image_plane, vertex_plane);
 		
 		const v1 = tl_plane.clone().sub(vertex_plane);
 		const v2 = tr_plane.clone().sub(vertex_plane);
@@ -110,12 +110,12 @@ function findSquare(paint){
 		const interior_sum = v1.angleTo(v2) + v2.angleTo(v3) + v3.angleTo(v4) + v4.angleTo(v1);
 		//if in bounding box
 		if (interior_sum > 2*Math.PI-errorTolerance) {
-			raycaster.set(cometInfo.sc_position, vertex_dir);
+			raycaster.set(cometView.sc_position, vertex_dir);
 			const res = raycaster.intersectObject(targetMesh, true);
 			if (res.length > 0) {
 				if(res[0].point.clone().sub(pseudoVertex).length() < 0.01) {
 					boundingBox.expandByPoint(res[0].point);
-					const distAlongNormal = sc_to_vertex.dot(cometInfo.normal);
+					const distAlongNormal = sc_to_vertex.dot(cometView.normal);
 					if (paint) {
 						cometGeometry.attributes.color.array[i] = 0;
 						cometGeometry.attributes.color.array[i+1] = 0;
@@ -132,8 +132,8 @@ function findSquare(paint){
 		}
 	}
 	colorAttr.needsUpdate = true;	
-	cometInfo.setMaxDistAlongNormal(maxDistAlongNormal);
-	cometInfo.setMinDistAlongNormal(minDistAlongNormal);
+	cometView.setMaxDistAlongNormal(maxDistAlongNormal);
+	cometView.setMinDistAlongNormal(minDistAlongNormal);
 }
 */
 
@@ -225,7 +225,7 @@ const params = {
 		currentIndex = 0;
 	},
 	loadNext: function() {
-		if (cometInfo) {
+		if (cometView) {
 			if (currentIndex != dynamicArray.length-1) {
 				loadComet(dynamicArray[currentIndex + 1]);
 				currentIndex += 1;
@@ -234,7 +234,7 @@ const params = {
 		}
 	},
 	loadPrevious: function() {
-		if (cometInfo) {
+		if (cometView) {
 			if (currentIndex != 0) {
 				loadComet(dynamicArray[currentIndex - 1]);
 				currentIndex -= 1;
@@ -299,7 +299,7 @@ const params = {
 		else {
 			msSkip += msYear;
 		}
-		if (cometInfo) {
+		if (cometView) {
 			for (let i = this.photoIndex; i < dynamicArray.length; i++) {
 				if (dynamicArray[i].date.getTime() > msSkip) {
 					loadComet(dynamicArray[i]);
@@ -322,7 +322,7 @@ const params = {
 		else {
 			msSkip -= msYear;
 		}
-		if (cometInfo) {
+		if (cometView) {
 			for (let i = this.photoIndex; i >= 0; i--) {
 				if (dynamicArray[i].date.getTime() < msSkip) {
 					loadComet(dynamicArray[i]);
@@ -348,7 +348,7 @@ const params = {
 
 function getResFromPhotoDict(photoDict) {
 	if ('rz' in photoDict) return photoDict.rz;
-	else return CometInfo.defaultRes;
+	else return CometView.defaultRes;
 }
 
 function getInfoString(photoDict) {
@@ -359,32 +359,32 @@ function getInfoString(photoDict) {
 	const incidAngle = Math.round(Math.acos(sun_vec.dot(avgNormal))*180/Math.PI);
 	const phaseAngle = Math.round(Math.acos(avg_sc_vec.dot(sun_vec))*180/Math.PI);
 	const rez = getResFromPhotoDict(photoDict);
-	const width = Math.tan(Math.PI*(CometInfo.FOV/2.0)/180.0) * photoDict.sc_v.distanceTo(avgPosition);
+	const width = Math.tan(Math.PI*(CometView.FOV/2.0)/180.0) * photoDict.sc_v.distanceTo(avgPosition);
 	const m2 = Math.round(width/(.001*(rez/2)) * 100) / 100;
 	return `#${photoDict.ogIndex}  m: ${m2}  e: ${emissionAngle}  i: ${incidAngle}  p: ${phaseAngle}`;
 }
 
 function loadComet(photoDict) {
-	if (cometInfo) {
-		if (cometInfo.ogIndex === photoDict.ogIndex) return;		// trying to load what is already loaded
-		cometInfo.removeSelf(scene);		// remove the old one
+	if (cometView) {
+		if (cometView.ogIndex === photoDict.ogIndex) return;		// trying to load what is already loaded
+		cometView.removeSelf(scene);		// remove the old one
 	}
-	cometInfo = new CometInfo(photoDict);
+	cometView = new CometView(photoDict);
 
 	if (params.blueBox)
-		cometInfo.addOutline(scene);
-    if (params.showImage == SI_ORTHOGRAPHIC) cometInfo.addDecal(scene, targetMesh /*, paintInfo ? paintInfo.avgLoc : null*/);
-    if (params.showImage == SI_PERSPECTIVE) cometInfo.addProjection(targetMesh, cometMaterial);
+		cometView.addOutline(scene);
+    if (params.showImage == SI_ORTHOGRAPHIC) cometView.addDecal(scene, targetMesh /*, paintInfo ? paintInfo.avgLoc : null*/);
+    if (params.showImage == SI_PERSPECTIVE) cometView.addProjection(targetMesh, cometMaterial);
     if (params.showImage == SI_UNMAPPED)
-        cometInfo.LoadImageForOverlay(overlayCanvas);
+        cometView.LoadImageForOverlay(overlayCanvas);
  
     overlayNeedsUpdate = true;
     if (params.autoCam) {
-		cometInfo.applyToCamera(camera, controls);
+		cometView.applyToCamera(camera, controls);
 		controls.dispatchEvent({ type: 'change' });
 	}
-	params.fileName = cometInfo.fileName;
-	params.time = cometInfo.time;
+	params.fileName = cometView.fileName;
+	params.time = cometView.time;
 	params.photoInfo = getInfoString(photoDict);
 }
 
@@ -408,18 +408,18 @@ function drawNoMatchesOverlay() {
 	ctx.fillText('No Matching Images', (canvasWidth - guiWidth) / 2, canvasHeight / 2);
 }
 
-// only called if there are no matches, and the current cometInfo must be unloaded
+// only called if there are no matches, and the current cometView must be unloaded
 function unloadComet() {
-	if (cometInfo) {
-		if (params.showImage == SI_ORTHOGRAPHIC) cometInfo.removeDecal(scene);
-		if (params.showImage == SI_PERSPECTIVE) cometInfo.removeProjection(cometMaterial);
-		CometInfo.lastRequestedImg = "";		// stop pending image requests from loading
+	if (cometView) {
+		if (params.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(scene);
+		if (params.showImage == SI_PERSPECTIVE) cometView.removeProjection(cometMaterial);
+		CometView.lastRequestedImg = "";		// stop pending image requests from loading
 		// Note: for SI_UNMAPPED, image will be automatically erased by the no matches overlay
-		cometInfo.removeSelf(scene);
+		cometView.removeSelf(scene);
 		params.fileName = "";
 		params.time = "";
 		params.photoInfo = "No matching images";
-		cometInfo = null;
+		cometView = null;
 		overlayNeedsUpdate = true;   // may trigger No Matches overlay
 	}
 }
@@ -438,7 +438,7 @@ function processArguments() {
 	const localURL = searchParams.get('localURL');
 	if (localURL) urlPrefix = localURL;
 	if (urlPrefix != "" && urlPrefix.at(-1) != '/') urlPrefix += '/';  // non-empty urlPrefix must end in a /
-	CometInfo.urlPrefix = urlPrefix;
+	CometView.urlPrefix = urlPrefix;
 	preprocessMode = searchParams.has('preprocess');
 	debugMode = searchParams.has('debug') || preprocessMode;
 	
@@ -558,7 +558,7 @@ function init() {
 	scene.add(CORMesh);
 
 	//camera setup
-	camera = new THREE.PerspectiveCamera( CometInfo.FOV, window.innerWidth / window.innerHeight, 0.1, 500);
+	camera = new THREE.PerspectiveCamera( CometView.FOV, window.innerWidth / window.innerHeight, 0.1, 500);
 	camera.position.set(100, 100, 100);
 	camera.updateProjectionMatrix();
 
@@ -822,21 +822,21 @@ function init() {
 	function showImage(val) {
 		// first undo last setting as necessary
 		if (lastSI == SI_ORTHOGRAPHIC) {
-			if (cometInfo) cometInfo.removeDecal(scene);
+			if (cometView) cometView.removeDecal(scene);
 		} else if (lastSI == SI_PERSPECTIVE) {
-			if (cometInfo) cometInfo.removeProjection(cometMaterial);
+			if (cometView) cometView.removeProjection(cometMaterial);
 		} else if (lastSI == SI_UNMAPPED) {
 			enableOverlayCanvas(false);
 		}
 
 		// then establish the new setting
 		if (val == SI_ORTHOGRAPHIC) {
-			if (cometInfo) cometInfo.addDecal(scene, targetMesh /*, paintInfo ? paintInfo.avgLoc : null*/);
+			if (cometView) cometView.addDecal(scene, targetMesh /*, paintInfo ? paintInfo.avgLoc : null*/);
 		} else if (val == SI_PERSPECTIVE) {
-			if (cometInfo) cometInfo.addProjection(targetMesh, cometMaterial);
+			if (cometView) cometView.addProjection(targetMesh, cometMaterial);
 		} else if (val == SI_UNMAPPED) {
 			enableOverlayCanvas(true);
-			if (cometInfo) cometInfo.LoadImageForOverlay(overlayCanvas);
+			if (cometView) cometView.LoadImageForOverlay(overlayCanvas);
 		} 
 
 		if (val != SI_NONE) paintController.setValue(false);		// set paint to false if entering a true image display - note this calls adjustShading();
@@ -846,12 +846,12 @@ function init() {
 	}
 
 	function changeBox() {
-		if (cometInfo) {
+		if (cometView) {
 			if (params.blueBox) {
-				cometInfo.addOutline(scene);
+				cometView.addOutline(scene);
 			}
 			else {
-				cometInfo.removeOutline(scene);
+				cometView.removeOutline(scene);
 			}
 		}
 	}
@@ -869,8 +869,8 @@ function init() {
 	}
 
 	function spacecraftView(on) {
-		if (on && cometInfo) 					
-			cometInfo.applyToCamera(camera, controls);
+		if (on && cometView) 					
+			cometView.applyToCamera(camera, controls);
 		else {					// Allow rotations about center again
 			controls.target = new THREE.Vector3(0, 0, 0);
 			controls.update();
@@ -928,14 +928,14 @@ function init() {
 				}
 			} 
 		} else {				// do m2 filtering based on painted region
-			const maxDist = (params.MpP_duo[1] * (.001*(CometInfo.defaultRes/2))) / Math.tan(Math.PI*(CometInfo.FOV/2.0)/180.0);
-			const minDist = (params.MpP_duo[0] * (.001*(CometInfo.defaultRes/2))) / Math.tan(Math.PI*(CometInfo.FOV/2.0)/180.0);
+			const maxDist = (params.MpP_duo[1] * (.001*(CometView.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
+			const minDist = (params.MpP_duo[0] * (.001*(CometView.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
 			const maxDistSquared = maxDist*maxDist;
 			const minDistSquared = minDist*minDist;
 			for (let i = 0; i < ogPhotoArray.length; i++) {
 				let trueDistSquared = ogPhotoArray[i].sc_v.distanceToSquared(avgPosition);
 				if (ogPhotoArray[i].rz) // hence, not default
-					trueDistSquared *= (CometInfo.defaultRes/ogPhotoArray[i].rz)**2; // more computationally efficient to adjust trueDistSquared 
+					trueDistSquared *= (CometView.defaultRes/ogPhotoArray[i].rz)**2; // more computationally efficient to adjust trueDistSquared 
 				if (trueDistSquared > maxDistSquared || trueDistSquared < minDistSquared)
 					ogPhotoArray[i].filter |= FAIL_MPP;
 				else
@@ -1032,8 +1032,8 @@ function init() {
 		params.status = `${dynamicArray.length} / ${ogPhotoArray.length} matches`;
 		indexSlider.max(Math.max(0, dynamicArray.length-1));
 
-		if (cometInfo) {
-			const newIndex = dynamicArray.findIndex(info => info === ogPhotoArray[cometInfo.ogIndex]);
+		if (cometView) {
+			const newIndex = dynamicArray.findIndex(info => info === ogPhotoArray[cometView.ogIndex]);
 			currentIndex = newIndex >= 0 ? newIndex : 0;
 		} else currentIndex = 0;
 
@@ -1041,7 +1041,7 @@ function init() {
 			loadComet(dynamicArray[currentIndex]);
 			enableImageNavigation(true);
 		} else {
-			unloadComet();	// No image matches, so have to explicitly unload current cometInfo. Don't do this otherwise because images will flicker.
+			unloadComet();	// No image matches, so have to explicitly unload current cometView. Don't do this otherwise because images will flicker.
 			enableImageNavigation(false);
 		}
 		params.photoIndex = currentIndex;
@@ -1091,7 +1091,7 @@ function init() {
 			circleCam = camera;    // Can simply use main camera
 		else {  // Unmapped - so set circleCam to spacecraftCam equivalent and shift it
 			circleCam = new THREE.PerspectiveCamera();
-			cometInfo.applyToCamera(circleCam);
+			cometView.applyToCamera(circleCam);
 			shiftCamera(circleCam); 
 		}
 		let centerVec = avgPosition.clone();
@@ -1170,12 +1170,12 @@ function init() {
 
 	refreshOverlay = function () {
 		if (!overlayNeedsUpdate) return;
-		if (CometInfo.map && CometInfo.map.image && cometInfo && cometInfo.imageFresh && overlayNeedsUpdate) {
-			drawImageOnOverlay(overlayCanvas, CometInfo.map.image);
+		if (CometView.map && CometView.map.image && cometView && cometView.imageFresh && overlayNeedsUpdate) {
+			drawImageOnOverlay(overlayCanvas, CometView.map.image);
 			overlayPaintCircle();
-		} else if (!cometInfo && ogPhotoArray) { // everything loaded but no current cometInfo => no matches
+		} else if (!cometView && ogPhotoArray) { // everything loaded but no current cometView => no matches
 			drawNoMatchesOverlay();
-		} else if (cometInfo) {	 // If No Matches displayed, need to clear it
+		} else if (cometView) {	 // If No Matches displayed, need to clear it
 			clearOverlay();
 		}
 		overlayNeedsUpdate = false;
@@ -1442,7 +1442,7 @@ function expandPaint(n) {
 
 let computeVisibleVertices = function (paintVisible = true) {
 	const startTime = window.performance.now();
-	const sc = cometInfo ? cometInfo.sc_position.clone() : camera.position.clone();	// set sc to be sc position if known, otherwise camera position
+	const sc = cometView ? cometView.sc_position.clone() : camera.position.clone();	// set sc to be sc position if known, otherwise camera position
 	const v = new THREE.Vector3();
 	const raycaster = new THREE.Raycaster();
 	let res = [];
@@ -1451,9 +1451,9 @@ let computeVisibleVertices = function (paintVisible = true) {
 	const vertexNormal = new THREE.Vector3();
 	const bbox = new THREE.Box3();
 	const dotLimit = Math.cos(params.filterAngle * Math.PI / 180.);
-	const normDepth = cometInfo ? new NormalDepth() : null;
+	const normDepth = cometView ? new NormalDepth() : null;
 
-	if (cometInfo) cometInfo.createViewRect();
+	if (cometView) cometView.createViewRect();
 
 	for (let i = 0; i < cometGeometry.attributes.position.array.length; i+=3) {
 		let isVisible = false;
@@ -1472,8 +1472,8 @@ let computeVisibleVertices = function (paintVisible = true) {
 			raycaster.set(sc, v.clone().sub(sc));
 			// console.log("v is %O, sc is %O, sc, dir = %O", v, sc, v.clone().sub(sc));
 			res.length = 0;
-			if (cometInfo && cometInfo.viewRect) {
-				res = raycaster.intersectObject(cometInfo.viewRect, false, res );
+			if (cometView && cometView.viewRect) {
+				res = raycaster.intersectObject(cometView.viewRect, false, res );
 				if (res.length == 0) continue;    // does not intersect viewRect, which is set
 			}
 			res.length = 0;
@@ -1485,7 +1485,7 @@ let computeVisibleVertices = function (paintVisible = true) {
 			}
 			if (isVisible) {
 				bbox.expandByPoint(v);		// include point in our axis-aligned bounding box
-				if (normDepth) normDepth.expandByVector(vertToSC, cometInfo.normal);
+				if (normDepth) normDepth.expandByVector(vertToSC, cometView.normal);
 				if (paintVisible) {
 					colorArray[i] = r;
 					colorArray[i+1] = g;
@@ -1495,19 +1495,19 @@ let computeVisibleVertices = function (paintVisible = true) {
 			}
 		}
 	}
-	if (cometInfo) cometInfo.saveExtentInfo(bbox, normDepth);
+	if (cometView) cometView.saveExtentInfo(bbox, normDepth);
 	console.log("ComputeVisible time = %f milliseconds", window.performance.now() - startTime);
 	if (paintVisible) console.log(`Visible vertex count = ${countVertices(VISIBLE_BLUE)}`);
 	if (paintVisible) expandPaint(1);
 	// if (paintVisible) console.log(`Number of vertices still painted = ${countVertices(BRUSH_BLUE)}`);   // DEBUG	
 }
 
-const M2DIST = (.001*(CometInfo.defaultRes/2)) / Math.tan(Math.PI*(CometInfo.FOV/2.0)/180.0);
+const M2DIST = (.001*(CometView.defaultRes/2)) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
 const M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2. 
 
 function getM2FromDistance(photoDict, dist) {
 	let m2 = dist * M2MULTIPLIER;
-	if ('rz' in photoDict) m2 *= CometInfo.defaultRes / photoDict.rz;	// adjust for different resolutions
+	if ('rz' in photoDict) m2 *= CometView.defaultRes / photoDict.rz;	// adjust for different resolutions
 	return Math.round(m2 * 100) / 100;  // rounding to 2 digits after decimal
 }
 
@@ -1528,9 +1528,9 @@ socket.on('PPserverRequestsVisibility', function(message) { // {index:, name:}
 		currentIndex = params.photoIndex = message.index;  // to make sure index slider updates
 		computeVisibleVertices(true);	// apply visibility paint
 
-		const bbox = cometInfo.bbox;
+		const bbox = cometView.bbox;
 		message.bbox = {min: bbox.min.toArray(), max: bbox.max.toArray()};
-		const depth = cometInfo.normDepth;
+		const depth = cometView.normDepth;
 		if (getM2FromDistance(ogPhotoArray[message.index], depth.depthMin) > 10)
 			depth.depthMax = depth.depthMin-1;	// Tell server not to save if m2 > 10
 		message.depth = {min: depth.depthMin, max: depth.depthMax};
@@ -1587,7 +1587,7 @@ function render() {
 	
 	animateCOR();
 
-    const skipRender = cometInfo && (params.showImage != SI_NONE)  && !cometInfo.imageFresh;
+    const skipRender = cometView && (params.showImage != SI_NONE)  && !cometView.imageFresh;
 	if (!skipRender) {
 		renderer.render(scene, camera);
         refreshOverlay();
