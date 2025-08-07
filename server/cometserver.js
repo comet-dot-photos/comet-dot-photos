@@ -133,10 +133,8 @@ if (localServer) {
     console.log(`To exit the server, type Control-C.`)
 }
 
-// const internal = require('stream');
 const { exit } = require('process');
 
-//const charPtr = ref.types.CString; // Ensure CString is used for C strings
 
 const BYTESPERROW = 12504;  // dependent on the shape model
 let fileText;
@@ -163,7 +161,7 @@ function loadCFunctions() {
     libVis = koffi.load(libraryPath);
     c_load_vbuff = libVis.func('int load_vbuff(char*, int, int)');
     c_check_vis = libVis.func('void check_vis(int, uint8_t*, uint64_t*)');
-    //c_count_vis = libVis.func('int count_vis(uint64_t*)');
+    //c_count_vis = libVis.func('int count_vis(uint64_t*)'); - for debugging
 }
 
 let viewArray, nRows;
@@ -239,7 +237,7 @@ io.on('connection', function(socket) {
         });
     }
 
-    /*
+    /* - Only for debugging purposes
     socket.on('clientRequestsVisCount', function(message) { // message is the visArray
         console.log(`Got a clientRequestsVisCount`);
         //console.log(`visbuff constructor is ${message.constructor}`)
@@ -283,8 +281,8 @@ io.on('connection', function(socket) {
         }
     });
 
-    /*
-    socket.on('disconnect', function() {   // nothing yet
+    // Currently we do not need to handle disconnections explicitly
+    /* socket.on('disconnect', function() {   // nothing yet
         console.log(`${socket.id} has disconnected`);
     });
     */
