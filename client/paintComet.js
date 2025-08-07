@@ -386,12 +386,12 @@ function init() {
 
 	// renderer setup
 	threeCanvas = document.getElementById('threeCanvas');
-	renderer = new THREE.WebGLRenderer( { canvas: threeCanvas, antialias: true } );
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.setClearColor( bgColor, 1 );
+	renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, antialias: true });
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(bgColor, 1);
 	renderer.outputColorSpace = THREE.SRGBColorSpace;
-	document.body.appendChild( renderer.domElement );
+	document.body.appendChild(renderer.domElement);
 	renderer.domElement.style.touchAction = 'none';
 
 	// overlay setup
@@ -406,13 +406,13 @@ function init() {
 	// scene setup
 	scene = new THREE.Scene();
 	
-	const light = new THREE.DirectionalLight(0xffffff, 0.5);
-	light.position.set( 1, 1, 1 );
+	const light1 = new THREE.DirectionalLight(0xffffff, 0.5);
+	light1.position.set(1, 1, 1);
 	const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
-	light2.position.set( -1, -1, -1);
-	scene.add( light );
+	light2.position.set(-1, -1, -1);
+	scene.add(light1);
 	scene.add(light2);
-	scene.add(new THREE.AmbientLight( 0xffffff, 0.4 ));
+	scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
 	//ADD AXES
 	function createAxes() {
@@ -438,11 +438,11 @@ function init() {
 	const loadData = (object3d) => {
         cometGeometry = object3d.children[0].geometry;
         cometGeometry.computeVertexNormals();                
-        colorArray = new Uint8Array( cometGeometry.attributes.position.count * 3 );
+        colorArray = new Uint8Array(cometGeometry.attributes.position.count * 3);
 		colorArray.fill(COMETGREYVAL);
-		colorAttr = new THREE.BufferAttribute( colorArray, 3, true );
-		colorAttr.setUsage( THREE.DynamicDrawUsage );
-		cometGeometry.setAttribute( 'color', colorAttr );
+		colorAttr = new THREE.BufferAttribute(colorArray, 3, true);
+		colorAttr.setUsage(THREE.DynamicDrawUsage);
+		cometGeometry.setAttribute('color', colorAttr);
         cometMaterial = new ProjectedMaterial ({ 
             cover: false,
 			color: COMETCOLOR,
@@ -451,9 +451,9 @@ function init() {
 			vertexColors: true,
 			flatShading: params.flatShading
             });
-		targetMesh = new THREE.Mesh( cometGeometry, cometMaterial );
+		targetMesh = new THREE.Mesh(cometGeometry, cometMaterial);
 		targetMesh.geometry.computeBoundsTree();
-		scene.add( targetMesh );
+		scene.add(targetMesh);
 		if (ogPhotoArray) { //if photo array loaded then load first
 			params.loadFirst();
 		}
@@ -464,7 +464,7 @@ function init() {
 
 
 	const brushGeometry = new THREE.SphereGeometry(1, 40, 40);
-	const brushMaterial = new THREE.MeshStandardMaterial( {
+	const brushMaterial = new THREE.MeshStandardMaterial({
 		color: BRUSH_COLOR,
 		roughness: 0.75,
 		metalness: 0,
@@ -473,13 +473,13 @@ function init() {
 		premultipliedAlpha: true,
 		emissive: BRUSH_COLOR,
 		emissiveIntensity: 0.5,
-	} );
+	});
 	const brushMesh = new THREE.Mesh(brushGeometry, brushMaterial);
 	brushMesh.visible = false;
 	scene.add(brushMesh);
 
 	const CORGeometry = new THREE.SphereGeometry(.05, 40, 40);
-	const CORMaterial = new THREE.MeshStandardMaterial( {
+	const CORMaterial = new THREE.MeshStandardMaterial({
 		color: COR_COLOR,
 		roughness: 0.75,
 		metalness: 0,
@@ -488,7 +488,7 @@ function init() {
 		premultipliedAlpha: true,
 		emissive: COR_COLOR,
 		emissiveIntensity: 1.0, //0.5,
-	} );
+	});
 	CORMesh = new THREE.Mesh(CORGeometry, CORMaterial);
 	CORMesh.visible = false;
 	scene.add(CORMesh);
@@ -655,10 +655,10 @@ function init() {
 		debugFolder.add(params, 'preProcess').name('Pre-Process');
 		debugFolder.add(params, 'paintVisible').name('Paint Visible');
 		debugFolder.add(params, 'memStats').name('Memory Stats');
-		debugFolder.add(params, 'flatShading').name('Flat Shading').onChange( 
+		debugFolder.add(params, 'flatShading').name('Flat Shading').onChange(
 			function(boolFlat) {
 				cometMaterial.flatShading = boolFlat;
-				cometMaterial.needsUpdate = true;} );
+				cometMaterial.needsUpdate = true;});
 	}
 	gui.open();
 
@@ -1008,7 +1008,7 @@ function init() {
                     const theoreticalDistance = v.distanceTo(sc);
                     raycaster.set(sc, v.clone().sub(sc));
                     res.length = 0;
-                    res = raycaster.intersectObject( targetMesh, true, res );
+                    res = raycaster.intersectObject(targetMesh, true, res);
                     if (res.length > 0) {
                         if (Math.abs(res[0].distance - theoreticalDistance) < .001) // less than a meter
                             visibleVerts.push(v.clone());
@@ -1143,7 +1143,7 @@ function init() {
 
 		if (params.paint) {
  			const raycaster = new THREE.Raycaster();
-			raycaster.setFromCamera( mouse, camera );
+			raycaster.setFromCamera(mouse, camera);
 			raycaster.firstHitOnly = true;
 
 			const res = raycaster.intersectObject(targetMesh, true);
@@ -1163,18 +1163,18 @@ function init() {
 					const tempVec = new THREE.Vector3();
 					bvh.shapecast( {
 						intersectsBounds: box => {
-							const intersects = sphere.intersectsBox( box );
+							const intersects = sphere.intersectsBox(box);
 							const { min, max } = box;
-							if ( intersects ) {
-								for ( let x = 0; x <= 1; x ++ ) {
-									for ( let y = 0; y <= 1; y ++ ) {
-										for ( let z = 0; z <= 1; z ++ ) {
+							if (intersects) {
+								for (let x = 0; x <= 1; x++) {
+									for (let y = 0; y <= 1; y++) {
+										for (let z = 0; z <= 1; z++) {
 											tempVec.set(
 												x === 0 ? min.x : max.x,
 												y === 0 ? min.y : max.y,
 												z === 0 ? min.z : max.z
 											);
-											if ( ! sphere.containsPoint( tempVec ) ) {
+											if (!sphere.containsPoint(tempVec)) {
 												return INTERSECTED;
 											}
 										}
@@ -1184,23 +1184,23 @@ function init() {
 							}
 							return intersects ? INTERSECTED : NOT_INTERSECTED;
 						},
-						intersectsTriangle: ( tri, i, contained ) => {
-							if ( contained || tri.intersectsSphere( sphere ) ) {
+						intersectsTriangle: (tri, i, contained) => {
+							if (contained || tri.intersectsSphere(sphere)) {
 								const i3 = 3 * i;
-								indices.push( i3, i3 + 1, i3 + 2 );
+								indices.push(i3, i3 + 1, i3 + 2);
 							}
 							return false;
 						}
 					} );
 
-					if ( mouseType === 0 || mouseType === 2 ) {
+					if (mouseType === 0 || mouseType === 2) {
 						r = g = b = COMETGREYVAL;  // erase the paint
-						if ( mouseType === 0 ) {   // set the paint color
+						if (mouseType === 0) {   // set the paint color
 							r = PAINT_RED;
 							g = PAINT_GREEN;
 							b = PAINT_BLUE;;
 						}
-						for ( let i = 0, l = indices.length; i < l; i ++ ) {
+						for (let i = 0, l = indices.length; i < l; i ++) {
 							const vertexIndex = indexAttr.getX(indices[i]);
 							const colorIndex = vertexIndex * 3;
 							colorArray[colorIndex] = r;
@@ -1220,7 +1220,7 @@ function init() {
 	
 	function CORAtMouse(setCOR) {
 		const raycaster = new THREE.Raycaster();
-		raycaster.setFromCamera( mouse, camera );
+		raycaster.setFromCamera(mouse, camera);
 		raycaster.firstHitOnly = true;
 
 		const res = raycaster.intersectObject(targetMesh, true);
@@ -1239,7 +1239,7 @@ function init() {
 	window.addEventListener('resize', function () {
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
-		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setSize(window.innerWidth, window.innerHeight);
 	
     	overlayCanvas.width = window.innerWidth;
 		overlayCanvas.height = window.innerHeight;
@@ -1247,25 +1247,25 @@ function init() {
 	
 		if (params.showImage != SI_NONE)
 			overlayNeedsUpdate = true;
-    }, false );
+    }, false);
 
-	renderer.domElement.addEventListener('pointermove', function ( e ) {
-		mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-		mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+	renderer.domElement.addEventListener('pointermove', function (e) {
+		mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
 		if (params.paint) {
 			drawBrush(pointerDown);
 		} else if (CORMode) {
 			CORAtMouse();
 		}
-	} );
+	});
 
 	renderer.domElement.addEventListener('pointerdown', function (e) {
         haltCircle = true;
 		overlayNeedsUpdate = true;		// so that circle is erased
 		pointerDown = true;
 		CORMesh.visible = true;				// default for during Trackball motion
-		mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-		mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+		mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+		mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
 		mouseType = e.button;
         if (params.paint) {
 			drawBrush(pointerDown);
@@ -1275,9 +1275,9 @@ function init() {
 			CORMode = true;
 			CORAtMouse();
 		}						 // Panning: non-paint and right mouse and shiftkey: nothing else needed
-	}, true );
+	}, true);
 
-	renderer.domElement.addEventListener('pointerup', function ( e ) {
+	renderer.domElement.addEventListener('pointerup', function (e) {
 		haltCircle = false;
 		overlayNeedsUpdate = true;
 		pointerDown = false;
@@ -1292,9 +1292,9 @@ function init() {
 			CORMode = false;
 			controls.enabled = true;
 		}
-	}, true );
+	}, true);
 
-	window.addEventListener('wheel', function ( e ) {
+	window.addEventListener('wheel', function (e) {
 		if (params.paint) {
 			let delta = e.deltaY; 
 			
@@ -1302,11 +1302,11 @@ function init() {
                 delta *= 10;
             }
 			params.brushSize += delta/150 * 10;
-			params.brushSize = Math.max(Math.min( params.brushSize, MAXBRUSHSIZE), MINBRUSHSIZE);
+			params.brushSize = Math.max(Math.min(params.brushSize, MAXBRUSHSIZE), MINBRUSHSIZE);
 			params.brushSize = Math.round(params.brushSize);
 			adjustBrushMesh(params.brushSize);
 		} else overlayNeedsUpdate = true;   // overlay highlight moves on camera change
-	} );
+	});
 
 	// dblclick - set rotations about center again
 	renderer.domElement.addEventListener('dblclick', (event) => {
@@ -1317,9 +1317,9 @@ function init() {
 		}
 	});
 
-	renderer.domElement.addEventListener( 'contextmenu', function ( e ) {
+	renderer.domElement.addEventListener('contextmenu', function (e) {
 		e.preventDefault();
-	} );
+	});
 
 
 	controls = new TrackballControls(camera, renderer.domElement);
@@ -1411,11 +1411,11 @@ let computeVisibleVertices = function (paintVisible = true) {
 			// console.log("v is %O, sc is %O, sc, dir = %O", v, sc, v.clone().sub(sc));
 			res.length = 0;
 			if (cometView && cometView.viewRect) {
-				res = raycaster.intersectObject(cometView.viewRect, false, res );
+				res = raycaster.intersectObject(cometView.viewRect, false, res);
 				if (res.length == 0) continue;    // does not intersect viewRect, which is set
 			}
 			res.length = 0;
-			res = raycaster.intersectObject( targetMesh, true, res );
+			res = raycaster.intersectObject(targetMesh, true, res);
 			if (res.length > 0) {
 				// console.log("res[0].distance = %f", res[0].distance);
 				if (Math.abs(res[0].distance - theoreticalDistance) < .001) // less than a meter
