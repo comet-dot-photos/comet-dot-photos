@@ -192,7 +192,7 @@ if (process.env.PREPROCESSING) {
 io.on('connection', function(socket) {
     const clientIp = socket.handshake.address;      // print out the IP 
     const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
-    console.log(`Got a connection from: ${socket.handshake.query.clientID} at ${ipv4}`);
+    console.log(`Client connection from: ${socket.handshake.query.clientID} at ${ipv4}`);
     if (localServer)
         clientSet.add(socket.handshake.query.clientID);
 
@@ -250,7 +250,7 @@ io.on('connection', function(socket) {
     */
 
     socket.on('clientRequestsVis', function(message) { //message {imgSel: imgSelArray, visAr: visArray, mustMatch: int}
-        console.log(`Got a clientRequestsVis`);
+        console.log(`clientRequestsVis: Client requesting visibility matches.`);
         try {
             // checks to make sure client cannot cause check_vis to exceed buffers
             if (!Buffer.isBuffer(message.imgSel) || message.imgSel.length != Math.ceil(nRows/8)) {
