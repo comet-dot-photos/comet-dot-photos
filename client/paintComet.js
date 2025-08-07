@@ -72,10 +72,6 @@ const msDay = 86400000;
 const msMonth = 2628000000;
 const msYear = 31536000000;
 
-const origin = new THREE.Vector3(0,0,0);
-const zPoint4 = new THREE.Vector3(0,0,4);
-const yPoint4 = new THREE.Vector3(0,4,0);
-const xPoint4 = new THREE.Vector3(4,0,0);
 
 const MINBRUSHSIZE = 5, MAXBRUSHSIZE = 200, INITBRUSHSIZE = 100;
 const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Perspective", SI_ORTHOGRAPHIC = "Orthographic";
@@ -410,31 +406,29 @@ function init() {
 	// scene setup
 	scene = new THREE.Scene();
 	
-	const light = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	const light = new THREE.DirectionalLight(0xffffff, 0.5);
 	light.position.set( 1, 1, 1 );
-	const light2 = new THREE.DirectionalLight(0xffffff, 0.5 );
+	const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
 	light2.position.set( -1, -1, -1);
 	scene.add( light );
 	scene.add(light2);
-	scene.add( new THREE.AmbientLight( 0xffffff, 0.4 ) );
+	scene.add(new THREE.AmbientLight( 0xffffff, 0.4 ));
 
 	//ADD AXES
 	function createAxes() {
-		const zMaterial = new THREE.LineBasicMaterial({color: 0x0000ff});
-		const yMaterial = new THREE.LineBasicMaterial({color: 0x00ff00});
+		const AXIS_LENGTH = 4;
 		const xMaterial = new THREE.LineBasicMaterial({color: 0xff0000});
-
-		const zAxis = [origin, zPoint4];
-		const yAxis = [origin, yPoint4];
-		const xAxis = [origin, xPoint4];
-
-		const ZAxisGeo = new THREE.BufferGeometry().setFromPoints(zAxis);
-		const YAxisGeo = new THREE.BufferGeometry().setFromPoints(yAxis);
-		const XAxisGeo = new THREE.BufferGeometry().setFromPoints(xAxis);
-
-		zAxisLine = new THREE.Line(ZAxisGeo, zMaterial);
-		yAxisLine = new THREE.Line(YAxisGeo, yMaterial);
+		const yMaterial = new THREE.LineBasicMaterial({color: 0x00ff00});
+		const zMaterial = new THREE.LineBasicMaterial({color: 0x0000ff});
+	
+		const origin = new THREE.Vector3(0,0,0);
+		const XAxisGeo = new THREE.BufferGeometry().setFromPoints([origin, new THREE.Vector3(AXIS_LENGTH,0,0)]);
+		const YAxisGeo = new THREE.BufferGeometry().setFromPoints([origin, new THREE.Vector3(0,AXIS_LENGTH,0)]);
+		const ZAxisGeo = new THREE.BufferGeometry().setFromPoints([origin, new THREE.Vector3(0,0,AXIS_LENGTH)]);
+	
 		xAxisLine = new THREE.Line(XAxisGeo, xMaterial);
+		yAxisLine = new THREE.Line(YAxisGeo, yMaterial);
+		zAxisLine = new THREE.Line(ZAxisGeo, zMaterial);
 	}
 	createAxes();
 
@@ -451,7 +445,6 @@ function init() {
 		cometGeometry.setAttribute( 'color', colorAttr );
         cometMaterial = new ProjectedMaterial ({ 
             cover: false,
-            // color: 0x909090,
 			color: COMETCOLOR,
 			transparent: false,
 			opacity: 1.0,
@@ -501,13 +494,13 @@ function init() {
 	scene.add(CORMesh);
 
 	//camera setup
-	camera = new THREE.PerspectiveCamera( CometView.FOV, window.innerWidth / window.innerHeight, 0.1, 500);
+	camera = new THREE.PerspectiveCamera(CometView.FOV, window.innerWidth / window.innerHeight, 0.1, 500);
 	camera.position.set(...dataset.initialEye);
 	camera.updateProjectionMatrix();
 
 	// stats setup
 	stats = new Stats();
-	document.body.appendChild( stats.dom );
+	document.body.appendChild(stats.dom);
 	
 	// example makeDualSlider(filterFolder, "Meters per Pixel", 0, 10, .1, 1, params.MpP_duo, (vals)=>{applyMpPFilter(ogPhotoArray)});
     function makeDualSlider(folder, name, min, max, step, afterDec, valArray, funct) {
@@ -1446,7 +1439,7 @@ let computeVisibleVertices = function (paintVisible = true) {
 	if (paintVisible) expandPaint(1);
 }
 
-const M2DIST = (.001*(CometView.defaultRes/2)) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
+const M2DIST = (.001*(dataset.defaultRes/2)) / Math.tan(Math.PI*(dataset.FOV/2.0)/180.0);
 const M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2. 
 
 function getM2FromDistance(photoDict, dist) {
