@@ -20,38 +20,7 @@ const dataset = {
 	modelFolder: "",
 };
 
-let urlPrefix = "";
-let stats;
-let scene, camera, renderer, controls, colorArray, colorAttr, r, b, g;
-let threeCanvas, overlayCanvas;
-let targetMesh, cometMaterial, cometGeometry;
-let mouse = new THREE.Vector2();
-let mouseType = - 1;
-let cometView = null;
-let ogPhotoArray, dynamicArray;
-let avgNormal, avgPosition, roiBoundingBox;
-let applyGeoFilter, updateAllFilters, download;
-let numPainted = 0;
-let bboxBitBuffer, bboxBitArray, paintBuffer, paintArray;
-let xAxisLine, yAxisLine, zAxisLine;
-let refreshOverlay, overlayNeedsUpdate = true, haltCircle = false, pointerDown = false;
-let CORMode = false, CORMesh;
-let oldCOR, deltaCOR, intervalCOR = 1, t0COR = -1;
-let debugMode = false, preprocessMode = false;
-let startTimer, endTimer;	// just for measuring speed
-
-// Store a session ID for the server. Only used when running locally to shutdown
-//   the server after all clients disconnect
-function generateSessionID() {	
-	return '_' + Math.random().toString(36).substring(2, 11);
- };
-
-var socket = io({
-	query: {
-	  clientID: generateSessionID()
-	},
-  });
-
+// CONSTANTS!
 // Specify Colors
 const PAINT_RED = 241, PAINT_GREEN = 178, PAINT_BLUE = 171;	  // color of painted region
 const BRUSH_COLOR = 0xEC407A; // color of brush sphere
@@ -72,22 +41,41 @@ const msDay = 86400000;
 const msMonth = 2628000000;
 const msYear = 31536000000;
 
+const MINBRUSHSIZE = 5, MAXBRUSHSIZE = 200, INITBRUSHSIZE = 100; // BRUSH Constants
+const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Perspective", SI_ORTHOGRAPHIC = "Orthographic"; // "Show Image" choices
 
-const MINBRUSHSIZE = 5, MAXBRUSHSIZE = 200, INITBRUSHSIZE = 100;
-const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Perspective", SI_ORTHOGRAPHIC = "Orthographic";
+let urlPrefix = "";
+let stats;
+let scene, camera, renderer, controls, colorArray, colorAttr, r, b, g;
+let threeCanvas, overlayCanvas;
+let targetMesh, cometMaterial, cometGeometry;
+let mouse = new THREE.Vector2();
+let mouseType = - 1;
+let cometView = null;
+let currentIndex = 0;
+let ogPhotoArray, dynamicArray;
+let avgNormal, avgPosition, roiBoundingBox;
+let applyGeoFilter, updateAllFilters, download;
+let numPainted = 0;
+let bboxBitBuffer, bboxBitArray, paintBuffer, paintArray;
+let xAxisLine, yAxisLine, zAxisLine;
+let refreshOverlay, overlayNeedsUpdate = true, haltCircle = false, pointerDown = false;
+let CORMode = false, CORMesh;
+let oldCOR, deltaCOR, intervalCOR = 1, t0COR = -1;
+let debugMode = false, preprocessMode = false;
+let startTimer, endTimer;	// just for measuring speed
 
-var currentIndex = 0;
+// Connect to the server, using a socket.io connection with a unique ID
+function generateSessionID() {	
+	return '_' + Math.random().toString(36).substring(2, 11);
+ };
 
-function initBBOXBitBuffer(nPhotos) {
-	if (typeof bboxBitBuffer === "undefined") {
-		const numBytes = Math.ceil(nPhotos/8);
-		bboxBitBuffer = new ArrayBuffer(numBytes);
-		bboxBitArray = new Uint8Array(bboxBitBuffer);
-	}
-	else {
-		bboxBitArray.fill(0);
-	}
-}
+var socket = io({
+	query: {
+	  clientID: generateSessionID()
+	},
+  });
+
 
 function initPaintBuffer() {
 	if (typeof paintBuffer === "undefined") {
@@ -134,7 +122,7 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 
 
-const params = {
+const cpanel = {
 	quickstartHelp: function() {
 		window.open("quickstart.html");
 	},
@@ -145,7 +133,7 @@ const params = {
 		colorAttr.needsUpdate = true;
 		numPainted = 0;
 		updateAllFilters(ogPhotoArray);
-		params.photoInfo = getInfoString(dynamicArray[params.photoIndex]);
+		cpanel.photoInfo = getInfoString(dynamicArray[cpanel.photoIndex]);
 		overlayNeedsUpdate = true;
 	},
 	paintVisible: function () { computeVisibleVertices(true);},
@@ -206,7 +194,7 @@ const params = {
 			avgNormal = norm.divideScalar(numPainted).normalize();
 		}
 		
-		params.photoInfo = getInfoString(dynamicArray[params.photoIndex]);
+		cpanel.photoInfo = getInfoString(dynamicArray[cpanel.photoIndex]);
 		//console.log('avgNormal:', avgNormal);
 		//console.log('roiBoundingBox:', roiBoundingBox)
 		updateAllFilters(ogPhotoArray);
@@ -277,7 +265,7 @@ const params = {
 		download('comet_filenames.txt', files);
 	},
 	memStats: function() {
-        params.status = `Textures: ${renderer.info.memory.textures}. Geometries = ${renderer.info.memory.geometries}.`;
+        cpanel.status = `Textures: ${renderer.info.memory.textures}. Geometries = ${renderer.info.memory.geometries}.`;
     },
     flatShading: true
 }
@@ -307,21 +295,21 @@ function loadComet(photoDict) {
 	}
 	cometView = new CometView(photoDict);
 
-	if (params.blueBox)
+	if (cpanel.blueBox)
 		cometView.addOutline(scene);
-    if (params.showImage == SI_ORTHOGRAPHIC) cometView.addDecal(scene, targetMesh /*, paintInfo ? paintInfo.avgLoc : null*/);
-    if (params.showImage == SI_PERSPECTIVE) cometView.addProjection(targetMesh, cometMaterial);
-    if (params.showImage == SI_UNMAPPED)
+    if (cpanel.showImage == SI_ORTHOGRAPHIC) cometView.addDecal(scene, targetMesh /*, paintInfo ? paintInfo.avgLoc : null*/);
+    if (cpanel.showImage == SI_PERSPECTIVE) cometView.addProjection(targetMesh, cometMaterial);
+    if (cpanel.showImage == SI_UNMAPPED)
         cometView.LoadImageForOverlay(overlayCanvas);
  
     overlayNeedsUpdate = true;
-    if (params.autoCam) {
+    if (cpanel.autoCam) {
 		cometView.applyToCamera(camera, controls);
 		controls.dispatchEvent({ type: 'change' });
 	}
-	params.fileName = cometView.fileName;
-	params.time = cometView.time;
-	params.photoInfo = getInfoString(photoDict);
+	cpanel.fileName = cometView.fileName;
+	cpanel.time = cometView.time;
+	cpanel.photoInfo = getInfoString(photoDict);
 }
 
 function drawNoMatchesOverlay() {
@@ -330,7 +318,7 @@ function drawNoMatchesOverlay() {
 	const guiElement = document.querySelector('.lil-gui');
 	const guiWidth = renderer.domElement.getBoundingClientRect().right - guiElement.getBoundingClientRect().left;
 
-	if (params.showImage == SI_UNMAPPED) {
+	if (cpanel.showImage == SI_UNMAPPED) {
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, canvasWidth, canvasHeight); // Black background
 	} else {
@@ -347,14 +335,14 @@ function drawNoMatchesOverlay() {
 // only called if there are no matches, and the current cometView must be unloaded
 function unloadComet() {
 	if (cometView) {
-		if (params.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(scene);
-		if (params.showImage == SI_PERSPECTIVE) cometView.removeProjection(cometMaterial);
+		if (cpanel.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(scene);
+		if (cpanel.showImage == SI_PERSPECTIVE) cometView.removeProjection(cometMaterial);
 		CometView.lastRequestedImg = "";		// stop pending image requests from loading
 		// Note: for SI_UNMAPPED, image will be automatically erased by the no matches overlay
 		cometView.removeSelf(scene);
-		params.fileName = "";
-		params.time = "";
-		params.photoInfo = "No matching images";
+		cpanel.fileName = "";
+		cpanel.time = "";
+		cpanel.photoInfo = "No matching images";
 		cometView = null;
 		overlayNeedsUpdate = true;   // may trigger No Matches overlay
 	}
@@ -449,13 +437,13 @@ function init() {
 			transparent: false,
 			opacity: 1.0,
 			vertexColors: true,
-			flatShading: params.flatShading
+			flatShading: cpanel.flatShading
             });
 		targetMesh = new THREE.Mesh(cometGeometry, cometMaterial);
 		targetMesh.geometry.computeBoundsTree();
 		scene.add(targetMesh);
 		if (ogPhotoArray) { //if photo array loaded then load first
-			params.loadFirst();
+			cpanel.loadFirst();
 		}
     };
 
@@ -502,7 +490,7 @@ function init() {
 	stats = new Stats();
 	document.body.appendChild(stats.dom);
 	
-	// example makeDualSlider(filterFolder, "Meters per Pixel", 0, 10, .1, 1, params.MpP_duo, (vals)=>{applyMpPFilter(ogPhotoArray)});
+	// example makeDualSlider(filterFolder, "Meters per Pixel", 0, 10, .1, 1, cpanel.MpP_duo, (vals)=>{applyMpPFilter(ogPhotoArray)});
     function makeDualSlider(folder, name, min, max, step, afterDec, valArray, funct) {
 		// get div structure from html page
 		const template = document.getElementById('sliderTemplate');
@@ -607,62 +595,62 @@ function init() {
 	let skipForwardCtl, skipBackwardCtl;
 
 	const helpFolder = gui.addFolder('Help Resources');
-	helpFolder.add(params, 'quickstartHelp').name('Show Quickstart Help');
+	helpFolder.add(cpanel, 'quickstartHelp').name('Show Quickstart Help');
 
 	const paintFolder = gui.addFolder('Paint Tools');
-	const paintController = paintFolder.add(params, 'paint').name('Enable Paint').listen().onChange(function(value) { 
+	const paintController = paintFolder.add(cpanel, 'paint').name('Enable Paint').listen().onChange(function(value) { 
 		controls.enabled = !value;
 		if (!value) brushMesh.visible = false;
-		if (value && (params.showImage == SI_UNMAPPED || params.showImage == SI_ORTHOGRAPHIC))
+		if (value && (cpanel.showImage == SI_UNMAPPED || cpanel.showImage == SI_ORTHOGRAPHIC))
 			showImageController.setValue(SI_NONE);
 		adjustShading();
 	 });
-	paintFolder.add(params, 'brushSize').min(MINBRUSHSIZE).max(MAXBRUSHSIZE).step(MINBRUSHSIZE).listen().name('Brush Size').onChange(adjustBrushMesh);
-	paintFolder.add(params, 'percentROI').name('Percent Overlap').min(1).max(100).step(1).onChange(function(value) {applyGeoFilter(ogPhotoArray)});
-	paintFolder.add(params, 'clear').name('Clear Paint');
+	paintFolder.add(cpanel, 'brushSize').min(MINBRUSHSIZE).max(MAXBRUSHSIZE).step(MINBRUSHSIZE).listen().name('Brush Size').onChange(adjustBrushMesh);
+	paintFolder.add(cpanel, 'percentROI').name('Percent Overlap').min(1).max(100).step(1).onChange(function(value) {applyGeoFilter(ogPhotoArray)});
+	paintFolder.add(cpanel, 'clear').name('Clear Paint');
 	
     const filterFolder = gui.addFolder('Image Filters');
-    makeDualSlider(filterFolder, "Meters per Pixel", 0, 10, .1, 1, params.MpP_duo, (vals)=>{applyMpPFilter(ogPhotoArray)});
-	makeDualSlider(filterFolder, "Emission Angle", 0, 90, 1, 0, params.emission_duo, (vals)=>{applyEmissionFilter(ogPhotoArray)});
-	makeDualSlider(filterFolder, "Incidence Angle", 0, 90, 1, 0, params.incidence_duo, (vals)=>{applyIncidenceFilter(ogPhotoArray)});
-    makeDualSlider(filterFolder, "Phase Angle", 0, 180, 1, 0, params.phase_duo, (vals)=>{applyPhaseFilter(ogPhotoArray)});
+    makeDualSlider(filterFolder, "Meters per Pixel", 0, 10, .1, 1, cpanel.MpP_duo, (vals)=>{applyMpPFilter(ogPhotoArray)});
+	makeDualSlider(filterFolder, "Emission Angle", 0, 90, 1, 0, cpanel.emission_duo, (vals)=>{applyEmissionFilter(ogPhotoArray)});
+	makeDualSlider(filterFolder, "Incidence Angle", 0, 90, 1, 0, cpanel.incidence_duo, (vals)=>{applyIncidenceFilter(ogPhotoArray)});
+    makeDualSlider(filterFolder, "Phase Angle", 0, 180, 1, 0, cpanel.phase_duo, (vals)=>{applyPhaseFilter(ogPhotoArray)});
 
 	const imageFolder = gui.addFolder('Image Display and Navigation');
-	const showImageController = imageFolder.add(params, 'showImage',[SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC]).name('Show Image').onChange(function(value) {showImage(value)});
-	imageFolder.add(params, 'circleRegion').name('Encircle Region').onChange((val) => {overlayNeedsUpdate=true;});
-    imageFolder.add(params, 'autoCam').name('Spacecraft View').onChange(function(value){spacecraftView(value);});
-	imageFolder.add(params, 'blueBox').name('Show Viewport').onChange(function(value){changeBox()});
-	imageFolder.add(params, 'axes').name('Show Axes').onChange(function(value) {showAxes(value);});
-	let indexSlider = imageFolder.add(params, 'photoIndex').min(0).step(1).max(1000).name('Image Index').listen().onChange(function(value){loadSlider()});
-	let nextCtl = imageFolder.add(params, 'loadNext').name('Next Image');
-	let previousCtl = imageFolder.add(params, 'loadPrevious').name('Previous Image');
-	let skipCtl = imageFolder.add(params, 'skipLength', ['Day', 'Month', 'Year']).name('Skip Duration').onChange(function(value) {
+	const showImageController = imageFolder.add(cpanel, 'showImage',[SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC]).name('Show Image').onChange(function(value) {showImage(value)});
+	imageFolder.add(cpanel, 'circleRegion').name('Encircle Region').onChange((val) => {overlayNeedsUpdate=true;});
+    imageFolder.add(cpanel, 'autoCam').name('Spacecraft View').onChange(function(value){spacecraftView(value);});
+	imageFolder.add(cpanel, 'blueBox').name('Show Viewport').onChange(function(value){showViewport(value);});
+	imageFolder.add(cpanel, 'axes').name('Show Axes').onChange(function(value) {showAxes(value);});
+	let indexSlider = imageFolder.add(cpanel, 'photoIndex').min(0).step(1).max(1000).name('Image Index').listen().onChange(function(value){loadSlider()});
+	let nextCtl = imageFolder.add(cpanel, 'loadNext').name('Next Image');
+	let previousCtl = imageFolder.add(cpanel, 'loadPrevious').name('Previous Image');
+	let skipCtl = imageFolder.add(cpanel, 'skipLength', ['Day', 'Month', 'Year']).name('Skip Duration').onChange(function(value) {
 		skipForwardCtl.name('Skip Forward a ' + value);
 		skipBackwardCtl.name('Skip Backward a ' + value);
 	});
-	skipForwardCtl = imageFolder.add(params, 'skipf').name('Skip Forward a ' + params.skipLength);
-	skipBackwardCtl = imageFolder.add(params, 'skipb').name('Skip Backward a ' + params.skipLength);
+	skipForwardCtl = imageFolder.add(cpanel, 'skipf').name('Skip Forward a ' + cpanel.skipLength);
+	skipBackwardCtl = imageFolder.add(cpanel, 'skipb').name('Skip Backward a ' + cpanel.skipLength);
 
 	const printData = gui.addFolder('Image Data');
-	printData.add(params, 'status').name('Matches').listen();
-	printData.add(params, 'fileName').name('File Name').onChange(function(value){loadFilename(value)}).listen();
-	printData.add(params, 'time').name('Time').listen();
-	printData.add(params, 'photoInfo').name('Image Info').listen();
-	printData.add(params, 'download').name('Download File Names');
+	printData.add(cpanel, 'status').name('Matches').listen();
+	printData.add(cpanel, 'fileName').name('File Name').onChange(function(value){loadFilename(value)}).listen();
+	printData.add(cpanel, 'time').name('Time').listen();
+	printData.add(cpanel, 'photoInfo').name('Image Info').listen();
+	printData.add(cpanel, 'download').name('Download File Names');
 	if (debugMode) {
 		const debugFolder = gui.addFolder('Debug Tools');
 		debugFolder.close();
-		debugFolder.add(params, 'preProcess').name('Pre-Process');
-		debugFolder.add(params, 'paintVisible').name('Paint Visible');
-		debugFolder.add(params, 'memStats').name('Memory Stats');
-		debugFolder.add(params, 'flatShading').name('Flat Shading').onChange(
+		debugFolder.add(cpanel, 'preProcess').name('Pre-Process');
+		debugFolder.add(cpanel, 'paintVisible').name('Paint Visible');
+		debugFolder.add(cpanel, 'memStats').name('Memory Stats');
+		debugFolder.add(cpanel, 'flatShading').name('Flat Shading').onChange(
 			function(boolFlat) {
 				cometMaterial.flatShading = boolFlat;
 				cometMaterial.needsUpdate = true;});
 	}
 	gui.open();
 
-	adjustBrushMesh(params.brushSize);
+	adjustBrushMesh(cpanel.brushSize);
 
 	function shiftCamera(cam) {
 		const guiElement = document.querySelector('.lil-gui');
@@ -688,12 +676,12 @@ function init() {
 			if (fn == ogPhotoArray[i].nm) {
 				loadComet(dynamicArray[i]);
 				currentIndex = i;
-				params.photoIndex = i;
+				cpanel.photoIndex = i;
 			}
 		}
 	}
 
-	download = function (filename, text) {  // Downloads filename with contents text. Thanks ChatGPT!
+	download = function (filename, text) {  // Downloads filename with contents of text
         var element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
         element.setAttribute('download', filename);
@@ -704,8 +692,8 @@ function init() {
     }
 	
 	function loadSlider() {
-		loadComet(dynamicArray[params.photoIndex]);
-		currentIndex = params.photoIndex;
+		loadComet(dynamicArray[cpanel.photoIndex]);
+		currentIndex = cpanel.photoIndex;
 	}
 
     function enableOverlayCanvas(enable) {
@@ -745,7 +733,7 @@ function init() {
 	}
 
 	let adjustShading = function () {
-		if (params.paint || params.showImage == SI_NONE) {
+		if (cpanel.paint || cpanel.showImage == SI_NONE) {
 			setFlatShading(true);
 			showPaint(true);
 		} else {
@@ -781,19 +769,18 @@ function init() {
 		lastSI = val;
 	}
 
-	function changeBox() {
+	function showViewport(on) {
 		if (cometView) {
-			if (params.blueBox) {
+			if (on) {
 				cometView.addOutline(scene);
-			}
-			else {
+			} else {
 				cometView.removeOutline(scene);
 			}
 		}
 	}
 
-	function showAxes(showThem) {
-		if (showThem) {
+	function showAxes(on) {
+		if (on) {
 			scene.add(zAxisLine);
 			scene.add(yAxisLine);
 			scene.add(xAxisLine);
@@ -840,7 +827,7 @@ function init() {
 			for (let i = 0; i < ogPhotoArray.length; i++) {
 				const avg_sc_vec = ogPhotoArray[i].sc_v.clone().sub(avgPosition).normalize();
 				const angle = Math.acos(avgNormal.clone().dot(avg_sc_vec)) * 180/Math.PI;
-				if (angle > params.emission_duo[1] || angle < params.emission_duo[0]){ 
+				if (angle > cpanel.emission_duo[1] || angle < cpanel.emission_duo[0]){ 
 					ogPhotoArray[i].filter |= FAIL_EMISSION;
 				}
 				else {
@@ -856,7 +843,7 @@ function init() {
 	function applyMpPFilter(ogPhotoArray, doFilterCleanup = true) {
 		if (!numPainted) {  // allow m2 filtering based on estimate stored in ogPhotoArray
 			for (let i = 0; i < ogPhotoArray.length; i++) {
-				if (ogPhotoArray[i].m2 > params.MpP_duo[1] || ogPhotoArray[i].m2 < params.MpP_duo[0]) {
+				if (ogPhotoArray[i].m2 > cpanel.MpP_duo[1] || ogPhotoArray[i].m2 < cpanel.MpP_duo[0]) {
 					ogPhotoArray[i].filter |= FAIL_MPP;
 				}
 				else {
@@ -864,8 +851,8 @@ function init() {
 				}
 			} 
 		} else {				// do m2 filtering based on painted region
-			const maxDist = (params.MpP_duo[1] * (.001*(CometView.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
-			const minDist = (params.MpP_duo[0] * (.001*(CometView.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
+			const maxDist = (cpanel.MpP_duo[1] * (.001*(CometView.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
+			const minDist = (cpanel.MpP_duo[0] * (.001*(CometView.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
 			const maxDistSquared = maxDist*maxDist;
 			const minDistSquared = minDist*minDist;
 			for (let i = 0; i < ogPhotoArray.length; i++) {
@@ -885,7 +872,7 @@ function init() {
 		if (numPainted > 0) {
 			for (let i = 0; i < ogPhotoArray.length; i++) {
 				const angle = Math.acos(ogPhotoArray[i].sunHat.dot(avgNormal)) * 180/Math.PI; 
-				if (angle > params.incidence_duo[1] || angle < params.incidence_duo[0]) {
+				if (angle > cpanel.incidence_duo[1] || angle < cpanel.incidence_duo[0]) {
 					ogPhotoArray[i].filter |= FAIL_INCIDENCE;
 				}
 				else {
@@ -901,7 +888,7 @@ function init() {
 			for (let i = 0; i < ogPhotoArray.length; i++){
 				const scHat = ogPhotoArray[i].sc_v.clone().sub(avgPosition).normalize();
 				const angle = Math.acos(scHat.dot(ogPhotoArray[i].sunHat)) * 180/Math.PI;
-				if (angle > params.phase_duo[1] || angle < params.phase_duo[0]){
+				if (angle > cpanel.phase_duo[1] || angle < cpanel.phase_duo[0]){
 					ogPhotoArray[i].filter |= FAIL_PHASE;
 				}
 				else {
@@ -910,6 +897,17 @@ function init() {
 			}
 		}
 		if (doFilterCleanup) filterCleanUp();
+	}
+
+	function initBBOXBitBuffer(nPhotos) {
+		if (typeof bboxBitBuffer === "undefined") {
+			const numBytes = Math.ceil(nPhotos/8);
+			bboxBitBuffer = new ArrayBuffer(numBytes);
+			bboxBitArray = new Uint8Array(bboxBitBuffer);
+		}
+		else {
+			bboxBitArray.fill(0);
+		}
 	}
 	
 	applyGeoFilter = function (ogPhotoArray, doFilterCleanup = true) {
@@ -922,7 +920,7 @@ function init() {
 							setNthBit(i, bboxBitArray);
 					}
 				}
-				const mustMatch = Math.ceil(numPainted*params.percentROI/100);
+				const mustMatch = Math.ceil(numPainted*cpanel.percentROI/100);
 				socket.emit('clientRequestsVis', {mustMatch: mustMatch, imgSel: bboxBitArray, visAr: paintArray});
 			}
 		} else {  // nothing is painted, so all images pass
@@ -965,7 +963,7 @@ function init() {
 
 	function filterCleanUp() {
 		dynamicArray = ogPhotoArray.filter((item) => item.filter === 0);
-		params.status = `${dynamicArray.length} / ${ogPhotoArray.length} matches`;
+		cpanel.status = `${dynamicArray.length} / ${ogPhotoArray.length} matches`;
 		indexSlider.max(Math.max(0, dynamicArray.length-1));
 
 		if (cometView) {
@@ -980,7 +978,7 @@ function init() {
 			unloadComet();	// No image matches, so have to explicitly unload current cometView. Don't do this otherwise because images will flicker.
 			enableImageNavigation(false);
 		}
-		params.photoIndex = currentIndex;
+		cpanel.photoIndex = currentIndex;
 	}
 
     function visiblePaintedVertices(sc) {
@@ -990,7 +988,7 @@ function init() {
         const v = new THREE.Vector3();
         raycaster.firstHitOnly = true;
         const vertexNormal = new THREE.Vector3();
-        const dotLimit = Math.cos(params.filterAngle * Math.PI / 180.);
+        const dotLimit = Math.cos(cpanel.filterAngle * Math.PI / 180.);
     
         for (let i = 0; i < cometGeometry.attributes.position.array.length; i+=3) {
             if (colorArray[i] == PAINT_RED) {
@@ -1000,7 +998,7 @@ function init() {
                 vertexNormal.x = cometGeometry.attributes.normal.array[i];
                 vertexNormal.y = cometGeometry.attributes.normal.array[i+1];
                 vertexNormal.z = cometGeometry.attributes.normal.array[i+2];
-                if (!params.useNormals || vertexNormal.dot(scToVertNormed) >= dotLimit) {   // vertex passes normal filter
+                if (!cpanel.useNormals || vertexNormal.dot(scToVertNormed) >= dotLimit) {   // vertex passes normal filter
                     let v = new THREE.Vector3();
                     v.x = cometGeometry.attributes.position.array[i] + .000001; // perturb by a milimeter so it doesn't go through the vertex
                     v.y = cometGeometry.attributes.position.array[i+1] + .000001;
@@ -1023,7 +1021,7 @@ function init() {
     function overlayGetCircle() {
 		if (!numPainted) return null;
 		let circleCam;
-		if (params.showImage != SI_UNMAPPED)
+		if (cpanel.showImage != SI_UNMAPPED)
 			circleCam = camera;    // Can simply use main camera
 		else {  // Unmapped - so set circleCam to spacecraftCam equivalent and shift it
 			circleCam = new THREE.PerspectiveCamera();
@@ -1053,14 +1051,14 @@ function init() {
 		const ctx = overlayCanvas.getContext('2d');
 		const canvasWidth = overlayCanvas.width, canvasHeight = overlayCanvas.height;
 
-		if (params.showImage != SI_UNMAPPED) { // Clear the overlay if it does not contain an image
+		if (cpanel.showImage != SI_UNMAPPED) { // Clear the overlay if it does not contain an image
 			ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 			return;
 		}
 	}
 
 	function overlayPaintCircle () {		// so can be accessed earlier
-		if (overlayNeedsUpdate && params.showImage != SI_NONE && params.circleRegion && !haltCircle) {
+		if (overlayNeedsUpdate && cpanel.showImage != SI_NONE && cpanel.circleRegion && !haltCircle) {
 			let rval = overlayGetCircle();
 			if (!rval) return;	// nothing to paint
 			let x=rval[0], y=rval[1], radius=rval[2];
@@ -1080,7 +1078,7 @@ function init() {
 		const guiElement = document.querySelector('.lil-gui');
 		const guiWidth = renderer.domElement.getBoundingClientRect().right - guiElement.getBoundingClientRect().left;
 	
-		if (params.showImage != SI_UNMAPPED) { // Clear the overlay if it does not contain an image
+		if (cpanel.showImage != SI_UNMAPPED) { // Clear the overlay if it does not contain an image
 			ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 			return;
 		}
@@ -1127,7 +1125,7 @@ function init() {
 		updateAllFilters(ogPhotoArray);
 		indexSlider.max(Math.max(0, dynamicArray.length-1));
 		if (targetMesh) {
-			params.loadFirst();
+			cpanel.loadFirst();
 		}
 	})
 	.catch(error => {
@@ -1141,7 +1139,7 @@ function init() {
 		const colorAttr = geometry.getAttribute('color');
 		const indexAttr = geometry.index;
 
-		if (params.paint) {
+		if (cpanel.paint) {
  			const raycaster = new THREE.Raycaster();
 			raycaster.setFromCamera(mouse, camera);
 			raycaster.firstHitOnly = true;
@@ -1157,7 +1155,7 @@ function init() {
 
 					const sphere = new THREE.Sphere();
 					sphere.center.copy(brushMesh.position).applyMatrix4(inverseMatrix);
-					sphere.radius = params.brushSize/1000.0; // m to km;
+					sphere.radius = cpanel.brushSize/1000.0; // m to km;
 
 					const indices = [];
 					const tempVec = new THREE.Vector3();
@@ -1245,14 +1243,14 @@ function init() {
 		overlayCanvas.height = window.innerHeight;
 		shiftCamera(camera);
 	
-		if (params.showImage != SI_NONE)
+		if (cpanel.showImage != SI_NONE)
 			overlayNeedsUpdate = true;
     }, false);
 
 	renderer.domElement.addEventListener('pointermove', function (e) {
 		mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
-		if (params.paint) {
+		if (cpanel.paint) {
 			drawBrush(pointerDown);
 		} else if (CORMode) {
 			CORAtMouse();
@@ -1267,7 +1265,7 @@ function init() {
 		mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
 		mouse.y = - (e.clientY / window.innerHeight) * 2 + 1;
 		mouseType = e.button;
-        if (params.paint) {
+        if (cpanel.paint) {
 			drawBrush(pointerDown);
 			CORMesh.visible = false;		// hide mesh while painting
         } else if (mouseType == 2 && !e.shiftKey) { 	// COR Mode: non-paint and right mouse and no shiftkey
@@ -1282,11 +1280,11 @@ function init() {
 		overlayNeedsUpdate = true;
 		pointerDown = false;
 		CORMesh.visible = false;
-        if (params.paint) {
+        if (cpanel.paint) {
 			mouseType = - 1;
 			if (e.pointerType === 'touch') // disable the brush visualization when the pointer action is done only if it's on a touch device.
 				brushMesh.visible = false;
-			params.returnPainted();
+			cpanel.returnPainted();
 		} else if (CORMode) {
 			CORAtMouse(true);
 			CORMode = false;
@@ -1295,16 +1293,16 @@ function init() {
 	}, true);
 
 	window.addEventListener('wheel', function (e) {
-		if (params.paint) {
+		if (cpanel.paint) {
 			let delta = e.deltaY; 
 			
             if (e.deltaMode === 1 || e.deltaMode ===2) { // line or page scroll mode
                 delta *= 10;
             }
-			params.brushSize += delta/150 * 10;
-			params.brushSize = Math.max(Math.min(params.brushSize, MAXBRUSHSIZE), MINBRUSHSIZE);
-			params.brushSize = Math.round(params.brushSize);
-			adjustBrushMesh(params.brushSize);
+			cpanel.brushSize += delta/150 * 10;
+			cpanel.brushSize = Math.max(Math.min(cpanel.brushSize, MAXBRUSHSIZE), MINBRUSHSIZE);
+			cpanel.brushSize = Math.round(cpanel.brushSize);
+			adjustBrushMesh(cpanel.brushSize);
 		} else overlayNeedsUpdate = true;   // overlay highlight moves on camera change
 	});
 
@@ -1388,7 +1386,7 @@ let computeVisibleVertices = function (paintVisible = true) {
 	const r=0, g=0, b=VISIBLE_BLUE;   // bright blue for now (really) - and a unique byte for visibility in the blue channel
 	const vertexNormal = new THREE.Vector3();
 	const bbox = new THREE.Box3();
-	const dotLimit = Math.cos(params.filterAngle * Math.PI / 180.);
+	const dotLimit = Math.cos(cpanel.filterAngle * Math.PI / 180.);
 	const normDepth = cometView ? new NormalDepth() : null;
 
 	if (cometView) cometView.createViewRect();
@@ -1401,7 +1399,7 @@ let computeVisibleVertices = function (paintVisible = true) {
 		vertexNormal.x = cometGeometry.attributes.normal.array[i];
 		vertexNormal.y = cometGeometry.attributes.normal.array[i+1];
 		vertexNormal.z = cometGeometry.attributes.normal.array[i+2];
-		if (!params.useNormals || vertexNormal.dot(scToVertNormed) >= dotLimit) {   // vertex passes normal filter
+		if (!cpanel.useNormals || vertexNormal.dot(scToVertNormed) >= dotLimit) {   // vertex passes normal filter
 			v.x = cometGeometry.attributes.position.array[i] + .000001; // perturb by a milimeter so it doesn't go through the vertex
 			v.y = cometGeometry.attributes.position.array[i+1] + .000001;
 			v.z = cometGeometry.attributes.position.array[i+2] + .000001;
@@ -1460,9 +1458,9 @@ let preProcess = function () {
 socket.on('PPserverRequestsVisibility', function(message) { // {index:, name:}
 	console.log(`Got a PPserverRequestsVisibility: ${message.index}`);
 	if (ogPhotoArray[message.index].nm === message.name) {	// got a match!
-		params.clear();					// clear away any visibility paint 
+		cpanel.clear();					// clear away any visibility paint 
 		loadComet(ogPhotoArray[message.index]);		// loaded requested index 
-		currentIndex = params.photoIndex = message.index;  // to make sure index slider updates
+		currentIndex = cpanel.photoIndex = message.index;  // to make sure index slider updates
 		computeVisibleVertices(true);	// apply visibility paint
 
 		const bbox = cometView.bbox;
@@ -1524,7 +1522,7 @@ function render() {
 	
 	animateCOR();
 
-    const skipRender = cometView && (params.showImage != SI_NONE)  && !cometView.imageFresh;
+    const skipRender = cometView && (cpanel.showImage != SI_NONE)  && !cometView.imageFresh;
 	if (!skipRender) {
 		renderer.render(scene, camera);
         refreshOverlay();
