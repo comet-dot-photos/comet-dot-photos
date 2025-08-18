@@ -1,7 +1,15 @@
 {
   "name": "comet-photos-client",
-  "version": "2.0.0",
+  "version": "3.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build --mode production",
+    "dev": "vite build --watch --mode development",
+    "preview": "vite preview",
+    "debug": "vite --debug"
+  },
   "dependencies": {
+    "socket.io-client": "^4.8.1",
     "three": "^0.154.0",
     "three-mesh-bvh": "^0.6.3",
     "three-projected-material": "github:marcofugaro/three-projected-material#master",
@@ -12,6 +20,6 @@
   "license": "MIT",
   "author": "D. Kurlander",
   "devDependencies": {
-    "vite": "^4.5.5"
+    "vite": "^4.5.14"
   }
 }

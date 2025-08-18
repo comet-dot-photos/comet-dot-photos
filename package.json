@@ -1,9 +1,9 @@
 {
   "name": "comet-dot-photos",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
+  "workspaces": ["client", "server"],
   "scripts": {
-    "install": "npm --prefix client install && npm --prefix server install"
   },
   "engines": {
         "node": ">=14"
