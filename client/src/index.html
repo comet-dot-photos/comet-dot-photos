@@ -2,24 +2,14 @@
 <html lang="en">
 	<head>
 <!--    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1"> -->
-        <title>Comet Viewer - Navigate through over 27,000 Rosetta Mission Images</title>
+        <title>Comet.Photos: Loading...</title>
         <link rel="shortcut icon" type="image/x-icon" href="./cometIcon.png"/>
-        <link rel="stylesheet" href="paintComet.css" type="text/css">  
+        <link rel="stylesheet" href="cometPhotos.css" type="text/css">  
 	</head>
 	<body>
-        <script type="importmap">
-                {
-                        "imports": {
-                                "three": "./node_modules/three/build/three.module.js",
-                                "wtd-three-ext": "./node_modules/wtd-three-ext/dist/index.js",
-                                "wtd-core": "./node_modules/wtd-core/dist/index.js"
-                        }
-                }
-        </script>
-        <script src="/socket.io/socket.io.js"></script>
-	   	<script type="module" src="./paintComet.js"></script>
+	<script type="module" src="./cometPhotos.js"></script>
 
-        <div id="sliderTemplate" class="controller number hasSlider" hidden>
+        <div class="dual-slider-template controller number hasSlider" hidden>
             <div id="nameNode" class="name"></div>
             <div class="widget">
                     <input id="min" class="dualMin" type="number" step="any" style="margin: 0px 4px 0px 0px">

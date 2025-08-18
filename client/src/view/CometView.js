@@ -1,5 +1,5 @@
-import * as THREE from './node_modules/three/build/three.module.js'; //should be good
-import {DecalGeometry} from './node_modules/three/examples/jsm/geometries/DecalGeometry.js';
+import * as THREE from 'three';
+import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 
 export class CometView {
     static FOV;                     // set in paintComet:init according to dataset
@@ -17,7 +17,8 @@ export class CometView {
         }
     }
     static urlPrefix = "";
-    constructor(photoDict) {
+    static sMgr; // contains important methods for accessing three.js state
+    constructor(photoDict, sceneMgr) {
         this.line = null;
         this.sc_position = new THREE.Vector3();
         this.sc_position.fromArray(photoDict.sc);
@@ -39,6 +40,8 @@ export class CometView {
         //set random image plane it will change soon!
         this.image_plane = new THREE.Plane()
         this.image_plane.setFromNormalAndCoplanarPoint(this.normal, (this.sc_position.clone().add(this.normal.clone().multiplyScalar(30))));
+
+        this.sceneMgr = sceneMgr;
     }
 
     computeViewRect () {
@@ -108,23 +111,24 @@ export class CometView {
     setUp(x) {
         this.up = x.clone();
     }
-    addOutline(scene) {
+    addViewport() {
         const lineMaterial = new THREE.LineBasicMaterial({color: 0x0000ff});
         const linepts = [...this.corners]; // copy of the corners array
         linepts.push(this.corners[0]);     // close the square
         const squareGeometry = new THREE.BufferGeometry().setFromPoints(linepts);
         this.line = new THREE.Line(squareGeometry, lineMaterial);
-        scene.add(this.line);
+        this.sceneMgr.scene.add(this.line);
     }
-    removeOutline(scene) {
+    removeViewport() {
         if (this.line) {
-            scene.remove(this.line);
+            this.sceneMgr.scene.remove(this.line);
             this.line.material.dispose();
             this.line.geometry.dispose();
             this.line = null;
         }
     }
-    addDecal(scene, mesh) {
+    addDecal() {
+        let scene = this.sceneMgr.scene, mesh = this.sceneMgr.targetMesh;
         this.imageFresh = false;
         let view = this;
         function onDecalLoaded(texture) {
@@ -166,17 +170,18 @@ export class CometView {
         this.loadImage(onDecalLoaded);        // now we do it on demand
     }
 
-    removeDecal(scene) {
+    removeDecal() {
         if (CometView.decal) {
             const oldDecal = CometView.decal;
-            scene.remove(oldDecal);
+            this.sceneMgr.scene.remove(oldDecal);
             oldDecal.geometry.dispose();
             oldDecal.material.dispose();
             CometView.decal = null;
         }
      }
 
-    addProjection (mesh, material) {
+    addProjection () {
+        let mesh = this.sceneMgr.targetMesh, material = this.sceneMgr.cometMaterial;    
         this.imageFresh = false;
         let view = this;
         function onProjectionLoaded(texture) {
@@ -201,7 +206,8 @@ export class CometView {
         this.loadImage(onProjectionLoaded);        // now we do it on demand
     }
 
-    removeProjection (material) {
+    removeProjection () {
+        let material = this.sceneMgr.cometMaterial;
         if (CometView.map) {
             /*
             CometView.map.dispose();
@@ -241,8 +247,8 @@ export class CometView {
     }
     */
 
-    removeSelf(scene){
-        this.removeOutline(scene);
+    removeSelf(){
+        this.removeViewport();
     }
 
     saveExtentInfo(bbox, normDepth) {
