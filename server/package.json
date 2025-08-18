@@ -1,6 +1,6 @@
 {
     "name": "cometserver",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "scripts": {
         "redirect_server": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem VISFILE=../data/visTableV2.0.bin node cometserver.js",
         "redirect_pc": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=../dataonlyserver/localhost+2.pem KEYFILE=../dataonlyserver/localhost+2-key.pem VISFILE=../data/visTableV2.0.bin node cometserver.js",
