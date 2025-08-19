@@ -6,7 +6,7 @@ module.exports = {
     "PORT": "8082",
     "CERTFILE": "/etc/letsencrypt/live/comet.photos/fullchain.pem",
     "KEYFILE": "/etc/letsencrypt/live/comet.photos/privkey.pem",
-    "VISFILE": "../data/visTableV2.0.bin"
+    "VISFILE": "../data/visTableNAC.bin"
     },
     env_production: {
     "REDIRECT": "TRUE",
@@ -14,7 +14,7 @@ module.exports = {
     "HTTP_PORT": "80",
     "CERTFILE": "/etc/letsencrypt/live/comet.photos/fullchain.pem",
     "KEYFILE": "/etc/letsencrypt/live/comet.photos/privkey.pem",
-    "VISFILE": "../data/visTableV2.0.bin"
+    "VISFILE": "../data/visTableNAC.bin"
     }
   },
   ]

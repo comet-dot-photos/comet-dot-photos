@@ -48,6 +48,7 @@ function preprocessingHandlers(io, localServer, VIEWFILE) {
                 // Remove all elements that had no vertices visible (d1 > d2)
                 viewArray = viewArray.filter((val) => val.d1 <= val.d2)
                 // FINISH UP CODE HERE!! WRITE TO FILE!!!
+                const NEW_VISFILE = VISFILE + '.new';
                 fs.writeFileSync(NEW_VISFILE, '');                       // create a new empty file
                 for (let i = 0; i < viewArray.length; i++) {            // append the buffer to the file
                     console.log(`writing line ${i}...`)

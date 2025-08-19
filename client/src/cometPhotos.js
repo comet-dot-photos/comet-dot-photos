@@ -8,8 +8,8 @@ import { COMETGREYVAL, COMETCOLOR } from './core/constants.js';
 
 const dataset = {
 	model:"cg-dlr_spg-shap7-v1.0_200Kfacets.obj",
-	metaData: "imageMetadataV2.0.json",
-	visTable: "visTableV2.0.bin",
+	metaData: "imageMetadataNAC.json",
+	visTable: "visTableNAC.bin",
 	FOV: 2.20746,
 	defaultRes: 2048,
 	initialEye: [100, 100, 100],

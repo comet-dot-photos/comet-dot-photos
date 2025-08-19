@@ -22,7 +22,7 @@ metadata file, imageMetadata_phase1.json, by traversing the .IMG files, and extr
 
 ### Preprocessing Phase 2
 
-Additional visibility/spatial information is generated in phase 2 of preprocessing. This is done by using the imageMetadata_phase1.json file generated in Phase 1 as the input metadata file to the Comet.Photos server (cometserver.js), while the environmental variable "PREPROCESSING" is set to be true. The cometserver will open up a window, do visibility processing on all of the images, and create a new, complete imageMetadata_phase2.json file and visTableV2.0.bin.new in the server directory. Those two files are then renamed (imageMetaDataV2.0.json and visTableV2.0.bin) and moved to the data folder for comet.photos searches. Preprocessing is now complete.
+Additional visibility/spatial information is generated in phase 2 of preprocessing. This is done by using the imageMetadata_phase1.json file generated in Phase 1 as the input metadata file to the Comet.Photos server (cometserver.js), while the environmental variable "PREPROCESSING" is set to be true. The cometserver will open up a window, do visibility processing on all of the images, and create a new, complete imageMetadata_phase2.json file and visTableV2.0.bin.new in the server directory. Those two files are then renamed (imageMetaDataNAC.json and visTableNAC.bin) and moved to the data folder for comet.photos searches. Preprocessing is now complete.
 
 
 

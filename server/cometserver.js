@@ -10,15 +10,14 @@ const { openInBrowser } = require('./openInBrowser.js');
 const DEFAULTS = {
   PORT: 8080,
   HTTP_PORT: 8081,
-  VISFILE: "visTableV2.0.bin",
-  VIEWFILE: "imageMetadataV2.0.json",
+  VISFILE: "visTableNAC.bin",
+  VIEWFILE: "imageMetadataNAC.json",
   BYTESPERROW: 12504, // dependent on the shape model
 };
 
 const PORT = +(process.env.PORT || DEFAULTS.PORT);
 const HTTP_PORT = +(process.env.HTTP_PORT || DEFAULTS.HTTP_PORT);
 const VISFILE = process.env.VISFILE || DEFAULTS.VISFILE;
-const NEW_VISFILE = VISFILE + '.new';
 const VIEWFILE = process.env.VIEWFILE || DEFAULTS.VIEWFILE;
 const BYTESPERROW = +(process.env.BYTESPERROW || DEFAULTS.BYTESPERROW);  // dependent on the shape model
 const KEYFILE = process.env.KEYFILE || null;
