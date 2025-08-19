@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    name: 'cometserver2',
+    name: 'cometserver3',
     script: 'cometserver.js',
     env: {
     "PORT": "8082",
