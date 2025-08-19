@@ -4,6 +4,7 @@
   "private": true,
   "workspaces": ["client", "server"],
   "scripts": {
+    "build": "npm run build --workspaces --if-present"
   },
   "engines": {
         "node": ">=14"
