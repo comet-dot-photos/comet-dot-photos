@@ -5,12 +5,14 @@
 import * as THREE from 'three';
 
 export class PaintEvents {
-  constructor({ bus, state, canvas, camera, controls}) {
+  constructor({ bus, state, canvas, camera, controls, overlayNeedsUpdate, setHaltCircle}) {
     this.bus = bus;
     this.state = state;
     this.canvas = canvas;
     this.camera = camera;
     this.controls = controls;
+    this.overlayNeedsUpdate = overlayNeedsUpdate;
+    this.setHaltCircle = setHaltCircle;
 
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
@@ -41,6 +43,8 @@ export class PaintEvents {
   };
 
   #onDown = (e) => {
+    this.setHaltCircle(true);     // halting for all down ops
+    this.overlayNeedsUpdate();  // so circle is erased
     this.pointerDown = true;
     //this.mouseType = e.button;  // is this used?
     let x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -48,8 +52,8 @@ export class PaintEvents {
 
     if (this.state['enablePaint']) {
       this.bus.emit('startPaint'); // start painting
-      this.pendingErase = (e.button == 2); // save this sate for #onMove
-      this.bus.emit('drawBrush', {x: x, y: y, paintBelow: true, eraseMode: this.pendingErase}); // start painting
+      this.pendingErase = (e.button == 2); // save this info for #onMove
+      this.bus.emit('drawBrush', {x: x, y: y, paintBelow: true, eraseMode: this.pendingErase}); // paint
     } else if (e.button == 2 && !e.shiftKey) { 	// COR Mode: non-paint and right mouse and no shiftkey
       this.controls.enabled = false;
       this.CORMode = true;
@@ -59,6 +63,8 @@ export class PaintEvents {
 
 
   #onUp = (e) => {
+    this.setHaltCircle(false);
+    this.overlayNeedsUpdate();    // so the circle gets drawn
     this.pointerDown = false;
     if (this.state['enablePaint']) {
         this.mouseType = - 1;
@@ -75,7 +81,10 @@ export class PaintEvents {
   };
 
   #onWheel = (e) => {
-    if (!this.state['enablePaint']) return; // wheel only adjusts brush size in paint mode
+    if (!this.state['enablePaint']) {
+      this.overlayNeedsUpdate();      // need to update red circe
+      return
+    } ; // wheel only adjusts brush size in paint mode
     const delta = Math.sign(e.deltaY) * 7; // adjust in increments of 7m. Slider allows for 1m precision
     const newSize = Math.max(5, Math.min(200, this.state.brushSize - delta));
 

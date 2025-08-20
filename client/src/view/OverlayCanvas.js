@@ -14,10 +14,15 @@ export class OverlayCanvas {
 
         this.threeCanvas = document.getElementById('threeCanvas');
         this.needsUpdate = true;
+        this.haltCircle = false;
     }
 
     overlayNeedsUpdate() {     // useful for setting or checking outside of module
         this.needsUpdate = true;
+    }
+
+    setHaltCircle(bool) {
+        this.haltCircle = bool;
     }
 
     overlayResize() {
@@ -31,7 +36,7 @@ export class OverlayCanvas {
     
     overlayGetCircle() {
         if (!this.ROI.numPainted) return null;
-        let circleCam = this.getSpacecraftCam();
+        let circleCam = this.getOverlayCam();
         let centerVec = this.ROI.avgPosition.clone();
         centerVec.project(circleCam);
         const x = (centerVec.x * 0.5 + 0.5) * window.innerWidth;
@@ -63,6 +68,7 @@ export class OverlayCanvas {
     
     overlayPaintCircle () {
         if (this.needsUpdate && this.state.showImage != SI_NONE && this.state.encircleRegion && !this.haltCircle) {
+            console.log(">>> In overlayPaintCircle");
             let rval = this.overlayGetCircle();
             if (!rval) return;	// nothing to paint
             let x=rval[0], y=rval[1], radius=rval[2];
@@ -122,7 +128,7 @@ export class OverlayCanvas {
 
     encircleRegion(enable) {
         this.state['encircleRegion'] = enable;
-        this.bus.emit('setVal', {key: 'encircleRegion', val: enable, silent: false});
+        this.bus.emit('setVal', {key: 'encircleRegion', val: enable, silent: true});
 
         this.needsUpdate = true;
     }

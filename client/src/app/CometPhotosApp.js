@@ -76,6 +76,8 @@ export class CometPhotosApp {
       canvas: this.sceneMgr.renderer.domElement,
       camera: this.sceneMgr.camera,
       controls: this.sceneMgr.controls,
+      overlayNeedsUpdate: () => this.overlay.overlayNeedsUpdate(),
+      setHaltCircle: (b) => this.overlay.setHaltCircle(b)
     });
 
     this.filterEng = new FilterEngine({
@@ -131,9 +133,7 @@ export class CometPhotosApp {
 
         'startPaint':      () => this.sceneMgr.startPaint(),
         'drawBrush':       ({x, y, paintBelow, eraseMode}) => this.sceneMgr.drawBrush({x, y, paintBelow, eraseMode}),
-        'endPaint':        () => { this.ROI.setFromPaint(this.sceneMgr.cometGeometry);
-                                   this.filterEng.applyGeoFilter(true);
-                                  },
+        'endPaint':        () => this.onDonePainting(),
         'resetCOR':        () => this.sceneMgr.resetCOR(),
         'CORatMouse':      (pos) => this.sceneMgr.CORAtMouse(pos),
         'startCORani':     () => this.sceneMgr.startCORAnimation(),
@@ -212,6 +212,12 @@ export class CometPhotosApp {
         } 
     });
 	}
+
+  onDonePainting () { // too many lines - keep the handler defs clean
+    this.sceneMgr.endPaint();
+    this.ROI.setFromPaint(this.sceneMgr.cometGeometry);
+    this.filterEng.applyGeoFilter(true);
+  }
 
   // ---- Internals ----
 

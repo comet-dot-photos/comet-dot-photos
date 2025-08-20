@@ -27,8 +27,9 @@ export class SceneManager {
     this.bus = bus; // Event bus for cross-component communication
     this.state = state;
     this.overlay = overlay;  
-    this.overlay.getSpacecraftCam = this.getSpacecraftCam.bind(this); // allow overlay to get spacecraftCam
-    this.overlay.visiblePaintedVertices = this.visiblePaintedVertices.bind(this); // allow overlay to get visible painted vertices   
+    this.overlay.getOverlayCam = this.getOverlayCam.bind(this); // allow overlay to get spacecraftCam
+    this.overlay.visiblePaintedVertices = this.visiblePaintedVertices.bind(this); // allow overlay to get visible painted vertices 
+    this.setHaltCircle = (b) => this.overlay.setHaltCircle(b);  
 
     //clock - used for benchmarking
     this.state['clock'] = new THREE.Clock();
@@ -126,9 +127,6 @@ export class SceneManager {
 	document.body.appendChild(this.stats.dom);
  
     // add event listener vals
-    this.haltCircle = false;
-    this.pointerDown = false;
-    this.CORMode = false;
     this.t0COR = -1;
     this.intervalCOR = 1
 
@@ -156,7 +154,7 @@ export class SceneManager {
 
     animateCOR() {		// animates the COR and sets visibility
         if (this.t0COR >= 0) {
-            this.haltCircle = true;
+            this.setHaltCircle(true);
             const deltaT = this.state.clock.getElapsedTime() - this.t0COR;
             const percentComplete = Math.min(deltaT / this.intervalCOR, 1);
             const thisCOR = this.oldCOR.clone().add(this.deltaCOR.clone().multiplyScalar(percentComplete));
@@ -165,7 +163,7 @@ export class SceneManager {
             this.updateCameraClipping();
             if (percentComplete == 1) {			// done - cleanup!
                 this.t0COR = -1;
-                this.haltCircle = false;
+                this.setHaltCircle(false);
                 this.overlayNeedsUpdate();
                 this.CORMesh.visible = false;
             }
@@ -359,9 +357,15 @@ export class SceneManager {
 
 
     startPaint() {
-        this.haltCircle = true;
+        this.setHaltCircle(true);
         this.overlayNeedsUpdate();		// so that circle is erased
         this.CORMesh.visible = false;		// hide mesh while painting
+    }
+
+    endPaint() {                     // exact opposite of startPaint
+        this.setHaltCircle(false);
+        this.overlayNeedsUpdate();
+        this.CORMesh.visible = true;
     }
 
      drawBrush({x: x, y: y, paintBelow: paintBelow, eraseMode: eraseMode}) {	// draws the Brush, painting at the brush if paintBelow == true
@@ -467,7 +471,10 @@ export class SceneManager {
         this.stats.end();
     }
 
-    getSpacecraftCam() {    // helper function for OverlayCanvas.overlayGetCircle
+    getOverlayCam() {    // helper function for OverlayCanvas.overlayGetCircle
+        if (this.state['showImage'] != SI_UNMAPPED)
+            return this.camera;    // Can simply use main camera
+        // Unmapped - so set circleCam to spacecraftCam equivalent and shift it
         let cometView = this.getCometView();
         if (cometView) {
             const cam = new THREE.PerspectiveCamera();
@@ -475,7 +482,7 @@ export class SceneManager {
             this.shiftCamera(cam);
             return cam;
         }
-        return null;
+        return null;   // cometView is not set - should not happen
     }
 
     visiblePaintedVertices(sc) {
