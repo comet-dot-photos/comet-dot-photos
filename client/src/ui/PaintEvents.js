@@ -46,7 +46,6 @@ export class PaintEvents {
     this.setHaltCircle(true);     // halting for all down ops
     this.overlayNeedsUpdate();  // so circle is erased
     this.pointerDown = true;
-    //this.mouseType = e.button;  // is this used?
     let x = (e.clientX / window.innerWidth) * 2 - 1;
     let y = - (e.clientY / window.innerHeight) * 2 + 1;
 
@@ -67,7 +66,6 @@ export class PaintEvents {
     this.overlayNeedsUpdate();    // so the circle gets drawn
     this.pointerDown = false;
     if (this.state['enablePaint']) {
-        this.mouseType = - 1;
         if (e.pointerType === 'touch') // disable the brush visualization only on a touch device
             this.bus.emit('hideBrush');
         this.bus.emit('endPaint'); // end painting
