@@ -150,6 +150,7 @@ export class ImageBrowser {
 		const currentDate = dynamicArray[currentIndex].date;
 		const msSkip = currentDate.getTime() + this.milliseconds[this.state['skipDuration']];
 
+        console.error("Calling skipForward");
 		if (this.cometView) {
 			for (let i = currentIndex; i < dynamicArray.length; i++) {
 				if (dynamicArray[i].date.getTime() > msSkip) {

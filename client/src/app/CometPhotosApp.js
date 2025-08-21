@@ -1,7 +1,7 @@
 // app/CometPhotosApp.js -
 //  This object sets up the Comet.Photos app, instantiating
 //  the high level objects used by the application, and providing a map
-//  to wire UI events to application logic. 
+//  to wire UI events to application logic.  
 
 import { SceneManager } from '../core/SceneManager.js';
 import { GuiController } from '../ui/GuiController.js';
@@ -11,7 +11,8 @@ import { FilterEngine } from '../filters/FilterEngine.js';
 import { ImageBrowser } from '../core/ImageBrowser.js';
 import { Emitter } from '../utils/Emitter.js';
 import { ROI } from '../core/ROI.js';
-import { Preprocessor} from '../core/Preprocessor.js';
+import { Preprocessor } from '../core/Preprocessor.js';
+import { TestHarness } from '../utils/TestHarness.js'
 import { SI_NONE } from '../core/constants.js';
 
 const DEFAULT_UI_STATE = {
@@ -106,6 +107,14 @@ export class CometPhotosApp {
       sceneMgr: this.sceneMgr
     })
 
+    this.testHarness = new TestHarness ({
+      bus: this.bus,
+      state: this.state,
+      sceneMgr: this.sceneMgr,
+      ROI: this.ROI,
+      uiState: this.DEFAULT_UI_STATE
+    })
+
 // one map to wire all semantic events
     const HANDLERS = {
         'quickstartHelp':   () => window.open("quickstart.html"),
@@ -135,7 +144,7 @@ export class CometPhotosApp {
         'drawBrush':       ({x, y, paintBelow, eraseMode}) => this.sceneMgr.drawBrush({x, y, paintBelow, eraseMode}),
         'endPaint':        () => this.onDonePainting(),
         'resetCOR':        () => this.sceneMgr.resetCOR(),
-        'CORatMouse':      (pos) => this.sceneMgr.CORAtMouse(pos),
+        'CORatMouse':      v => this.sceneMgr.CORAtMouse(v),
         'startCORani':     () => this.sceneMgr.startCORAnimation(),
         'filter.results':  v => this.imageBrowser.newFilterResults(v),
         // Debug menu
@@ -145,7 +154,13 @@ export class CometPhotosApp {
         'endLog':          () => this.saveLog(),
         'runLog':          () => this.runLog(),
         'paintVisible':    () => this.preprocessor.computeVisibleVertices(),
-        'preprocess':      () => this.preprocessor.beginPreprocessing()
+        'preprocess':      () => this.preprocessor.beginPreprocessing(),
+
+        // For testing
+        'setCam':          v => this.sceneMgr.setCameraState(v),
+        'setPainted':      v => this.sceneMgr.setPaintedState(v),
+        'setAppState':     v => this.testHarness.setAppState(v),
+        'checkResult':     v => this.testHarness.checkResult(v)
     };
 
     // wire up the handlers 
@@ -200,24 +215,69 @@ export class CometPhotosApp {
     this.socket.emit('clientRequestsLogLoad');
   }
 
-  loadLogHandler() {
-    this.socket.on ('serverProvidesLogLoad', (message) => {
-        if (message && Array.isArray(message)) {
-            console.log(`Loading a log with ${message.length} entries`);
-            // Here we could do more validation of the log entries if desired
-            for (const entry of message) {
-                console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
-                this.bus.emit(entry.event, ...entry.args);
-            }
-        } 
-    });
-	}
+loadLogHandler() {
+  this.socket.on('serverProvidesLogLoad', async (message) => {
+    if (!Array.isArray(message)) return;
+    console.log(`Loading a log with ${message.length} entries`);
+    for (const entry of message) {
+      console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
 
-  onDonePainting () { // too many lines - keep the handler defs clean
+      // Arm waiter BEFORE triggering the pipeline, but only for events that
+      // will result in a 'vis.applied' later.
+      let wait = null;
+      if (entry.event === 'setPainted') {
+        wait = this.waitForVisApplied({ timeoutMs: 30_000 });
+      }
+
+      // Trigger the event
+      this.bus.emit(entry.event, ...(entry.args ?? []));
+
+      // Block until visibility has been applied (if applicable)
+      if (wait) {
+        try {
+          await wait; // yields to event loop; other socket/bus events keep flowing
+          console.error('vis.applied received');
+        } catch (e) {
+          console.warn('vis.applied timed out for setPainted', e);
+          return;
+        }
+      }
+    }
+  });
+}
+
+
+  onDonePainting () { 
     this.sceneMgr.endPaint();
     this.ROI.setFromPaint(this.sceneMgr.cometGeometry);
     this.filterEng.applyGeoFilter(true);
+    if (this.bus.logging()) {  // log the painted state
+      this.sceneMgr.logPaintedState();
+    }
   }
+
+  waitForVisApplied({ timeoutMs = 10_000 } = {}) {
+    return new Promise((resolve, reject) => {
+        const onDone = () => { cleanup(); resolve(); };
+
+        // register one-shot and keep unsubscribe
+        const unsubscribe = this.bus.once('vis.applied', onDone);
+
+        const cleanup = () => { clearTimeout(timer); unsubscribe?.(); };
+
+        const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error('vis.applied timeout'));
+        }, timeoutMs);
+    });
+  }
+  /*
+  onDoneControl () { 
+    if (this.bus.logging()) {
+      this.sceneMgr.logCameraState();
+    }
+  }
+    */
 
   // ---- Internals ----
 

@@ -4,33 +4,6 @@
 import * as THREE from 'three';
 import {CometView} from '../view/CometView.js';
 
-/**
- * @typedef {Object} Selection
- * @property {[number,number,number]} avgPosition
- * @property {[number,number,number]} avgNormal
- * @property {{min:number,max:number}} bbox
- * @property {number} count
- */
-
-/**
- * @typedef {Object} Filters
- * @property {[number,number]} mpp
- * @property {[number,number]} emission
- * @property {[number,number]} incidence
- * @property {[number,number]} phase
- * @property {number} percentROI
- */
-
-/**
- * @typedef {Object} Photo
- * @property {number} m2
- * @property {number} phase
- * @property {number} emission
- * @property {number} incidence
- * @property {{x:number,y:number,z:number}} sc_v
- * @property {number} rz  // effective resolution (optional)
- * @property {number} FOV // degrees (optional)
- */
 
 // Filter failure bit position codes
 const FAIL_MPP = 1;
@@ -54,39 +27,8 @@ export class FilterEngine {
     this.defaultRes = this.state.dataset.defaultRes;   // cache this because it is used a lot in this module
     const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(this.state.dataset.FOV/2.0)/180.0);
     this.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
-  }
-/*
-    applyFilters(photos, selection, filters, defaults) {
-    return photos
-        .filter(p => mppPass(p, selection, filters, defaults))
-        .filter(p => emissionPass(p, selection, filters))
-        .filter(p => incidencePass(p, selection, filters))
-        .filter(p => phasePass(p, selection, filters));
-    }
+   }
 
-    // ---- Passes (stubbed; replace bodies with your current logic) ----
-
-    export function mppPass(photo, selection, { mpp:[min,max] }, defaults) {
-    if (!selection?.count) return photo.m2 >= min && photo.m2 <= max;
-    const distSq = dist2(photo.sc_v, selection.avgPosition);
-    const fovDeg = photo.FOV ?? defaults?.FOV ?? 2.2;
-    const effRes = photo.rz ?? defaults?.defaultRes ?? 2048;
-    const m2AtDist = distanceToMpp(Math.sqrt(distSq), effRes, fovDeg);
-    return m2AtDist >= min && m2AtDist <= max;
-    }
-
-    export function emissionPass(photo, selection, { emission:[min,max] }) {
-    return between(photo.emission, min, max);
-    }
-
-    export function incidencePass(photo, selection, { incidence:[min,max] }) {
-    return between(photo.incidence, min, max);
-    }
-
-    export function phasePass(photo, selection, { phase:[min,max] }) {
-    return between(photo.phase, min, max);
-    }
-    */
 
     entryEmissionFilter(newVal) {
         this.state.emissionAngle = newVal;
@@ -289,7 +231,8 @@ export class FilterEngine {
             }
             this.filterCleanUp();
             let delta = this.state['clock'].getElapsedTime() - this.state['startTimer'];
-            console.log(`Visibility check: ${(delta)*1000} milliseconds`)
+            console.log(`Visibility check: ${(delta)*1000} milliseconds`);
+            this.bus.emit('vis.applied');   // allows for blocking until message handled (playing back logs)
         });
     };
 
@@ -302,19 +245,3 @@ export class FilterEngine {
     }
 }
 
-/*
-
-// ---- utils ----
-
-function between(v, a, b){ return v >= a && v <= b; }
-function dist2(a, b){
-  if (!a || !b) return Number.POSITIVE_INFINITY;
-  const dx = a.x - b[0], dy = a.y - b[1], dz = a.z - b[2];
-  return dx*dx + dy*dy + dz*dz;
-}
-
-function distanceToMpp(distance, res, fovDeg) {
-  const width = Math.tan(Math.PI * (fovDeg / 2) / 180) * distance;
-  return +(width / (.001 * (res / 2))).toFixed(2);
-}
-  */

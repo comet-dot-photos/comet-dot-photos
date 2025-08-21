@@ -8,7 +8,8 @@ export class Emitter {
   constructor() {
     //console.debug('Emitter initialized');
     this.m = new Map(); // eventName → [listeners]
-    this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results']); // events we don't want to log
+//  this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results']); // events we don't want to log
+    this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled', 'setLimits']); // events we don't want to log
   }
 
   on(event, fn) {
@@ -37,6 +38,15 @@ export class Emitter {
     this.m.clear();
   }
 
+  once(event, fn) {
+    const wrapper = (...args) => {
+      this.off(event, wrapper);
+      fn(...args);
+    };
+    this.on(event, wrapper);
+    return () => this.off(event, wrapper); // <-- return unsubscribe
+  }
+
   startLog() {
     this._logEnabled = true;
     this._log = [];
@@ -45,5 +55,17 @@ export class Emitter {
   endLog() {
     this._logEnabled = false;
     return this._log;
+  }
+
+  logging() {
+    return this._logEnabled;
+  }
+
+  logOnly(event, ...args) {
+      this._log.push({ event, args, timestamp: performance.now() });
+  }
+
+  saveAfter(set) {
+    this._saveAfter = set;
   }
 }

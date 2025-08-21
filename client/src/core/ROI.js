@@ -2,7 +2,7 @@
 // Responsible for keeping track of the Region of Interest (ROI)
 
 import * as THREE from 'three';   // Necessary in setFromPaint() 
-import {PAINT_RED} from '../core/constants.js';
+import {PAINT_RED, PAINT_GREEN, PAINT_BLUE} from '../core/constants.js';
 
 export class ROI {
     constructor() {
@@ -77,4 +77,5 @@ export class ROI {
             this.avgNormal = norm.divideScalar(this.numPainted).normalize();
         }
     };
+
 };
