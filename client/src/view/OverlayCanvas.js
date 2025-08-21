@@ -68,7 +68,6 @@ export class OverlayCanvas {
     
     overlayPaintCircle () {
         if (this.needsUpdate && this.state.showImage != SI_NONE && this.state.encircleRegion && !this.haltCircle) {
-            console.log(">>> In overlayPaintCircle");
             let rval = this.overlayGetCircle();
             if (!rval) return;	// nothing to paint
             let x=rval[0], y=rval[1], radius=rval[2];

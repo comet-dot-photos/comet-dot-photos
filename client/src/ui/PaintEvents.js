@@ -98,7 +98,7 @@ export class PaintEvents {
   }
 
   #onKeyDown = (e) => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    if (e.ctrlKey && e.shiftKey && e.code === 'Backquote') {
       e.preventDefault();  // stop propagating so not handled by browser
       this.bus.emit('toggleDebugMenu');
     }

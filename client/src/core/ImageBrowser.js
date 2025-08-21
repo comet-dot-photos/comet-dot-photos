@@ -86,8 +86,8 @@ export class ImageBrowser {
     unloadComet() {
         const cometView = this.getCometView();
         if (cometView) {
-            if (this.state.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(scene);
-            if (this.state.showImage == SI_PERSPECTIVE) cometView.removeProjection(cometMaterial);
+            if (this.state.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(this.scene);
+            if (this.state.showImage == SI_PERSPECTIVE) cometView.removeProjection(this.cometMaterial);
             CometView.lastRequestedImg = "";		// stop pending image requests from loading
             // Note: for SI_UNMAPPED, image will be automatically erased by the no matches overlay
             cometView.removeSelf();
@@ -150,7 +150,6 @@ export class ImageBrowser {
 		const currentDate = dynamicArray[currentIndex].date;
 		const msSkip = currentDate.getTime() + this.milliseconds[this.state['skipDuration']];
 
-        console.error("Calling skipForward");
 		if (this.cometView) {
 			for (let i = currentIndex; i < dynamicArray.length; i++) {
 				if (dynamicArray[i].date.getTime() > msSkip) {
@@ -257,7 +256,9 @@ export class ImageBrowser {
                 this.bus.emit('setVal', {key: 'enablePaint', val: false, silent: false}); // note this calls adjustShading
             }
         }
-        else this.sceneMgr.adjustShading();
+        else {
+            this.sceneMgr.adjustShading();
+        }
         this.overlayNeedsUpdate();
         this.lastSI = val;
     }

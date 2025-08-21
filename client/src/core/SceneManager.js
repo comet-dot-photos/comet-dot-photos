@@ -118,8 +118,6 @@ export class SceneManager {
 
     this.controls.addEventListener('end', () => {
         this.CORMesh.visible = false;
-        if (this.bus.logging())
-            this.logCameraState();
     });
 
     this.shiftCamera(this.camera);  // shift camera to account for GUI panel
@@ -259,7 +257,7 @@ export class SceneManager {
         this.bus.emit('setVal', {key: 'enablePaint', val: enable, silent: true});
         this.controls.enabled = !enable; // disable controls while painting
         if (!enable) this.brushMesh.visible = false
-        if (enable && this.state['showImage'] == SI_UNMAPPED || this.state['showImage'] == SI_ORTHOGRAPHIC) {
+        if (enable && (this.state['showImage'] == SI_UNMAPPED || this.state['showImage'] == SI_ORTHOGRAPHIC)) {
             // only can paint in certain showImage modes - as though user immediately changes showImage mode
             this.bus.emit('setVal', {key: 'showImage', val: SI_NONE, silent: false}); 
         }
@@ -513,78 +511,5 @@ export class SceneManager {
         return visibleVerts;
     }
 
-    /* Functions for getting and setting state - helpers for TestHarnass */
-
-    logCameraState() {
-        const camState = {
-            near: this.camera.near,
-            far: this.camera.far,            // never changed aspect or fov after init
-            position: this.camera.position.toArray(),
-            quaternion: this.camera.quaternion.toArray(),
-            up: this.camera.up.toArray(),
-            target: this.controls.target.toArray()
-        };
-        this.bus.logOnly('setCam', camState);
-    }
-
-    setCameraState(state) {
-        this.camera.near = state.near;
-        this.camera.far = state.far;
-
-        this.camera.position.fromArray(state.position);
-        this.camera.quaternion.fromArray(state.quaternion);
-        this.camera.up.fromArray(state.up);
-        this.camera.updateProjectionMatrix();
-
-        this.controls.target.fromArray(state.target);
-        this.controls.update();
-    }
-
-    logPaintedState() {
-        let vertArray = [], cometGeometry = this.cometGeometry;
-        for (let i = 0; i < cometGeometry.attributes.color.array.length; i+=3) {
-            if (cometGeometry.attributes.color.array[i] == PAINT_RED) {
-                vertArray.push(i/3);
-            }
-        }
-        this.bus.logOnly('setPainted', vertArray);
-    }
-
-    async setPaintedState(vertArray) {
-        console.error("entering setPaintedState");
-        this.colorArray.fill(COMETGREYVAL);  // erase initially
-        for (const index of vertArray) {
-            const pos = 3*index;
-            this.colorArray[pos] = PAINT_RED;
-            this.colorArray[pos+1] = PAINT_GREEN;
-            this.colorArray[pos+2] = PAINT_BLUE;
-        }
-        this.colorAttr.needsUpdate = true;
-
-        // Block until 'vis.applied' message received.
-        // Don't want further log events to execute before vis update
-        // Arm waiter BEFORE triggering the pipeline
-        const wait = this.waitForVisApplied({ timeoutMs: 30000 });
-        this.bus.emit('endPaint');  // Just as though we painted by hand!
-        await wait;
-        console.error("After waitForVisApplied!  Got the event???");
-    }
-
-    waitForVisApplied({ timeoutMs = 10_000 } = {}) {
-    return new Promise((resolve, reject) => {
-        const onDone = () => { cleanup(); resolve(); };
-
-        // register one-shot and keep unsubscribe
-        const unsubscribe = this.bus.once('vis.applied', onDone);
-
-        const cleanup = () => { clearTimeout(timer); unsubscribe?.(); };
-
-        const timer = setTimeout(() => {
-        cleanup();
-        reject(new Error('vis.applied timeout'));
-        }, timeoutMs);
-    });
 }
 
-    
-}

@@ -110,6 +110,7 @@ export class CometPhotosApp {
     this.testHarness = new TestHarness ({
       bus: this.bus,
       state: this.state,
+      socket: this.socket,
       sceneMgr: this.sceneMgr,
       ROI: this.ROI,
       uiState: this.DEFAULT_UI_STATE
@@ -151,14 +152,14 @@ export class CometPhotosApp {
         'flatShading':     v => this.sceneMgr.entrySetFlatShading(v),
         'memStats':        () => this.sceneMgr.memStats(),
         'startLog':        () => this.bus.startLog(),
-        'endLog':          () => this.saveLog(),
-        'runLog':          () => this.runLog(),
+        'endLog':          () => this.testHarness.saveLog(),
+        'runLog':          () => this.testHarness.runLog(),
         'paintVisible':    () => this.preprocessor.computeVisibleVertices(),
         'preprocess':      () => this.preprocessor.beginPreprocessing(),
 
         // For testing
-        'setCam':          v => this.sceneMgr.setCameraState(v),
-        'setPainted':      v => this.sceneMgr.setPaintedState(v),
+        'setCam':          v => this.testHarness.setCameraState(v),
+        'setPainted':      v => this.testHarness.setPaintedState(v),
         'setAppState':     v => this.testHarness.setAppState(v),
         'checkResult':     v => this.testHarness.checkResult(v)
     };
@@ -168,8 +169,6 @@ export class CometPhotosApp {
 
     // Kick off the loop
     this.sceneMgr.renderLoop();
-
-    this.loadLogHandler();  // Handle loading of logs if requested
   }
 
   // ---- Public API ----
@@ -185,99 +184,14 @@ export class CometPhotosApp {
     for (const [evt, fn] of (this._bound ?? [])) this.bus.off(evt, fn);
   }
 
-  /*
-  saveLog () {
-    const log = this.bus.endLog();
-    if (log && log.length > 0) {
-		    this.socket.emit('clientRequestsLogSave', log);
-		    alert(`Your log file has been saved.`);
-    }
-	}
-    */
-  saveLog () {
-    const log = this.bus.endLog();
-    if (log && log.length > 0) {
-      const json = JSON.stringify(log);
-      const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
-      console.log(`Log size: ${sizeBytes} bytes (~${(sizeBytes/1024).toFixed(1)} KB)`);
-
-      this.socket.emit('clientRequestsLogSave', log, (resp) => {
-        if (resp?.ok) {
-          alert(`Saved log (${(sizeBytes/1024).toFixed(1)} KB)`);
-        } else {
-          alert(`Log save failed: ${resp?.error ?? 'unknown error'}`);
-        }
-      });
-    }
-  } 
-
-  runLog () {
-    this.socket.emit('clientRequestsLogLoad');
-  }
-
-loadLogHandler() {
-  this.socket.on('serverProvidesLogLoad', async (message) => {
-    if (!Array.isArray(message)) return;
-    console.log(`Loading a log with ${message.length} entries`);
-    for (const entry of message) {
-      console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
-
-      // Arm waiter BEFORE triggering the pipeline, but only for events that
-      // will result in a 'vis.applied' later.
-      let wait = null;
-      if (entry.event === 'setPainted') {
-        wait = this.waitForVisApplied({ timeoutMs: 30_000 });
-      }
-
-      // Trigger the event
-      this.bus.emit(entry.event, ...(entry.args ?? []));
-
-      // Block until visibility has been applied (if applicable)
-      if (wait) {
-        try {
-          await wait; // yields to event loop; other socket/bus events keep flowing
-          console.error('vis.applied received');
-        } catch (e) {
-          console.warn('vis.applied timed out for setPainted', e);
-          return;
-        }
-      }
-    }
-  });
-}
-
-
-  onDonePainting () { 
+  onDonePainting() {
     this.sceneMgr.endPaint();
     this.ROI.setFromPaint(this.sceneMgr.cometGeometry);
     this.filterEng.applyGeoFilter(true);
     if (this.bus.logging()) {  // log the painted state
-      this.sceneMgr.logPaintedState();
+      this.testHarness.logPaintedState();
     }
   }
-
-  waitForVisApplied({ timeoutMs = 10_000 } = {}) {
-    return new Promise((resolve, reject) => {
-        const onDone = () => { cleanup(); resolve(); };
-
-        // register one-shot and keep unsubscribe
-        const unsubscribe = this.bus.once('vis.applied', onDone);
-
-        const cleanup = () => { clearTimeout(timer); unsubscribe?.(); };
-
-        const timer = setTimeout(() => {
-        cleanup();
-        reject(new Error('vis.applied timeout'));
-        }, timeoutMs);
-    });
-  }
-  /*
-  onDoneControl () { 
-    if (this.bus.logging()) {
-      this.sceneMgr.logCameraState();
-    }
-  }
-    */
 
   // ---- Internals ----
 
