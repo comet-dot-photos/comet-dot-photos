@@ -359,13 +359,14 @@ export class SceneManager {
     startPaint() {
         this.setHaltCircle(true);
         this.overlayNeedsUpdate();		// so that circle is erased
-        this.CORMesh.visible = false;		// hide mesh while painting
+        // CORMesh should now only be visible during Trackball manipulations
+        //this.CORMesh.visible = false;		// hide mesh while painting
     }
 
     endPaint() {                     // exact opposite of startPaint
         this.setHaltCircle(false);
         this.overlayNeedsUpdate();
-        this.CORMesh.visible = true;
+        //this.CORMesh.visible = true;
     }
 
      drawBrush({x: x, y: y, paintBelow: paintBelow, eraseMode: eraseMode}) {	// draws the Brush, painting at the brush if paintBelow == true

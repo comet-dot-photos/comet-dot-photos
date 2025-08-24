@@ -2,15 +2,14 @@ import {COMETGREYVAL, PAINT_RED, PAINT_GREEN, PAINT_BLUE} from '../core/constant
 
 
 export class TestHarness {
-    constructor({bus, state, socket, sceneMgr, ROI, initialUI}) {
+    constructor({bus, state, socket, sceneMgr, ROI, uiState}) {
         this.bus = bus;
         this.state = state;
         this.socket = socket;
         this.sceneMgr = sceneMgr;
         this.ROI = ROI;
-        this.initialUI = initialUI;
+        this.uiState = uiState;
 
-        this.loadLogHandler();
         this.loadControlsHandler();
     }
 
@@ -23,53 +22,19 @@ export class TestHarness {
     }
 
     startRecording() {
-        const afterEvent = ['percentOverlap', 'metersPerPixel','emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint'];
-        const recordThese = DEFAULT_UI + 'endPaint' + 'endControls';
-        this.bus.recordAfter({afterEvent, recordThese});
-        this.logAppState();     // set starting conditions!
+        this.bus.startLog();
+        //const afterEvent = ['percentOverlap', 'metersPerPixel','emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint'];
+        //const recordThese = DEFAULT_UI + 'endPaint' + 'endControls';
+        //this.bus.recordAfter({afterEvent, recordThese});
+        this.logAllState();     // set starting conditions!
     }
 
-    stopRecording() {
-        // set bus back to normal state, and save log
-    }
+    // stopRecording is effectively done with saveLog
 
-    logPaintState() {
-        const painted = this.sceneMgr.getPaintedVertices();
-        this.bus.logOnly('setPaintState', painted);
-    }
-
-    logCameraState() {
-        const cam = this.sceneMgr.getCameraState();
-        this.bus.logOnly('setCameraState', cam);
-    }
-
-    logStateVars() {
-        let stateVars = {};  // dictionary for the new state
-        // iterate over keys in initial UI, and store current values
-        for (const [key, value] of Object.entries(this.initialUI)) {
-            stateVars[key] = this.state[key];
-        }
-    }
-
-    logAppState() {
-        const cam = this.sceneMgr.getCameraState();
-        const painted = this.sceneMgr.getPaintedVertices();
-        let stateVars = {};  // dictionary for the new state
-        // iterate over keys in initial UI, and store current values
-        for (const [key, value] of Object.entries(this.initialUI)) {
-            stateVars[key] = this.state[key];
-        }
-        this.bus.logOnly('setAppState', {cam, painted, stateVars})
-    }
-
-    setAppState(state) {
-        this.sceneMgr.setCameraState(state.cam);
-        this.sceneMgr.setPaintedVertices(state.painted, this.sceneMgr.colorArray, this.sceneMgr.colorAttr);
-        this.bus.emit('endPaint');  // trigger ROI update and  filtering - do not need startPaint
-        for (const [key, value] of Object.entries(state.stateVars)) {
-            // fine to execute these in order. Could also alternately just send the events directly
-            this.bus.emit('setVal', {key: key, val: value, silent: false});
-        }
+    logAllState() {    
+        this.logCameraState();
+        this.logPaintState();
+        this.logStateVars(); 
     }
 
     saveResult(ogPhotoArray) {
@@ -133,7 +98,7 @@ export class TestHarness {
         controls.update();
     }
 
-    logPaintedState() {
+    logPaintState() {
         const vertArray = [], cometGeometry = this.sceneMgr.cometGeometry;
         for (let i = 0; i < cometGeometry.attributes.color.array.length; i+=3) {
             if (cometGeometry.attributes.color.array[i] == PAINT_RED) {
@@ -143,7 +108,7 @@ export class TestHarness {
         this.bus.logOnly('setPainted', vertArray);
     }
 
-    setPaintedState(vertArray) {
+    async setPaintState(vertArray) {
         const colorArray = this.sceneMgr.colorArray, colorAttr = this.sceneMgr.colorAttr;
         colorArray.fill(COMETGREYVAL);  // erase initially
         for (const index of vertArray) {
@@ -154,75 +119,70 @@ export class TestHarness {
         }
         colorAttr.needsUpdate = true;
 
-        this.bus.emit('endPaint');  // Just as though we painted by hand!
+        await this.bus.emitAsync('endPaint');  // Just as though we painted by hand!
+    }
+
+    logStateVars() {
+        let stateVars = {};  // dictionary for the new state
+        // iterate over keys in initial UI, and store current values
+        for (const [key, value] of Object.entries(this.uiState)) {
+            stateVars[key] = this.state[key];
+        }
+        this.bus.logOnly('setStateVars', stateVars);
+    }
+
+    setStateVars(stateVars) {  // set the state varsand do their callbacks
+        for (const [key, value] of Object.entries(stateVars)) {
+            this.bus.emit('setVal', {key: key, val: value, silent: false})
+        }
     }
 
     saveLog () {
         const log = this.bus.endLog();
         if (log && log.length > 0) {
-        const json = JSON.stringify(log);
-        const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
-        console.log(`Log size: ${sizeBytes} bytes (~${(sizeBytes/1024).toFixed(1)} KB)`);
+            const json = JSON.stringify(log);
+            const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
+            console.log(`Log size: ${sizeBytes} bytes (~${(sizeBytes/1024).toFixed(1)} KB)`);
 
-        this.socket.emit('clientRequestsLogSave', log, (resp) => {
-            if (resp?.ok) {
-            alert(`Saved log (${(sizeBytes/1024).toFixed(1)} KB)`);
-            } else {
-            alert(`Log save failed: ${resp?.error ?? 'unknown error'}`);
-            }
-        });
+            this.socket.emit('clientRequestsLogSave', log);
         }
   } 
 
-    runLog() {
-        this.socket.emit('clientRequestsLogLoad');
+    async runLog(timed) {
+        const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
+        const log = await req('clientRequestsLogLoad');
+        await this.executeLogEvents(log, timed);
     }
 
-    loadLogHandler() {
-        this.socket.on('serverProvidesLogLoad', async (message) => {
-            if (!Array.isArray(message)) return;
-            console.log(`Loading a log with ${message.length} entries`);
-            for (const entry of message) {
-                console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
+    // Helper: wait until an absolute performance.now() time
+    waitUntil(targetNowMs) {
+        const delay = targetNowMs - performance.now();
+        if (delay <= 0) return Promise.resolve();
+        return new Promise(res => setTimeout(res, delay));
+    }
 
-                // Arm waiter BEFORE triggering the pipeline, but only for events that
-                // will result in a 'vis.applied' later.
-                let wait = null;
-                if (entry.event === 'setPainted') {
-                    wait = this.waitForVisApplied({ timeoutMs: 30_000 });
-                }
+    async executeLogEvents(log, timed = false) {
+        if (!Array.isArray(log) || log.length === 0) return;
 
-                // Trigger the event
-                this.bus.emit(entry.event, ...(entry.args ?? []));
+        // Establish timing baselines only if we're honoring recorded timings
+        let t0Log = 0, t0Play = 0;
+        if (timed) {
+            t0Log = log[0].timestamp ?? 0;   // recorded start (entries guaranteed sorted)
+            t0Play = performance.now();     // playback start
+        }
 
-                // Block until visibility has been applied (if applicable)
-                if (wait) {
-                    try {
-                        await wait; // yields to event loop; other socket/bus events keep flowing
-                        console.error('vis.applied received');
-                    } catch (e) {
-                        console.warn('vis.applied timed out for setPainted', e);
-                        return;
-                    }
-                }
+        console.log(`Loading a log with ${log.length} entries`);
+
+        for (const entry of log) {
+            if (timed && typeof entry.timestamp === 'number') {
+                const target = t0Play + (entry.timestamp - t0Log);
+                await this.waitUntil(target); // ensures "no faster than recorded"
             }
-        });
+
+            console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
+
+            // Trigger the event, but wait for it to return
+            await this.bus.emitAsync(entry.event, ...(entry.args ?? []));
+        }
     }
-
-    waitForVisApplied({ timeoutMs = 10_000 } = {}) {
-        return new Promise((resolve, reject) => {
-            const onDone = () => { cleanup(); resolve(); };
-
-            // register one-shot and keep unsubscribe
-            const unsubscribe = this.bus.once('vis.applied', onDone);
-
-            const cleanup = () => { clearTimeout(timer); unsubscribe?.(); };
-
-            const timer = setTimeout(() => {
-                cleanup();
-                reject(new Error('vis.applied timeout'));
-            }, timeoutMs);
-        });
-    }
-
 }

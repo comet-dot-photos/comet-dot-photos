@@ -113,7 +113,7 @@ export class CometPhotosApp {
       socket: this.socket,
       sceneMgr: this.sceneMgr,
       ROI: this.ROI,
-      uiState: this.DEFAULT_UI_STATE
+      uiState: DEFAULT_UI_STATE
     })
 
 // one map to wire all semantic events
@@ -151,15 +151,17 @@ export class CometPhotosApp {
         // Debug menu
         'flatShading':     v => this.sceneMgr.entrySetFlatShading(v),
         'memStats':        () => this.sceneMgr.memStats(),
-        'startLog':        () => this.bus.startLog(),
+        'startLog':        () => this.testHarness.startRecording(),
         'endLog':          () => this.testHarness.saveLog(),
-        'runLog':          () => this.testHarness.runLog(),
+        'runLogFast':      () => this.testHarness.runLog(false),
+        'runLogTimed':     () => this.testHarness.runLog(true),
         'paintVisible':    () => this.preprocessor.computeVisibleVertices(),
         'preprocess':      () => this.preprocessor.beginPreprocessing(),
 
         // For testing
         'setCam':          v => this.testHarness.setCameraState(v),
-        'setPainted':      v => this.testHarness.setPaintedState(v),
+        'setPainted':      v => this.testHarness.setPaintState(v),
+        'setStateVars':    v => this.testHarness.setStateVars(v),
         'setAppState':     v => this.testHarness.setAppState(v),
         'checkResult':     v => this.testHarness.checkResult(v)
     };
@@ -184,13 +186,11 @@ export class CometPhotosApp {
     for (const [evt, fn] of (this._bound ?? [])) this.bus.off(evt, fn);
   }
 
-  onDonePainting() {
+  async onDonePainting() {
     this.sceneMgr.endPaint();
     this.ROI.setFromPaint(this.sceneMgr.cometGeometry);
-    this.filterEng.applyGeoFilter(true);
-    if (this.bus.logging()) {  // log the painted state
-      this.testHarness.logPaintedState();
-    }
+    await this.filterEng.updateAllFilters();     // ← wait for async path
+    if (this.bus.logging()) this.testHarness.logPaintState();
   }
 
   // ---- Internals ----

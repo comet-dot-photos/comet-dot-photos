@@ -32,7 +32,6 @@ export class CometView {
         this.up = new THREE.Vector3(...photoDict.up);
         this.computeViewRect();
  
-        this.tag = photoDict.nm;
         this.jpgPath = CometView.urlPrefix + 'J80/' + photoDict.nm.substring(1, 7) + '/' + photoDict.nm + '.jpg'
  
         this.fileName = photoDict.nm;
@@ -72,7 +71,7 @@ export class CometView {
     }
 
     loadImage(onLoadFunc) {
-        CometView.lastRequestedImg = this.name;
+        CometView.lastRequestedImg = this.fileName;
         const loader = new THREE.TextureLoader(CometView.mgr, function(texture) { console.log('Load manager loaded texture: %s', texture.filename);});  // this line is needed, but loadManager argument only necessary for callback
         const startTime = performance.now();
         loader.load(this.jpgPath, onLoadFunc);
@@ -132,7 +131,7 @@ export class CometView {
         this.imageFresh = false;
         let view = this;
         function onDecalLoaded(texture) {
-            if (CometView.lastRequestedImg != view.name) {
+            if (CometView.lastRequestedImg != view.fileName) {
                 texture.dispose();
                 return;
             } 
@@ -185,7 +184,7 @@ export class CometView {
         this.imageFresh = false;
         let view = this;
         function onProjectionLoaded(texture) {
-            if (CometView.lastRequestedImg != view.name) {
+            if (CometView.lastRequestedImg != view.fileName) {
                 texture.dispose();
                 return;
             } 
@@ -223,7 +222,7 @@ export class CometView {
         let view = this;
         this.imageFresh = false;
         function onOverlayImageLoaded(texture) {
-            if (CometView.lastRequestedImg != view.name) {
+            if (CometView.lastRequestedImg != view.fileName) {
                 texture.dispose();
                 return;
             }

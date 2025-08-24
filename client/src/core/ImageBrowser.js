@@ -120,9 +120,7 @@ export class ImageBrowser {
     loadNext () {
 		if (this.cometView) {
 			if (this.currentIndex != this.dynamicArray.length-1) {
-				this.loadComet(this.dynamicArray[++this.currentIndex]);
-				this.state['imageIndex'] += 1;
-                this.bus.emit('setVal', {key: 'imageIndex', val: this.state['imageIndex'], silent: true});
+				this.loadCometByIndex(this.currentIndex + 1);
 			}
 		}
 	}
@@ -130,9 +128,7 @@ export class ImageBrowser {
 	loadPrevious () {
 		if (this.cometView) {
 			if (this.currentIndex != 0) {
-				this.loadComet(this.dynamicArray[--this.currentIndex]);
-				this.state['imageIndex'] -= 1;
-                this.bus.emit('setVal', {key: 'imageIndex', val: this.state['imageIndex'], silent: true});
+				this.loadCometByIndex(this.currentIndex-1);
 			}
 		}
 	}

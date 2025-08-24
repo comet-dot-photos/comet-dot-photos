@@ -38,7 +38,7 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
         //
         //   Argument message is {imgSel: imgSelArray, visAr: visArray, mustMatch: int}
         //
-        socket.on('clientRequestsVis', function(message) { 
+        socket.on('clientRequestsVis', function(message, ack) { 
             console.log(`clientRequestsVis: Client requesting visibility matches.`);
             try {
                 // checks to make sure client cannot cause check_vis to exceed buffers
@@ -55,7 +55,8 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
                     return;
                 }
                 c_check_vis(message.mustMatch, message.imgSel, message.visAr);
-                socket.emit('serverProvidesVis', message.imgSel);
+                //socket.emit('serverProvidesVis', message.imgSel);
+                ack(message.imgSel);
             } catch (error) {  // Additional protection against malformed messages. Perhaps unneeded given earlier checks?
                 console.error(`An error occurred in clientRequestsVis handler: `, error.message);
             }
@@ -79,7 +80,7 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
             fs.writeFileSync('logfile.txt', jsonString);
         });
 
-        socket.on('clientRequestsLogLoad', function() { 
+        socket.on('clientRequestsLogLoad', function(message, ack) { 
             console.log("Got a clientRequestsLogLoad event")
             try {
                 fileText = fs.readFileSync('logfile.txt', 'utf-8');
@@ -89,9 +90,8 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
                 console.error(err.message);
                 log = null;
             }
-            socket.emit('serverProvidesLogLoad', log);
+            ack(log);
         });
-
     });
 }
 

@@ -20,9 +20,6 @@ export class FilterEngine {
     //this.timer = timer;
     this.socket = socket;
     
-    // install socket visibility handler
-    this.installVisibilityCallback();
-
     // used later for fast m2 calculations
     this.defaultRes = this.state.dataset.defaultRes;   // cache this because it is used a lot in this module
     const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(this.state.dataset.FOV/2.0)/180.0);
@@ -151,7 +148,7 @@ export class FilterEngine {
         }
     }
 
-    applyGeoFilter (doFilterCleanup = true) {
+    async applyGeoFilter (doFilterCleanup = true) {
         this.state['startTimer'] = this.state['clock'].getElapsedTime();
         let ogPhotoArray = this.ogPhotoArray;
         if (this.ROI.numPainted > 0) {
@@ -163,22 +160,27 @@ export class FilterEngine {
                     }
                 }
                 const mustMatch = Math.ceil(this.ROI.numPainted*this.state['percentOverlap']/100);
-                this.socket.emit('clientRequestsVis', {mustMatch: mustMatch, imgSel: this.bboxBitArray, visAr: this.ROI.paintArray});
+                const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
+                //console.error('BEFORE VIS REQUEST');
+                const result = await req('clientRequestsVis', {mustMatch: mustMatch, imgSel: this.bboxBitArray, visAr: this.ROI.paintArray});
+                //console.error('AFTER VIS REQUEST!!!');
+                this.processServerVisResult(result);
             }
         } else {  // nothing is painted, so all images pass
             for (let i = 0; i < ogPhotoArray.length; i++)
                 ogPhotoArray[i].filter &= ~FAIL_BBOX;
-            if (doFilterCleanup) this.filterCleanUp();
         }
+        
+        if (doFilterCleanup) this.filterCleanUp();
     }
 
-    updateAllFilters () {
+    async updateAllFilters () {
         for (let i = 0; i < this.ogPhotoArray.length; i++)
             this.ogPhotoArray[i].filter = 0;		// all pass by default
         this.applyMpPFilter(false);
         this.applyEmissionFilter(false);
         this.applyIncidenceFilter(false);
-        this.applyGeoFilter(false);
+        await this.applyGeoFilter(false);
         this.applyPhaseFilter(false);
         this.filterCleanUp();   // just one cleanup at the end
     }
@@ -218,30 +220,27 @@ export class FilterEngine {
         this.ogPhotoArray = this.cachePhotoInformation(metadata);  // add some extra info for filtering, and save it away
     }
 
-    installVisibilityCallback() {
-        this.socket.on('serverProvidesVis', (message) => {
-            const newBBoxBitArray = new Uint8Array(message);
-            for (let i = 0; i < this.ogPhotoArray.length; i++){
-                if (this.ROI.getNthBit(i, newBBoxBitArray) === 1) {
-                    this.ogPhotoArray[i].filter &= ~FAIL_BBOX;
-                }
-                else {
-                    this.ogPhotoArray[i].filter |= FAIL_BBOX;
-                }
+    processServerVisResult(message) {
+        const newBBoxBitArray = new Uint8Array(message);
+        for (let i = 0; i < this.ogPhotoArray.length; i++){
+            if (this.ROI.getNthBit(i, newBBoxBitArray) === 1) {
+                this.ogPhotoArray[i].filter &= ~FAIL_BBOX;
             }
-            this.filterCleanUp();
-            let delta = this.state['clock'].getElapsedTime() - this.state['startTimer'];
-            console.log(`Visibility check: ${(delta)*1000} milliseconds`);
-            this.bus.emit('vis.applied');   // allows for blocking until message handled (playing back logs)
-        });
-    };
+            else {
+                this.ogPhotoArray[i].filter |= FAIL_BBOX;
+            }
+        }
+        // this.filterCleanUp(); - nowdone elsewhere.
+        let delta = this.state['clock'].getElapsedTime() - this.state['startTimer'];
+        console.log(`Visibility check: ${(delta)*1000} milliseconds`);
+    }
 
-    setPercentOverlap(percent) {
+    async setPercentOverlap(percent) {
         this.state['percentOverlap'] = percent;
         this.bus.emit('setVal', {key: 'percentOverlap', val: percent, silent: true});
         if (this.ROI.numPainted > 0) {
-            this.applyGeoFilter();
-        }
+            return this.applyGeoFilter();  // returns the promise, allowing emitAsync
+        } else return;
     }
 }
 

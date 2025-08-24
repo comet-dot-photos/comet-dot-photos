@@ -6,14 +6,11 @@
 
 export class Emitter {
   constructor() {
-    //console.debug('Emitter initialized');
     this.m = new Map(); // eventName → [listeners]
-//  this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results']); // events we don't want to log
     this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled', 'setLimits']); // events we don't want to log
   }
 
   on(event, fn) {
-    //console.debug(`New function: on ${event}`);
     (this.m.get(event) ?? this.m.set(event, []).get(event)).push(fn);
   }
 
@@ -34,6 +31,39 @@ export class Emitter {
     }
   }
 
+  async emitAsync(event, ...args) {
+    const listeners = this.m.get(event) ?? [];
+    for (const fn of listeners) {
+      await fn(...args);  // wait for each listener to finish before moving on
+    }
+  }
+
+
+/*
+// (temporary instrumentation)
+async emitAsync(event, ...args) {
+
+  function isThenable(x) { return x && (typeof x.then === 'function'); }
+  const listeners = this.m.get(event) ?? [];
+  console.log(`[bus.emitAsync] ${event}: ${listeners.length} listener(s)`);
+  let i = 0;
+  for (const fn of listeners) {
+    i++;
+    const t0 = performance.now();
+    console.log(`[bus.emitAsync] -> L${i} START ${event}`);
+    const ret = fn(...args);
+    if (!isThenable(ret)) {
+      console.warn(`[bus.emitAsync] WARN: L${i} for "${event}" did not return a promise`);
+    }
+    await Promise.resolve(ret); // normalize sync/async
+    const dt = (performance.now() - t0).toFixed(2);
+    console.log(`[bus.emitAsync] <- L${i} END   ${event} (${dt} ms)`);
+  }
+  console.log(`[bus.emitAsync] DONE ${event}`);
+}
+*/
+
+
   clear() {
     this.m.clear();
   }
@@ -41,7 +71,7 @@ export class Emitter {
   once(event, fn) {
     const wrapper = (...args) => {
       this.off(event, wrapper);
-      fn(...args);
+      return fn(...args); // let async return vals bubble up
     };
     this.on(event, wrapper);
     return () => this.off(event, wrapper); // <-- return unsubscribe
