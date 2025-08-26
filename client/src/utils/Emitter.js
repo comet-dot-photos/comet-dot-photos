@@ -7,7 +7,9 @@
 export class Emitter {
   constructor() {
     this.m = new Map(); // eventName → [listeners]
-    this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled', 'setLimits']); // events we don't want to log
+    this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results', /*'results.ready',*/ 'startPaint', 'drawBrush', 'endPaint', 'setEnabled', 'setLimits', 'logResult']); // events we don't want to log
+    this.logResultAfter = new Set(['percentOverlap', 'metersPerPixel', 'emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint', 'clearPaint']); // events that can change the result set
+    this.asyncEvents = new Set(['endPaint', 'percentOverlap', 'clearPaint'])
   }
 
   on(event, fn) {
@@ -21,16 +23,34 @@ export class Emitter {
     if (idx !== -1) arr.splice(idx, 1);
   }
 
-  emit(event, ...args) {
+  async emit(event, ...args) {
     // console.debug(`Emitter: ${event}, args:`, args, 'listeners: ', this.m.get(event));
-    for (const fn of (this.m.get(event) ?? [])) {
-      fn(...args);
-      if (this._logEnabled && !this.dontLogSet.has(event)) {
-        this._log.push({ event, args, timestamp: performance.now() });
+    const listeners = this.m.get(event) ?? [];
+    const shouldLog = this._logEnabled && !this.dontLogSet.has(event);
+    const isAsync = this.asyncEvents.has(event);
+    const isThenable = (x) => x && typeof x.then === 'function';
+    let firstError = null;
+
+    for (const fn of listeners) {
+      try {
+        const ret = fn(...args);
+        if (isAsync && isThenable(ret)) await ret;
+      } catch (e) {
+        console.warn(`[bus.emit] listener error for "${event}":`, e);
+        firstError ??= e;
       }
     }
+    if (shouldLog) {
+      this._log.push({ event, args, timestamp: performance.now() });
+
+      if (this.logResultAfter.has(event))
+        this.emit('logResult');   // record a checkResult
+    }
+
+    if (firstError) throw firstError;
   }
 
+  
   async emitAsync(event, ...args) {
     const listeners = this.m.get(event) ?? [];
     for (const fn of listeners) {
@@ -39,6 +59,7 @@ export class Emitter {
   }
 
 
+  
 /*
 // (temporary instrumentation)
 async emitAsync(event, ...args) {

@@ -74,10 +74,17 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
         });
 
 
-        socket.on('clientRequestsLogSave', function(message) { // message is json object to save, with sessionName as file name
+        socket.on('clientRequestsLogSave', function(message, ack) { // message is json object to save (allow spec of file name?)
             console.log("Got a clientRequestsLogSave event");
-            const jsonString = JSON.stringify(message);           // write out a new json file including new bbox info
-            fs.writeFileSync('logfile.txt', jsonString);
+            const jsonString = JSON.stringify(message);           // write out a new json file
+            try {
+                fs.writeFileSync('logfile.txt', jsonString);
+                ack(true);
+            }
+            catch(err) {
+                ack(false);
+            }
+
         });
 
         socket.on('clientRequestsLogLoad', function(message, ack) { 

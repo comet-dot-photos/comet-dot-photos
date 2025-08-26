@@ -48,6 +48,9 @@ export class ImageBrowser {
             this.enableImageNavigation(false);
         }
         this.updateCPanel('imageIndex', this.currentIndex);
+
+        // this.bus.emit('results.ready');
+        // console.error('Emitting a results.ready');
     }
 
     installMetadata(metadata) {
@@ -171,10 +174,10 @@ export class ImageBrowser {
 		}
 	}
 
-    clearPaint () {
-        this.sceneMgr.clearPaintAux();      // clear the paint on the model
-        this.ROI.init();                    // ROI now empty
-        this.filterEng.updateAllFilters();  // re-apply all filters to reflect no ROI 
+    async clearPaint () {
+        this.sceneMgr.clearPaintAux();            // clear the paint on the model
+        this.ROI.init();                          // ROI now empty
+        await this.filterEng.updateAllFilters();  // re-apply all filters to reflect no ROI 
         this.updateCPanel('imageInfo', this.getInfoString(this.dynamicArray[this.currentIndex])); // will change if paint is cleared
     }
 

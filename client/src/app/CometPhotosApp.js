@@ -34,6 +34,7 @@ const DEFAULT_UI_STATE = {
 	fileName: 'None',
 	time: 'None',
 	imageInfo: 'None Selected',
+  status: '',
   flatShading: true       // debug menu option
 };
 
@@ -111,6 +112,7 @@ export class CometPhotosApp {
       bus: this.bus,
       state: this.state,
       socket: this.socket,
+      imageBrowser: this.imageBrowser,
       sceneMgr: this.sceneMgr,
       ROI: this.ROI,
       uiState: DEFAULT_UI_STATE
@@ -151,7 +153,7 @@ export class CometPhotosApp {
         // Debug menu
         'flatShading':     v => this.sceneMgr.entrySetFlatShading(v),
         'memStats':        () => this.sceneMgr.memStats(),
-        'startLog':        () => this.testHarness.startRecording(),
+        'startLog':        () => this.testHarness.startLog(),
         'endLog':          () => this.testHarness.saveLog(),
         'runLogFast':      () => this.testHarness.runLog(false),
         'runLogTimed':     () => this.testHarness.runLog(true),
@@ -189,8 +191,8 @@ export class CometPhotosApp {
   async onDonePainting() {
     this.sceneMgr.endPaint();
     this.ROI.setFromPaint(this.sceneMgr.cometGeometry);
+    if (this.bus.logging()) this.testHarness.logPaintState(true);
     await this.filterEng.updateAllFilters();     // ← wait for async path
-    if (this.bus.logging()) this.testHarness.logPaintState();
   }
 
   // ---- Internals ----

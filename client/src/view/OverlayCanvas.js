@@ -85,7 +85,6 @@ export class OverlayCanvas {
         const ctx = overlayCanvas.getContext('2d');
         const canvasWidth = overlayCanvas.width, canvasHeight = overlayCanvas.height;
         const guiElement = document.querySelector('.lil-gui');
-//        const guiWidth = renderer.domElement.getBoundingClientRect().right - guiElement.getBoundingClientRect().left;
         const guiWidth = overlayCanvas.getBoundingClientRect().right - guiElement.getBoundingClientRect().left;
     
         if (this.state.showImage != SI_UNMAPPED) { // Clear the overlay if it does not contain an image
@@ -117,7 +116,7 @@ export class OverlayCanvas {
         if (CometView.map && CometView.map.image && cometView && cometView.imageFresh) {
             this.drawImageOnOverlay(this.overlayCanvas, CometView.map.image);
             this.overlayPaintCircle();
-        } else if (!cometView && this.state.metaDataLoaded) { // everything loaded but no current cometView => no matches
+        } else if (!cometView && this.state.metadataLoaded) { // everything loaded but no current cometView => no matches
             this.drawNoMatchesOverlay();
         } else if (cometView) {	 // If No Matches displayed, need to clear it
             this.clearOverlay();
@@ -136,7 +135,7 @@ export class OverlayCanvas {
         const ctx = this.overlayCanvas.getContext('2d');
         const canvasWidth = this.overlayCanvas.width, canvasHeight = this.overlayCanvas.height;
         const guiElement = document.querySelector('.lil-gui');
-        const guiWidth = renderer.domElement.getBoundingClientRect().right - guiElement.getBoundingClientRect().left;
+        const guiWidth = overlayCanvas.getBoundingClientRect().right - guiElement.getBoundingClientRect().left;
     
         if (this.state['showImage'] == SI_UNMAPPED) {
             ctx.fillStyle = 'black';

@@ -70,6 +70,7 @@ export const cometPhotosSchema = [
         key: 'debugOptions',
         hidden: true,
         items: [
+          { type: 'text',   key: 'status',    label: 'Status:' },
           { type: 'bool',   key: 'flatShading', label: 'Flat Shading:' },
           { type: 'button', key: 'memStats',    label: 'Memory Stats',  event: 'memStats' },
           { type: 'button', key: 'startLog',    label: 'Start Logging', event: 'startLog' },

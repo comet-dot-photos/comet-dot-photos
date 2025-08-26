@@ -2,15 +2,19 @@ import {COMETGREYVAL, PAINT_RED, PAINT_GREEN, PAINT_BLUE} from '../core/constant
 
 
 export class TestHarness {
-    constructor({bus, state, socket, sceneMgr, ROI, uiState}) {
+    constructor({bus, state, socket, imageBrowser, sceneMgr, ROI, uiState}) {
         this.bus = bus;
         this.state = state;
         this.socket = socket;
+        this.imageBrowser = imageBrowser;
         this.sceneMgr = sceneMgr;
         this.ROI = ROI;
+        delete uiState.status; // don't clear the status field on log replay
         this.uiState = uiState;
 
         this.loadControlsHandler();
+        this.installCheck = this.installCheck.bind(this);
+        this.bus.on('logResult', this.installCheck);
     }
 
     loadControlsHandler() {
@@ -21,12 +25,14 @@ export class TestHarness {
         });
     }
 
-    startRecording() {
+    startLog() {
         this.bus.startLog();
-        //const afterEvent = ['percentOverlap', 'metersPerPixel','emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint'];
-        //const recordThese = DEFAULT_UI + 'endPaint' + 'endControls';
-        //this.bus.recordAfter({afterEvent, recordThese});
         this.logAllState();     // set starting conditions!
+        this.statusMessage('Logging in progress...')
+    }
+
+    statusMessage(m) {
+        this.bus.emit('setVal', {key: 'status', val: m, silent: true})
     }
 
     // stopRecording is effectively done with saveLog
@@ -37,36 +43,38 @@ export class TestHarness {
         this.logStateVars(); 
     }
 
-    saveResult(ogPhotoArray) {
-        let result = {};
-        result.count = ogPhotoArray.length;
+    installCheck() {
+        if (!this.bus.logging()) return;  // only when logging
+        const result = {}, dynamicArray = this.imageBrowser.dynamicArray;
+        result.count = dynamicArray.length;
+        result.samples = {};
         // for now, save the first, last, and a random match
-        result.vals = {}
-        if (result.count >= 1) 
-            result.samples[0] = ogPhotoArray[0].nm;
-        if (result.count > 1)
-            result.samples[result.count-1] = ogPhotoArray[result.count-1].nm;
+        if (result.count >= 1)   // save first
+            result.samples[0] = dynamicArray[0].nm;
+        if (result.count >= 2)   // save last
+            result.samples[result.count-1] = dynamicArray[result.count-1].nm;
         if (result.count > 2) { // capture a random additional interior index
-            const randIndex = 1 + Math.random()*result.count-2;
-            result.samples[randIndex] = ogPhotoArray[randIndex.nm];
+            const randIndex = Math.floor(1 + Math.random()*(result.count-2));
+            result.samples[randIndex] = dynamicArray[randIndex].nm;
         }
         this.bus.logOnly('checkResult', result);
     }
 
     checkResult(result) {
-        if (result.count != ogPhotoArray.length) {
+        const dynamicArray = this.imageBrowser.dynamicArray;
+        if (result.count != dynamicArray.length) {
             // need to paint this on the screen too!
-            console.error(`Inconsistent result: result.count = ${result.count}, but # current matches is ${ogPhotoArray.length}`);
+            console.error(`Inconsistent result: result.count = ${result.count}, but # current matches is ${dynamicArray.length}`);
             throw new Error("TestHarness: Incorrect result count");
         }
         for (const [key, val] of Object.entries(result.samples)) {
-            if (val != ogPhotoArray[key].nm) {
+            if (val != dynamicArray[key].nm) {
                 // need to paint this on the screen too!
                 console.error(`Mismatch of image in result set at position ${key}, expecting val ${val}.`);
                 throw new Error("TestHarness: Image mistmatch");
             }
         }
-        
+        console.log('CHECKRESULT: PASSED A TEST.');
     }
 
     /* Functions for getting and setting state - helpers for TestHarnass */
@@ -99,6 +107,7 @@ export class TestHarness {
     }
 
     logPaintState() {
+        if (!this.bus.logging()) return;
         const vertArray = [], cometGeometry = this.sceneMgr.cometGeometry;
         for (let i = 0; i < cometGeometry.attributes.color.array.length; i+=3) {
             if (cometGeometry.attributes.color.array[i] == PAINT_RED) {
@@ -139,16 +148,21 @@ export class TestHarness {
 
     saveLog () {
         const log = this.bus.endLog();
+        // this.bus.off('results.ready', this.installCheck);
         if (log && log.length > 0) {
             const json = JSON.stringify(log);
             const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
-            console.log(`Log size: ${sizeBytes} bytes (~${(sizeBytes/1024).toFixed(1)} KB)`);
+            console.log(`SaveLog - size: ${sizeBytes} bytes: (~${(sizeBytes/1024).toFixed(1)} KB)`);
 
-            this.socket.emit('clientRequestsLogSave', log);
+            this.socket.emit('clientRequestsLogSave', log, v => {
+                if (v) this.statusMessage('Log file saved.');
+                else this.statusMessage('Failed to save log file.');
+            });
         }
   } 
 
     async runLog(timed) {
+        this.statusMessage('Running the log...')
         const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
         const log = await req('clientRequestsLogLoad');
         await this.executeLogEvents(log, timed);
@@ -180,9 +194,10 @@ export class TestHarness {
             }
 
             console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
-
+            this.statusMessage(`Executing: ${entry.event}.`);
             // Trigger the event, but wait for it to return
             await this.bus.emitAsync(entry.event, ...(entry.args ?? []));
         }
+        this.statusMessage('Log executed successfully.');
     }
 }

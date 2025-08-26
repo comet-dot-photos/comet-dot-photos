@@ -452,7 +452,7 @@ export class SceneManager {
 
 	memStats () {
         this.state.matches = `Textures: ${this.renderer.info.memory.textures}. Geometries = ${this.renderer.info.memory.geometries}.`;    
-        this.bus.emit('setVal', {key: 'matches', val: this.state.matches, silent: true});
+        this.bus.emit('setVal', {key: 'status', val: this.state.matches, silent: true});
     }
 
     renderLoop() {

@@ -3,6 +3,7 @@
 
 import * as THREE from 'three';
 import {CometView} from '../view/CometView.js';
+import {serialize} from '../utils/serialize.js';
 
 
 // Filter failure bit position codes
@@ -24,6 +25,9 @@ export class FilterEngine {
     this.defaultRes = this.state.dataset.defaultRes;   // cache this because it is used a lot in this module
     const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(this.state.dataset.FOV/2.0)/180.0);
     this.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
+
+    this.applyGeoFilter = serialize(this.applyGeoFilter.bind(this));
+    this.setPercentOverlap = serialize(this.setPercentOverlap.bind(this));
    }
 
 
@@ -180,7 +184,7 @@ export class FilterEngine {
         this.applyMpPFilter(false);
         this.applyEmissionFilter(false);
         this.applyIncidenceFilter(false);
-        await this.applyGeoFilter(false);
+        await this.applyGeoFilter(false); // serialized automatically
         this.applyPhaseFilter(false);
         this.filterCleanUp();   // just one cleanup at the end
     }
@@ -239,8 +243,9 @@ export class FilterEngine {
         this.state['percentOverlap'] = percent;
         this.bus.emit('setVal', {key: 'percentOverlap', val: percent, silent: true});
         if (this.ROI.numPainted > 0) {
-            return this.applyGeoFilter();  // returns the promise, allowing emitAsync
-        } else return;
+            // return the promise, allowing emitAsync. applyGeoFilter is serialized automatically.
+            await this.applyGeoFilter();  
+        }
     }
 }
 
