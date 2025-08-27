@@ -1,6 +1,6 @@
 // ui/schema.cometPhotos.js
 
-import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC} from '../core/constants.js';
+import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC, LL_REGRESSION, LL_TERSE, LL_VERBOSE, SD_DAY, SD_MONTH, SD_YEAR} from '../core/constants.js';
 
 export const cometPhotosSchema = [
       {
@@ -48,7 +48,7 @@ export const cometPhotosSchema = [
           { type: 'button', key: 'nextImage',    label: 'Next Image',     event: 'nextImage' },
           { type: 'button', key: 'previousImage',label: 'Previous Image', event: 'prevImage' },
 
-          { type: 'select', key: 'skipDuration', label: 'Skip Duration:', options: ['Day','Month','Year'] },
+          { type: 'select', key: 'skipDuration', label: 'Skip Duration:', options: [SD_DAY, SD_MONTH, SD_YEAR] },
           { type: 'button', key: 'skipForward',  label: 'Skip Forward a Month',   event: 'skipForward' },
           { type: 'button', key: 'skipBackward', label: 'Skip Backward a Month',  event: 'skipBackward' }
         ]
@@ -71,14 +71,15 @@ export const cometPhotosSchema = [
         hidden: true,
         items: [
           { type: 'text',   key: 'status',    label: 'Status:' },
-          { type: 'bool',   key: 'flatShading', label: 'Flat Shading:' },
-          { type: 'button', key: 'memStats',    label: 'Memory Stats',  event: 'memStats' },
+          { type: 'select', key: 'logLevel', label: 'Log Level:', options: [LL_REGRESSION, LL_TERSE, LL_VERBOSE] },          
           { type: 'button', key: 'startLog',    label: 'Start Logging', event: 'startLog' },
           { type: 'button', key: 'endLog',      label: 'End Logging',   event: 'endLog' },
           { type: 'button', key: 'runLogFast',     label:  'Run Log (Fast)',       event: 'runLogFast' },
           { type: 'button', key: 'runLogTimed',     label:  'Run Log (Timed)',       event: 'runLogTimed' },
+          { type: 'button', key: 'memStats',    label: 'Memory Stats',  event: 'memStats' },
           { type: 'button', key: 'paintVisible',label: 'Paint Visible', event: 'paintVisible' },
-          { type: 'button', key: 'preprocess',  label: 'Pre-Process',   event: 'preprocess' }
+          { type: 'button', key: 'preprocess',  label: 'Pre-Process',   event: 'preprocess' },
+          { type: 'bool',   key: 'flatShading', label: 'Flat Shading:' }
          ]
       }
     ];

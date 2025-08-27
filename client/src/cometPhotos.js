@@ -32,20 +32,22 @@ var socket = io({
   });
 
 
-function processArguments() {
+function processURL() {
 	// Create a new URL object
 	const urlString = window.location.href;
 	const url = new URL(urlString);
 	const searchParams = url.searchParams;
-	let preprocessMode = searchParams.has('preprocess');
-	let debugMode = searchParams.has('debug') || preprocessMode;
-	return {debugMode, preprocessMode};
+	const preprocessMode = searchParams.has('preprocess');
+	const debugMode = searchParams.has('debug') || preprocessMode;
+	const host = window.location.hostname;
+	const isLocal = (host === "localhost" || host === "127.0.0.1" || host === "::1"); // close enough
+	return {debugMode, preprocessMode, isLocal};
 }
 
 function init() {
-	const {debugMode, preprocessMode} = processArguments();
+	const {debugMode, preprocessMode, isLocal} = processURL();
 
-	const app = new CometPhotosApp(dataset, socket, { debugMode, preprocessMode });
+	const app = new CometPhotosApp(dataset, socket, { debugMode, preprocessMode, isLocal });
 
 	CometView.FOV = dataset.FOV;			// Load relevant dataset parameters
 	CometView.defaultRes = dataset.defaultRes;

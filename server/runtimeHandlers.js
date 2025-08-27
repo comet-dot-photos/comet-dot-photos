@@ -73,27 +73,36 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
             }
         });
 
+        function getLegalFilename(str) {
+            return str.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        }
 
         socket.on('clientRequestsLogSave', function(message, ack) { // message is json object to save (allow spec of file name?)
             console.log("Got a clientRequestsLogSave event");
-            const jsonString = JSON.stringify(message);           // write out a new json file
             try {
-                fs.writeFileSync('logfile.txt', jsonString);
+                const jsonString = JSON.stringify(message.log);           // write out a new json file
+                const filename = './logs/' + getLegalFilename(message.logName);
+                fs.writeFileSync(filename, jsonString);
                 ack(true);
             }
             catch(err) {
+                console.log(`Unable to save log.`);
+                console.error(err.message);
                 ack(false);
             }
 
         });
 
         socket.on('clientRequestsLogLoad', function(message, ack) { 
-            console.log("Got a clientRequestsLogLoad event")
+            console.log("Got a clientRequestsLogLoad event");
+            let log;
             try {
-                fileText = fs.readFileSync('logfile.txt', 'utf-8');
+                const filename = './logs/' + getLegalFilename(message.logName);
+                fileText = fs.readFileSync(filename, 'utf-8');
                 log = JSON.parse(fileText);
             }
             catch(err) {
+                console.log(`Unable to retrieve log.`)
                 console.error(err.message);
                 log = null;
             }

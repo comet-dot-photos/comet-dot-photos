@@ -7,9 +7,9 @@
 export class Emitter {
   constructor() {
     this.m = new Map(); // eventName → [listeners]
-    this.dontLogSet = new Set(['setVal', 'startLog', 'endLog', 'filter.results', /*'results.ready',*/ 'startPaint', 'drawBrush', 'endPaint', 'setEnabled', 'setLimits', 'logResult']); // events we don't want to log
-    this.logResultAfter = new Set(['percentOverlap', 'metersPerPixel', 'emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint', 'clearPaint']); // events that can change the result set
-    this.asyncEvents = new Set(['endPaint', 'percentOverlap', 'clearPaint'])
+    this._dontLogSet = null;      // events we don't want to log
+    this._checkAfterSet = null;   // events after which to log checkStates
+    this._asyncEvents = new Set(['endPaint', 'percentOverlap', 'clearPaint'])
   }
 
   on(event, fn) {
@@ -26,8 +26,9 @@ export class Emitter {
   async emit(event, ...args) {
     // console.debug(`Emitter: ${event}, args:`, args, 'listeners: ', this.m.get(event));
     const listeners = this.m.get(event) ?? [];
-    const shouldLog = this._logEnabled && !this.dontLogSet.has(event);
-    const isAsync = this.asyncEvents.has(event);
+    const shouldLog = this._logEnabled && !this._dontLogSet?.has(event);
+    const shouldCheckAfter = this._logEnabled && this._checkAfterSet?.has(event);
+    const isAsync = this._asyncEvents.has(event);
     const isThenable = (x) => x && typeof x.then === 'function';
     let firstError = null;
 
@@ -40,12 +41,10 @@ export class Emitter {
         firstError ??= e;
       }
     }
-    if (shouldLog) {
+    if (shouldLog)
       this._log.push({ event, args, timestamp: performance.now() });
 
-      if (this.logResultAfter.has(event))
-        this.emit('logResult');   // record a checkResult
-    }
+    if (shouldCheckAfter) this.emit('logCheck');   // record a checkResult
 
     if (firstError) throw firstError;
   }
@@ -116,7 +115,11 @@ async emitAsync(event, ...args) {
       this._log.push({ event, args, timestamp: performance.now() });
   }
 
-  saveAfter(set) {
-    this._saveAfter = set;
+  dontLog(set) {
+    this._dontLogSet = set;
+  }
+
+  checkAfter(set) {
+    this._checkAfterSet = set;
   }
 }

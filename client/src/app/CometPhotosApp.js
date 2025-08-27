@@ -13,7 +13,7 @@ import { Emitter } from '../utils/Emitter.js';
 import { ROI } from '../core/ROI.js';
 import { Preprocessor } from '../core/Preprocessor.js';
 import { TestHarness } from '../utils/TestHarness.js'
-import { SI_NONE } from '../core/constants.js';
+import { SI_NONE, SD_MONTH, LL_REGRESSION } from '../core/constants.js';
 
 const DEFAULT_UI_STATE = {
 	enablePaint: false,
@@ -29,12 +29,13 @@ const DEFAULT_UI_STATE = {
 	showViewport: false,
 	showAxes: false,
 	imageIndex: 0,
-	skipDuration: 'Month',
+	skipDuration: SD_MONTH,
 	matches: 'Loading...',
 	fileName: 'None',
 	time: 'None',
 	imageInfo: 'None Selected',
   status: '',
+  logLevel: LL_REGRESSION,
   flatShading: true       // debug menu option
 };
 
@@ -46,14 +47,13 @@ export class CometPhotosApp {
    */
   constructor(dataset, socket, defaults = {}) {
     this.bus = new Emitter(); // Event bus for cross-component communication
-    this.socket = socket;     // Needed for FilterEngine. Really necessary to keep this in the App too?
-
-    // this.bus.on('drawBrush', (...args) => { console.log('[PROBE] drawBrush raw args:', args); });
+    this.socket = socket;     // To be shared with modules that interact with server
 
     this.state = { ...DEFAULT_UI_STATE };
     this.state['dataset'] = dataset;
     this.state['preprocessMode'] = defaults.preprocessMode;
     this.state['debugMode'] = defaults.debugMode;
+    this.state['isLocal'] = defaults.isLocal;
 
     this.gui = new GuiController({bus: this.bus, state: this.state,
       initial: { ...DEFAULT_UI_STATE },
@@ -153,6 +153,7 @@ export class CometPhotosApp {
         // Debug menu
         'flatShading':     v => this.sceneMgr.entrySetFlatShading(v),
         'memStats':        () => this.sceneMgr.memStats(),
+        'logLevel':        v => this.testHarness.setLogLevel(v),
         'startLog':        () => this.testHarness.startLog(),
         'endLog':          () => this.testHarness.saveLog(),
         'runLogFast':      () => this.testHarness.runLog(false),

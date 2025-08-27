@@ -1,4 +1,4 @@
-import {COMETGREYVAL, PAINT_RED, PAINT_GREEN, PAINT_BLUE} from '../core/constants.js'
+import {COMETGREYVAL, PAINT_RED, PAINT_GREEN, PAINT_BLUE, LL_REGRESSION, LL_VERBOSE, LL_TERSE } from '../core/constants.js'
 
 
 export class TestHarness {
@@ -10,24 +10,70 @@ export class TestHarness {
         this.sceneMgr = sceneMgr;
         this.ROI = ROI;
         delete uiState.status; // don't clear the status field on log replay
+        delete uiState.logLevel; // don't reset the log level on log replay
         this.uiState = uiState;
 
+        this.initEmitterFilters();
         this.loadControlsHandler();
         this.installCheck = this.installCheck.bind(this);
-        this.bus.on('logResult', this.installCheck);
+        this.bus.on('logCheck', this.installCheck);
+        this.setLogLevel(this.state['logLevel']);  // must execute callback with initial val
+        if (!this.state['isLocal']) this.disableLogging(); // server only supports if local
+    }
+
+    disableLogging() {  // logging is disabled if running on remote server for security
+        bus.emit('setEnabled', {key: 'logLevel', enabled: false});
+        bus.emit('setEnabled', {key: 'startLog', enabled: false});
+        bus.emit('setEnabled', {key: 'endLog', enabled: false});
+        bus.emit('setEnabled', {key: 'runLogFast', enabled: false});
+        bus.emit('setEnabled', {key: 'runLogTimed', enabled: false});
+    }
+
+    initEmitterFilters() {
+        this.DONT_LOG_VERBOSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'setEnabled', 'setLimits', 'logCheck', 'logLevel']);
+        this.DONT_LOG_TERSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled',        'setLimits', 'logCheck', 'logLevel']);
+        this.CHECK_AFTER_SET = new Set(['percentOverlap', 'metersPerPixel', 'emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint', 'clearPaint']); // events that can change the result set
     }
 
     loadControlsHandler() {
         const controls = this.sceneMgr.controls;
         controls.addEventListener('end', () => {
-            if (this.bus.logging())
+            controls.update();    // force an update to make sure cam state is correct.
+            if (this.bus.logging() && this.state.logLevel != LL_VERBOSE)  // log only at end if not verbose
+                this.logCameraState();
+        });
+        controls.addEventListener('change', () => {
+            // don't do update - current cam already updated! controls.update() triggers 'change'!
+            if (this.bus.logging() && this.state.logLevel == LL_VERBOSE)  // log every change if verbose
                 this.logCameraState();
         });
     }
 
+    setLogLevel(v) {
+        this.state['logLevel'] = v;
+        this.bus.emit('setVal', {key: 'logLevel', val: v, silent: true}); // not really necessary here
+
+        if (v == LL_VERBOSE) {
+            this.bus.dontLog(this.DONT_LOG_VERBOSE_SET); // events we don't want to log
+        } else { // LL_TERSE or LL_REGRESSION
+            this.bus.dontLog(this.DONT_LOG_TERSE_SET);
+        }
+
+        if (v == LL_REGRESSION) {
+            this.bus.checkAfter(this.CHECK_AFTER_SET);
+        } else {
+            this.bus.checkAfter(null);
+        }
+    }
+
     startLog() {
+        if (this.bus.logging()) {
+            this.statusMessage('Already logging!');
+            return;
+        }
         this.bus.startLog();
-        this.logAllState();     // set starting conditions!
+        this.logAllState();     // record starting conditions!
+
         this.statusMessage('Logging in progress...')
     }
 
@@ -147,24 +193,36 @@ export class TestHarness {
     }
 
     saveLog () {
+        if (!this.bus.logging()) {
+            this.statusMessage("Haven't started logging!");
+            return;
+        }
         const log = this.bus.endLog();
-        // this.bus.off('results.ready', this.installCheck);
         if (log && log.length > 0) {
+            const logName = prompt("Please provide a name for the log or test:");
             const json = JSON.stringify(log);
             const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
             console.log(`SaveLog - size: ${sizeBytes} bytes: (~${(sizeBytes/1024).toFixed(1)} KB)`);
 
-            this.socket.emit('clientRequestsLogSave', log, v => {
-                if (v) this.statusMessage('Log file saved.');
-                else this.statusMessage('Failed to save log file.');
+            this.socket.emit('clientRequestsLogSave', {log, logName}, v => {
+                if (v) {
+                    this.statusMessage('Log file saved.');
+                    this.lastLogUsed = logName;
+                } else this.statusMessage('Failed to save log file.');
             });
         }
   } 
 
     async runLog(timed) {
-        this.statusMessage('Running the log...')
+        const logName = prompt("Name of log or test:", this.lastLogUsed); // default will be set to previous save
         const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
-        const log = await req('clientRequestsLogLoad');
+        const log = await req('clientRequestsLogLoad', {logName});
+        if (!log) {
+            this.statusMessage(`${logName} was not found.`);
+            return;
+        }
+        this.statusMessage('Running the log...')
+        this.lastLogUsed = logName;
         await this.executeLogEvents(log, timed);
     }
 
