@@ -9,6 +9,7 @@ const path2 = require("path");
 function resolveLibPath() {
   const base = path2.join(__dirname, "/c_build");
   if (process.platform === "darwin") {
+    if (process.arch === 'arm64') return path2.join(base, "checkvis.darwin_arm64.dylib");
     if (process.arch === "x64") return path2.join(base, "checkvis.darwin_x64.dylib");
   } else if (process.platform === "win32") {
     if (process.arch === "x64") return path2.join(base, "checkvis.win_x64.dll");

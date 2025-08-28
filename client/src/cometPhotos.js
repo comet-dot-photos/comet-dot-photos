@@ -10,6 +10,7 @@ const dataset = {
 	model:"cg-dlr_spg-shap7-v1.0_200Kfacets.obj",
 	metaData: "imageMetadataNAC.json",
 	visTable: "visTableNAC.bin",
+	rowSize: 12504,
 	FOV: 2.20746,
 	defaultRes: 2048,
 	initialEye: [100, 100, 100],
@@ -78,10 +79,10 @@ function init() {
 			sceneMgr.scene.add(sceneMgr.targetMesh);
 		};
 	
-		objLoader2.load(dataset.model, loadData);
+		objLoader2.load(dataset.modelFolder + dataset.model, loadData);
 
 	// Load the image metadata
-	const url = preprocessMode ? "imageMetadata_phase1.json" : dataset.metaData; // hardwired json file for preprocessing only
+	const url = preprocessMode ? "imageMetadata_phase1.json" : dataset.dataFolder + dataset.metaData; // hardwired json file for preprocessing only
 	fetch(url) 	// Fetch the JSON file
 		.then(response => response.json()) // Parse the response as JSON
 		.then(data => {  // Now "data" contains the parsed JSON object
