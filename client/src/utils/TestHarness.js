@@ -21,12 +21,10 @@ export class TestHarness {
         if (!this.state['isLocal']) this.disableLogging(); // server only supports if local
     }
 
-    disableLogging() {  // logging is disabled if running on remote server for security
-        bus.emit('setEnabled', {key: 'logLevel', enabled: false});
-        bus.emit('setEnabled', {key: 'startLog', enabled: false});
-        bus.emit('setEnabled', {key: 'endLog', enabled: false});
-        bus.emit('setEnabled', {key: 'runLogFast', enabled: false});
-        bus.emit('setEnabled', {key: 'runLogTimed', enabled: false});
+    disableLogging() {  // log recording disabled if running on remote server for security
+        this.bus.emit('setEnabled', {key: 'logLevel', enabled: false});
+        this.bus.emit('setEnabled', {key: 'startLog', enabled: false});
+        this.bus.emit('setEnabled', {key: 'endLog', enabled: false});
     }
 
     initEmitterFilters() {
