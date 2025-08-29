@@ -26,8 +26,8 @@ export class FilterEngine {
     const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(this.state.dataset.FOV/2.0)/180.0);
     this.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
 
-    this.applyGeoFilter = serialize(this.applyGeoFilter.bind(this));
-    this.setPercentOverlap = serialize(this.setPercentOverlap.bind(this));
+    this.applyGeoFilter = serialize(this.applyGeoFilter.bind(this), { mode: 'queue' });
+    this.setPercentOverlap = serialize(this.setPercentOverlap.bind(this), { mode: 'latest' });
    }
 
 

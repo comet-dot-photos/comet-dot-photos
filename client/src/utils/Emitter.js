@@ -3,6 +3,7 @@
 //   to be defined with the on event, and then triggered by the emit event. Emitter.js allows
 //   separation of the UI vs. the application logic. It also provides some basic logging
 //   functionality, which is useful in testing.
+import { CancelledError } from './serialize.js';
 
 export class Emitter {
   constructor() {
@@ -41,10 +42,13 @@ export class Emitter {
         firstError ??= e;
       }
     }
-    if (shouldLog)
+    const wasCancelled = isAsync && firstError instanceof CancelledError;
+    // Skip logging if this async event was canceled by the serializer
+    if (shouldLog && !wasCancelled)
       this._log.push({ event, args, timestamp: performance.now() });
 
-    if (shouldCheckAfter) this.emit('logCheck');   // record a checkResult
+    if (shouldCheckAfter && !wasCancelled) 
+      this.emit('logCheck');   // record a checkResult
 
     if (firstError) throw firstError;
   }
