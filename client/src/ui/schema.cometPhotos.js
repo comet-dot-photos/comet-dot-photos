@@ -4,10 +4,11 @@ import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC, LL_REGRESSION, L
 
 export const cometPhotosSchema = [
       {
-        folder: 'Help Resources',
+        folder: 'Getting Started',
         key: 'help',
         items: [
-          { type: 'button', key: 'showQuickStart', label: 'Show Quickstart Help', event: 'quickstartHelp' }
+          { type: 'button', key: 'showQuickStart', label: 'Show Quickstart Help', event: 'quickstartHelp' },
+          { type: 'select', key: 'datasetName',    label: 'Choose Dataset:', options: ['NAC']}
         ]
       },
 
@@ -38,19 +39,28 @@ export const cometPhotosSchema = [
         key: 'displayNav',
         items: [
           { type: 'select', key: 'showImage',    label: 'Show Image:', options: [SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC] },
-          { type: 'bool',   key: 'encircleRegion', label: 'Encircle Region:' },
-          { type: 'bool',   key: 'spacecraftView', label: 'Spacecraft View:' },
-          { type: 'bool',   key: 'showViewport',   label: 'Show Viewport:' },
-          { type: 'bool',   key: 'showAxes',       label: 'Show Axes:' },
+          { type: 'row', items: [
+            { type: 'bool', key: 'encircleRegion', label: 'Encircle Region:' },
+            { type: 'bool', key: 'showViewport', label: 'Show Viewport:' },
+          ]},
+
+          { type: 'row', items: [
+            { type: 'bool', key: 'spacecraftView', label: 'Spacecraft View:' },
+            { type: 'bool', key: 'showAxes',     label: 'Show Axes:' },
+          ]},
 
           // imageIndex is a single value slider; app can adjust .max(...) after filtering
           { type: 'range',  key: 'imageIndex',   label: 'Image Index:', min: 0, max: Number.MAX_SAFE_INTEGER, step: 1 },
-          { type: 'button', key: 'nextImage',    label: 'Next Image',     event: 'nextImage' },
-          { type: 'button', key: 'previousImage',label: 'Previous Image', event: 'prevImage' },
+          { type: 'row', rowKind: 'buttons', items: [
+            { type: 'button', key: 'previousImage',label: 'Previous Image', event: 'prevImage' },
+            { type: 'button', key: 'nextImage',    label: 'Next Image',     event: 'nextImage' },
+          ]},
 
-          { type: 'select', key: 'skipDuration', label: 'Skip Duration:', options: [SD_DAY, SD_MONTH, SD_YEAR] },
-          { type: 'button', key: 'skipForward',  label: 'Skip Forward a Month',   event: 'skipForward' },
-          { type: 'button', key: 'skipBackward', label: 'Skip Backward a Month',  event: 'skipBackward' }
+          { type: 'row', rowKind: 'mixed-buttons', items: [
+            { type: 'select', key: 'skipDuration', label: 'Skip Duration:', options: [SD_DAY, SD_MONTH, SD_YEAR] },
+            { type: 'button', key: 'skipBackward', label: '⮄',  event: 'skipBackward' },
+            { type: 'button', key: 'skipForward',  label: '⮆',   event: 'skipForward' },
+          ]}
         ]
       },
 

@@ -9,6 +9,7 @@
     "debug": "vite --debug"
   },
   "dependencies": {
+    "lil-gui": "^0.20.0",
     "socket.io-client": "^4.8.1",
     "three": "^0.154.0",
     "three-mesh-bvh": "^0.6.3",

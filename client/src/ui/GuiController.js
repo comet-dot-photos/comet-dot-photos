@@ -6,7 +6,8 @@
 //   the details related to the actual widgets used, and events emitted, hidden from 
 //   this object.
 
-import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+//import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import GUI from 'lil-gui';
 import { buildGuiFromSchema } from './buildGuiFromSchema.js';
 import { cometPhotosSchema } from './schema.cometPhotos.js'
 
@@ -28,13 +29,20 @@ export class GuiController {
     this.setLimits = setLimits;   
     this.bus.on('setVal', (v) => this.set(v));
     this.bus.on('setLimits', (v) => this.setLimits(v));
-    this.bus.on('setLabel', ({key, label}) => { if (this.cpanel[key]?.name) this.cpanel[key].name(label); });
+    // setLabel now different for buttons (since label moved inside)
+    this.bus.on('setLabel', ({key, label}) => this.cpanel[key]?.setLabel?.(label) || this.cpanel[key]?.name?.(label));
     this.bus.on('setEnabled', ({key, enabled}) => {
         const ctrl = this.cpanel[key];
         if (ctrl) {
             if (enabled && ctrl.enable) ctrl.enable();
             else if (!enabled && ctrl.disable) ctrl.disable();
         }
+    });
+    this.bus.on('setSelectOpts', ({key, opts, val, silent}) => {
+      const ctrl = this.cpanel[key];
+      ctrl.options = opts;
+      this.set({key, val, silent});
+      ctrl.updateDisplay();
     });
     this.debugDisplayed = false;
     this.bus.on('toggleDebugMenu', () => {

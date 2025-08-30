@@ -1,3 +1,16 @@
+/* ==========================================================================
+   cometPhotos.css
+   Custom styling for lil-gui controls and dual-handled sliders
+   used in the Comet.Photos interface. Provides consistent label
+   alignment, row layouts, normalized spacing, button row handling,
+   and proper canvas overlay layering.
+   ========================================================================== */
+
+
+/* ========================================================================
+   Base layout
+   ======================================================================== */
+
 html, body {
     padding: 0;
     margin: 0;
@@ -10,95 +23,184 @@ canvas {
 }
 
 
+/* ========================================================================
+   lil-gui overrides (rowKind + normalized vertical spacing)
+   ======================================================================== */
+
 .lil-gui {
-    --width: 280px;
-    --name-width: 35%;
+  --width: 280px;        /* panel width */
+  --name-width: 35%;     /* unused now (legacy lil-gui var) */
+  --label-width: 95px;   /* fixed label column width for consistency */
+  --btn-h: 20px;         /* button height baseline */
 }
 
+/* ---------- Base row + controller layout ---------- */
+.lil-gui .gui-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.lil-gui .gui-row .controller {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin: 0;
+}
+.lil-gui .gui-row .controller .name {
+  width: var(--label-width);  /* fixed width ensures even alignment */
+  min-width: var(--label-width);
+  flex: 0 0 auto;
+  padding-right: 4px;
+}
+/* Default two-control rows: push the second control to the right */
+.lil-gui .gui-row .controller:last-child { margin-left: auto; }
 
-.lil-gui.allow-touch-styles.root.autoPlace {
-    touch-action: pan-y;
+/* ---------- Button handling via rowKind ---------- */
+/* Only button controllers hide their left-hand label */
+.lil-gui .gui-row .controller.has-button .name { display: none; }
+
+/* PURE button rows (rowKind: "buttons") → fill the row evenly */
+.lil-gui .gui-row.row-buttons { gap: 1px; }
+.lil-gui .gui-row.row-buttons .controller { flex: 1 1 0; min-width: 0; }
+.lil-gui .gui-row.row-buttons .controller:last-child { margin-left: 0; }
+.lil-gui .gui-row.row-buttons .controller button {
+  width: 100%;            /* fill available width */
+  min-width: 0;
+  display: inline-flex;   /* center text vertically */
+  align-items: center;
+  justify-content: center;
+  height: var(--btn-h);
+  line-height: var(--btn-h);
+  padding: 0 8px;
+  box-sizing: border-box;
 }
 
-
-.lil-gui .controller.number.hasSlider input {   /* numeric text input fields associated with slider */
-    min-width: 36px;
-    max-width: 36px
+/* MIXED rows (rowKind: "mixed-buttons") → normal control + compact arrow buttons */
+.lil-gui .gui-row.row-mixed-buttons { gap: 6px; }
+.lil-gui .gui-row.row-mixed-buttons .controller:last-child { margin-left: 0; }
+.lil-gui .gui-row.row-mixed-buttons .controller.has-button { flex: 0 0 auto; }
+.lil-gui .gui-row.row-mixed-buttons .controller.has-button button {
+  width: auto;            /* shrink to fit content */
+  min-width: 0;
+  padding: 0 6px;         /* smaller arrows */
+  font-size: 14px;        /* larger than default lil-gui label size */
+  height: var(--btn-h);
+  line-height: var(--btn-h);
 }
 
-.lil-gui .controller.number.hasSlider input.slider {  /* Override for a dual slider in the lil-gui container */
-    min-width: initial;
-    max-width: initial;
-    width: 100%;
-    margin-left: 0px;
-    background: transparent;
+/* ---------- Normalized vertical spacing ---------- */
+/* Consistent 4px rhythm for every row inside a folder */
+.lil-gui > .children > div > .children > * {
+  margin-top: 4px;
+  margin-bottom: 0;   /* remove lil-gui’s default bottom margin on plain controls */
+}
+.lil-gui > .children > div > .children > *:first-child { margin-top: 0; }
+
+/* Folder content: add breathing room above first row, no extra at bottom */
+.lil-gui > .children > div > .children {
+  padding-top: 4px;
+  padding-bottom: 0;  /* section-to-section gap comes from the title margin */
 }
 
-.flex-container {
-    display: flex;
-    align-items: center;
+/* ---------- Dual-slider fixes ---------- */
+/* force consistent width of numeric input boxes + full-width track */
+.lil-gui .controller.number.hasSlider input { min-width: 36px; max-width: 36px; }
+.lil-gui .controller.number.hasSlider input.slider {
+  width: 100%;
+  margin-left: 0;
+  background: transparent;
+  min-width: initial;
+  max-width: initial;
 }
+/* Hide spinner arrows only on dual slider number boxes */
+.lil-gui .controller.number.hasSlider input[type="number"]::-webkit-outer-spin-button,
+.lil-gui .controller.number.hasSlider input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.lil-gui .controller.number.hasSlider input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ---------- Folder headers ---------- */
+/* vertical gap between folders: controls gap (4px) comes from title margin */
+.lil-gui > .children > div + div > .title { margin-top: 4px !important; }
+
+/* ---------- Touch handling ---------- */
+/* Prevent touch scrolling conflicts with sliders */
+.lil-gui.allow-touch-styles.root.autoPlace { touch-action: pan-y; }
+
+
+/* ========================================================================
+   Dual-handled slider custom track styling
+   ======================================================================== */
+
+.flex-container { display: flex; align-items: center; }
 
 .slider-container {
     position: relative;
     width: 96px;
-    height:var(--widget-height);            /* Adjust height to accommodate the slider and handles */
-    background:rgb(66,66,66);
-    touch-action: none;                     /* don't let the browser grab these events for scrolling, etc... */
+    height: var(--widget-height);
+    background: rgb(66,66,66);
+    touch-action: none;  /* prevent browser scroll/zoom gestures here */
 }
-
-
 .slider-container:hover {
     opacity: 1;
-    background-color: rgb(79, 79, 79); /* Change track color on hover */
+    background-color: rgb(79, 79, 79); /* darker on hover */
     cursor: ew-resize;
 }
 
 .slider {
-    width:96px;
-    height:var(--widget-height);
+    width: 96px;
+    height: var(--widget-height);
 }
-  
-  input[type="range"] {
+
+input[type="range"] {
     position: absolute;
     width: 100%;
-    height:var(--widget-height); /* Match the container height */
-    pointer-events: none;
+    height: var(--widget-height);
+    pointer-events: none; /* let mouse events fall through to both thumbs */
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
-    margin: 0; /* Remove default margin */
-  }
-  
-  input[type="range"]::-webkit-slider-thumb {
+    margin: 0;
+}
+
+/* slider thumbs = thin blue bars */
+input[type="range"]::-webkit-slider-thumb {
     pointer-events: none;
     width: 1.62px;
-    height:var(--widget-height);
+    height: var(--widget-height);
     background: rgb(41, 201, 255);
-    cursor: ew-resize;  /* set cursor to double sided arrow */
+    cursor: ew-resize;
     -webkit-appearance: none;
     appearance: none;
     margin-top: 0px;
-  }
-  
-  input[type="range"]::-moz-range-thumb {
+}
+input[type="range"]::-moz-range-thumb {
     pointer-events: none;
-    width: 1.62px; 
-    height:var(--widget-height);
+    width: 1.62px;
+    height: var(--widget-height);
     background: rgb(41, 201, 255);
     cursor: ew-resize;
     margin-top: 0px;
-  }
+}
 
-  .slider-track {
+.slider-track {
     position: absolute;
-    height:var(--widget-height); 
+    height: var(--widget-height);
     background: rgb(66, 66, 66);
     top: 50%;
     transform: translateY(-50%);
     width: 100%;
-    z-index: -1;
-  }
+    z-index: -1; /* sit behind thumbs */
+}
+
+
+/* ========================================================================
+   Canvas layering
+   ======================================================================== */
 
 #threeCanvas {
     position: absolute;
@@ -107,5 +209,5 @@ canvas {
 #overlayCanvas {
     position: absolute;
     z-index: 2;
-    pointer-events: none; /* Makes sure the 2D canvas doesn't interfere with mouse events */
+    pointer-events: none; /* overlay doesn’t block mouse input */
 }

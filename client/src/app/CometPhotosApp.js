@@ -16,7 +16,8 @@ import { TestHarness } from '../utils/TestHarness.js'
 import { SI_NONE, SD_MONTH, LL_REGRESSION } from '../core/constants.js';
 
 const DEFAULT_UI_STATE = {
-	enablePaint: false,
+	datasetName: 'NAC',
+  enablePaint: false,
 	brushSize: 100, // meters
 	percentOverlap: 75,
 	metersPerPixel: [0, 10],
@@ -41,10 +42,6 @@ const DEFAULT_UI_STATE = {
 
 
 export class CometPhotosApp {
-  /**
-   * @param {HTMLCanvasElement} canvas
-   * @param {{ dataset:any, defaults?:any, makeGui?:(state, onChange)=>void }} options
-   */
   constructor(dataset, socket, defaults = {}) {
     this.bus = new Emitter(); // Event bus for cross-component communication
     this.socket = socket;     // To be shared with modules that interact with server
@@ -118,9 +115,12 @@ export class CometPhotosApp {
       uiState: DEFAULT_UI_STATE
     })
 
+    this.bus.emit('setEnabled', {key: 'datasetName', enabled: false});   // Can't change dataset yet in v3.0
+
 // one map to wire all semantic events
     const HANDLERS = {
         'quickstartHelp':   () => window.open("quickstart.html"),
+        'datasetName':      v => this.installDataset(v),
         'enablePaint':      v => this.sceneMgr.enablePaint(v),
         'percentOverlap':   v => this.filterEng.setPercentOverlap(v),
         'brushSize':       v => this.sceneMgr.adjustBrushSize(v),

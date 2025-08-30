@@ -41,16 +41,11 @@ export class ImageBrowser {
         } else this.currentIndex = 0;
 
         if (this.dynamicArray.length > 0) { 
-            this.loadComet(this.dynamicArray[this.currentIndex]);
-            this.enableImageNavigation(true);
+            this.loadCometByIndex(this.currentIndex);
         } else {
             this.unloadComet();	// No image matches, so have to explicitly unload current cometView. Don't do this otherwise because images will flicker.
-            this.enableImageNavigation(false);
         }
         this.updateCPanel('imageIndex', this.currentIndex);
-
-        // this.bus.emit('results.ready');
-        // console.error('Emitting a results.ready');
     }
 
     installMetadata(metadata) {
@@ -98,17 +93,20 @@ export class ImageBrowser {
             this.updateCPanel('time', "");
             this.updateCPanel('imageInfo', "No matching images");
             this.cometView = null;
+            this.adjustNavEnabled();     // disable nav buttons
             this.overlayNeedsUpdate();   // may trigger No Matches overlay
         }
     } 
 
     loadCometByIndex(index) {
-        if (this.dynamicArray && index >= 0 && index < this.dynamicArray.length) {
+        index = Math.max(0, Math.min(this.dynamicArray.length - 1, index));
+//        if (this.dynamicArray && index >= 0 && index < this.dynamicArray.length) {  // should always be the case?
             this.loadComet(this.dynamicArray[index]);
             this.currentIndex = index;
             this.state['imageIndex'] = index;
             this.bus.emit('setVal', {key: 'imageIndex', val: index, silent: true});
-        }
+            this.adjustNavEnabled();  // enable / disable nav buttons
+//        }
     }
 
     loadCometByFilename(fn) {
@@ -136,42 +134,59 @@ export class ImageBrowser {
 		}
 	}
 
+    adjustNavEnabled () {
+        this.bus.emit('setEnabled', {key: 'nextImage', enabled: this.currentIndex < this.dynamicArray.length-1});
+        this.bus.emit('setEnabled', {key: 'previousImage', enabled: this.currentIndex > 0});
+        this.bus.emit('setEnabled', {key: 'skipForward', enabled: this.getForwardSkipIndex() > 0 });
+        this.bus.emit('setEnabled', {key: 'skipBackward', enabled: this.getBackwardSkipIndex() > 0 });
+        this.bus.emit('setEnabled', {key: 'imageIndex', enabled: this.cometView});
+        this.bus.emit('setEnabled', {key: 'skipDuration', enabled: this.cometView}); // just for the visual clue
+    }
+
     setSkipDuration(value) {
         this.state['skipDuration'] = value;
         this.bus.emit('setVal', {key: 'skipDuration', val: value, silent: true});
-        // Update the skip button labels
-		this.bus.emit('setLabel', {key:'skipForward', label: 'Skip Forward a ' + value});
-		this.bus.emit('setLabel', {key:'skipBackward', label: 'Skip Backward a ' + value});
+        this.adjustNavEnabled();  // can change nav enabling
 	};
 
     skipForward () {
-        const dynamicArray = this.dynamicArray, currentIndex = this.currentIndex;
-		const currentDate = dynamicArray[currentIndex].date;
-		const msSkip = currentDate.getTime() + this.milliseconds[this.state['skipDuration']];
-
-		if (this.cometView) {
-			for (let i = currentIndex; i < dynamicArray.length; i++) {
-				if (dynamicArray[i].date.getTime() > msSkip) {
-					this.loadCometByIndex(i);
-					break;
-				}
-			}
-		}
+        const skipIndex = this.getForwardSkipIndex();
+        if (skipIndex > 0) this.loadCometByIndex(skipIndex);
 	}
 
-	skipBackward() {
-        const dynamicArray = this.dynamicArray, currentIndex = this.currentIndex;
-        const currentDate = dynamicArray[currentIndex].date;
-		const msSkip = currentDate.getTime() - this.milliseconds[this.state['skipDuration']];
+    skipBackward () {
+        const skipIndex = this.getBackwardSkipIndex();
+        if (skipIndex > 0) this.loadCometByIndex(skipIndex);
+	}
 
+    getForwardSkipIndex () {
 		if (this.cometView) {
-			for (let i = currentIndex; i >= 0; i--) {
-				if (dynamicArray[i].date.getTime() < msSkip) {
-					this.loadCometByIndex(i);
-					break;
+            const dynamicArray = this.dynamicArray, currentIndex = this.currentIndex;
+		    const currentDate = dynamicArray[currentIndex].date;
+		    const msSkip = currentDate.getTime() + this.milliseconds[this.state['skipDuration']];
+
+			for (let i = currentIndex; i < dynamicArray.length; i++) {
+				if (dynamicArray[i].date.getTime() > msSkip) {
+                    return i;
 				}
 			}
 		}
+        return -1;   // fail
+	}
+
+	getBackwardSkipIndex() {
+		if (this.cometView) {
+            const dynamicArray = this.dynamicArray, currentIndex = this.currentIndex;
+            const currentDate = dynamicArray[currentIndex].date;
+		    const msSkip = currentDate.getTime() - this.milliseconds[this.state['skipDuration']];
+
+			for (let i = currentIndex; i >= 0; i--) {
+				if (dynamicArray[i].date.getTime() < msSkip) {
+                    return i;
+				}
+			}
+		}
+        return -1;
 	}
 
     async clearPaint () {
@@ -261,11 +276,5 @@ export class ImageBrowser {
         this.overlayNeedsUpdate();
         this.lastSI = val;
     }
-    
-    enableImageNavigation (val) {
-        const keys = ['imageIndex', 'nextImage', 'previousImage', 'skipDuration', 'skipForward', 'skipBackward'];
-        keys.forEach(k => {
-            this.bus.emit('setEnabled', {key: k, enabled: val});
-        });
-    }
+
 }

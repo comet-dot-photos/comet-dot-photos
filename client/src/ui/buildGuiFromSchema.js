@@ -1,5 +1,6 @@
 // ui/buildGuiFromSchema.js
-import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+// import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+import GUI from 'lil-gui';
 import { makeDualSlider } from './makeDualSlider.js';
 
 /**
@@ -11,14 +12,14 @@ import { makeDualSlider } from './makeDualSlider.js';
  * @param {Emitter} [opts.bus] - event bus; default onChange emits '<key>'
  * @param {Function} [opts.onChange] - custom change handler (key, value) => void
  * @param {Function} [opts.dualRangeFactory] - (folder, {key,label,min,max,step,get,set}) => controllerLike
- * @returns {{ ctrls: Record<string, any>, folders: Record<string, any>, set: Function }}
+ * @returns {{ ctrls: Record<string, any>, folders: Record<string, any>, set: Function, setLimits: Function }}
  */
 export function buildGuiFromSchema(gui, schema, {
   state,
   bus,
   onChange
 } = {}) {
-  const ctrls = new Map();    // key -> controller 
+  const ctrls = new Map();    // key -> controller
   const folders = new Map();  // folderKey -> folder
 
   const emitChange = onChange ?? ((key, v) => bus?.emit?.(`${key}`, v));
@@ -28,27 +29,27 @@ export function buildGuiFromSchema(gui, schema, {
     if (node.key) folders[node.key] = folder;
     if (node.hidden) folder.hide();
 
-    if (node.items?.length) {
-      for (const item of node.items) {
-        switch (item.type) {
-          case 'bool': {
-            ctrls[item.key] = folder
-              .add(state, item.key)
-              .name(item.label)
-              .onChange(v => { state[item.key] = v; emitChange(item.key, v); });
-            break;
-          }
+    // helper: create a single controller in this folder
+    const addOne = (item) => {
+      switch (item.type) {
+        case 'bool': {
+          ctrls[item.key] = folder
+            .add(state, item.key)
+            .name(item.label)
+            .onChange(v => { state[item.key] = v; emitChange(item.key, v); });
+          return ctrls[item.key];
+        }
 
-          case 'range': {
-            const { min, max, step = 1 } = item;
-            ctrls[item.key] = folder
-              .add(state, item.key, min, max, step)
-              .name(item.label)
-              .onChange(v => emitChange(item.key, v));
-            break;
-          }
+        case 'range': {
+          const { min, max, step = 1 } = item;
+          ctrls[item.key] = folder
+            .add(state, item.key, min, max, step)
+            .name(item.label)
+            .onChange(v => emitChange(item.key, v));
+          return ctrls[item.key];
+        }
 
-          case 'range2': {
+        case 'range2': {
           // Ensure a pair exists on state (in case caller didn’t seed it)
           if (!Array.isArray(state[item.key]) || state[item.key].length !== 2) {
             state[item.key] = [item.min, item.max];
@@ -61,36 +62,73 @@ export function buildGuiFromSchema(gui, schema, {
             step:     item.step ?? 1,
             decimals: item.decimals,     // optional; falls back to step precision
             bind: { obj: state, key: item.key },
-            onChange: (pair) => emitChange(item.key, pair)  // emit ui.<key> for user edits
+            onChange: (pair) => emitChange(item.key, pair)  // emit <key> for user edits
           });
-          break;
-          }
-
-          case 'select': {
-            ctrls[item.key] = folder
-              .add(state, item.key, item.options)
-              .name(item.label)
-              .onChange(v => emitChange(item.key, v));
-            break;
-          }
-
-          case 'text': {
-            ctrls[item.key] = folder.add(state, item.key).name(item.label);
-            if (item.readonly) ctrls[item.key].disable?.();
-            else ctrls[item.key].onChange(v => emitChange(item.key, v));
-            break;
-          }
-
-          case 'button': {
-            // buttons emit semantic app events
-            const shim = { click: () => bus?.emit?.(item.event, item.payload) };
-            ctrls[item.key] = folder.add(shim, 'click').name(item.label);
-            break;
-          }
-
-          default:
-            console.warn('Unknown control type:', item.type, item);
+          return ctrls[item.key];
         }
+
+        case 'select': {
+          ctrls[item.key] = folder
+            .add(state, item.key, item.options)
+            .name(item.label)
+            .onChange(v => emitChange(item.key, v));
+          return ctrls[item.key];
+        }
+
+        case 'text': {
+          ctrls[item.key] = folder.add(state, item.key).name(item.label);
+          if (item.readonly) ctrls[item.key].disable?.();
+          else ctrls[item.key].onChange(v => emitChange(item.key, v));
+          return ctrls[item.key];
+        }
+
+        case 'button': {
+          const shim = { click: () => bus?.emit?.(item.event, item.payload) };
+          const ctrl = folder.add(shim, 'click');     // create the controller
+          const btn = ctrl.domElement.querySelector('button');
+          if (btn) btn.textContent = item.label ?? 'Button'; // put label inside <button>
+          ctrl.name(''); // clear the left-hand .name so rows can hide it
+          ctrl.setLabel = (txt) => { if (btn) btn.textContent = txt ?? ''; }; // since we move the label inside
+          ctrls[item.key] = ctrl;
+          return ctrl;
+        }
+
+        default:
+          console.warn('Unknown control type:', item.type, item);
+          return null;
+      }
+    };
+
+    // where lil-gui puts child rows
+    const childrenEl =
+      folder.domElement.querySelector('.children') || folder.domElement;
+
+    if (node.items?.length) {
+      for (const item of node.items) {
+        // NEW layout primitive: a single row containing multiple small controls
+        // Schema shape: { type: 'row', items: [ {type:'bool',...}, {type:'bool',...}, ... ] }
+        if (item.type === 'row') {
+          const row = document.createElement('div');
+          row.className = 'gui-row';
+          if (item.rowKind) row.classList.add(`row-${item.rowKind}`);
+          if (item.tight) row.classList.add('row-tight');
+          if (Number.isFinite(item.gap)) row.style.gap = `${item.gap}px`;
+
+          for (const child of item.items ?? []) {
+            const c = addOne(child);
+            if (!c?.domElement) continue;
+            // tag button controllers so CSS can hide their left label reliably
+            if (c.domElement.querySelector('button')) {
+              c.domElement.classList.add('has-button');
+            }
+            row.appendChild(c.domElement);
+          }
+          childrenEl.appendChild(row);
+          continue;
+        }
+
+        // default: create as a normal full-width line
+        addOne(item);
       }
     }
 
@@ -105,10 +143,10 @@ export function buildGuiFromSchema(gui, schema, {
 
   // Helper to update control values programmatically; silent by default.
   function set({key, val, silent = true}) {
-      if (!ctrls[key]) return;  // don't attempt to change dual sliders yet - not implemented
-      state[key] = val;
-      if (!silent) emitChange(key, val);
-      ctrls[key].updateDisplay();
+    if (!ctrls[key]) return;  // dual sliders: not implemented for programmatic set yet
+    state[key] = val;
+    if (!silent) emitChange(key, val);
+    ctrls[key].updateDisplay();
   }
 
   // Update bounds of any control by key; clamps current value and silently reflects
@@ -121,7 +159,7 @@ export function buildGuiFromSchema(gui, schema, {
     if (typeof c.max === 'function' && max != null) c.max(max);
     if (typeof c.step === 'function' && step != null) c.step(step);
 
-    c.updateDisplay(); 
+    c.updateDisplay();
     // Don't worry about clamping val - app needs to request that explicitly if desired
   }
 
