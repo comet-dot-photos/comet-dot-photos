@@ -197,6 +197,13 @@ input[type="range"]::-moz-range-thumb {
     z-index: -1; /* sit behind thumbs */
 }
 
+/* Dual Slider Disabled Styling */
+.dual-slider-template.is-disabled,
+.controller.is-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 
 /* ========================================================================
    Canvas layering

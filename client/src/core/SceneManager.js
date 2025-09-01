@@ -18,11 +18,8 @@ const COR_COLOR = 0x007090; // color of center of rotation sphere
 
 export class SceneManager {
   /**
-   * @param {HTMLCanvasElement} canvas
-   * @param {{ fov?:number, near?:number, far?:number, initialEye?:[number,number,number] }} options
+   * @param {{ fov?:number, initialEye?:[number,number,number] }} options
    */
-
-
   constructor(bus, state, overlay, options = {}) {
     this.bus = bus; // Event bus for cross-component communication
     this.state = state;

@@ -49,6 +49,12 @@ export class GuiController {
         this.debugDisplayed ? this.folders['debugOptions']?.hide() : this.folders['debugOptions']?.show();
         this.debugDisplayed = !this.debugDisplayed;
     });
+    this.bus.on('preprocessMode', () => { // disable all but preprocess button and show debug menu
+      Object.entries(ctrls).forEach(([key, val]) => {
+          console.log(`Iterating on ${key}`);
+          (key == 'preprocess' ? val.enable() : val.disable())} );
+      this.bus.emit('toggleDebugMenu');
+    })
   }
 
   on(topic, handler){ this.bus.on(topic, handler); }

@@ -18,9 +18,6 @@ const DEFAULTS = {
 
 const PORT = +(process.env.PORT || DEFAULTS.PORT);
 const HTTP_PORT = +(process.env.HTTP_PORT || DEFAULTS.HTTP_PORT);
-const VISFILE = process.env.VISFILE || DEFAULTS.VISFILE;
-const VIEWFILE = process.env.VIEWFILE || DEFAULTS.VIEWFILE;
-const BYTESPERROW = +(process.env.BYTESPERROW || DEFAULTS.BYTESPERROW);  // dependent on the shape model
 const KEYFILE = process.env.KEYFILE || null;
 const CERTFILE = process.env.CERTFILE || null;
 const REDIRECT = !!process.env.REDIRECT;
@@ -111,9 +108,9 @@ let datasets = commonHandlers(io, localServer, PREPROCESSING, DATASETSFILE);
 
 if (PREPROCESSING) {
     const { preprocessingHandlers } = require('./preprocessingHandlers.js');
-    preprocessingHandlers(io, localServer, VIEWFILE);
+    preprocessingHandlers(io, datasets);
 } 
 else {
     const { runtimeHandlers } = require('./runtimeHandlers.js');
-    runtimeHandlers(io, datasets, VISFILE, BYTESPERROW);
+    runtimeHandlers(io, datasets);
 }

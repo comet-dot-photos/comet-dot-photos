@@ -68,6 +68,7 @@ export function makeDualSlider(folder, {
     Number(bind?.obj?.[bind?.key]?.[0] ?? limits.min),
     Number(bind?.obj?.[bind?.key]?.[1] ?? limits.max)
   ]);
+  let isDisabled = false;
 
   applyLimitsToDom();
   writeDom(pair);
@@ -92,14 +93,16 @@ export function makeDualSlider(folder, {
   }
 
   // --- User → app: notify on user edits only ---
-  const notifyUserChange = () => { onChange?.([pair[0], pair[1]]); };
+  const notifyUserChange = () => { if (!isDisabled) onChange?.([pair[0], pair[1]]); };
 
   function fromInputs() {
+    if (isDisabled) return;
     pair = normalize([lowInput.value, hiInput.value]);
     writeDom(pair);
     notifyUserChange();
   }
   function fromSliders() {
+    if (isDisabled) return;
     pair = normalize([lowerSlider.value, upperSlider.value]);
     writeDom(pair);
     notifyUserChange();
@@ -133,6 +136,7 @@ export function makeDualSlider(folder, {
     document.addEventListener('pointerup', stopDrag);
   }
   function stopDrag(e) {
+    if (isDisabled) return;
     moveNearest(e, false);
     document.removeEventListener('pointermove', moveNearest);
     document.removeEventListener('pointerup', stopDrag);
@@ -172,11 +176,24 @@ export function makeDualSlider(folder, {
     clone.remove();
   }
 
+  function disable() {
+    isDisabled = true;
+    [lowInput, hiInput, lowerSlider, upperSlider].forEach(el => { el.disabled = true; el.setAttribute('aria-disabled', 'true'); });
+    clone.classList.add('is-disabled');
+  }
+
+  function enable() {
+    isDisabled = false;
+    [lowInput, hiInput, lowerSlider, upperSlider].forEach(el => { el.disabled = false; el.removeAttribute('aria-disabled'); });
+    clone.classList.remove('is-disabled');
+  }
+
   return {
     root: clone,
     updateDisplay,
     setValue,
     min: setMin, max: setMax, step: setStep,
+    disable, enable,
     dispose
   };
 }

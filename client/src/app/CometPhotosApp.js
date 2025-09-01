@@ -127,6 +127,8 @@ export class CometPhotosApp {
     if (this.datasets.length == 1)
       this.bus.emit('setEnabled', {key: 'datasetName', enabled: false});  // disable if only one choice!
 
+    if (defaults.preprocessMode) this.bus.emit('preprocessMode');
+
 // one map to wire all semantic events
     const HANDLERS = {
         'quickstartHelp':   () => window.open("quickstart.html"),

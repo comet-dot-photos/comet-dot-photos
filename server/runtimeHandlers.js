@@ -2,7 +2,7 @@ const fs = require('fs');
 const { exit } = require('process');
 const { load_c}  = require('./load_c.js');
 
-function runtimeHandlers(io, datasets, VISFILE, BYTESPERROW) {
+function runtimeHandlers(io, datasets) {
 
     // Step 1 - load the C Functions for fast visibility checks, and
     //   one by one, load the VISFILES in the datasets
