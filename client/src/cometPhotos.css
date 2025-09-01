@@ -75,7 +75,7 @@ canvas {
   box-sizing: border-box;
 }
 
-/* MIXED rows (rowKind: "mixed-buttons") → normal control + compact arrow buttons */
+/* MIXED rows (rowKind: "mixed-buttons") → normal control  */
 .lil-gui .gui-row.row-mixed-buttons { gap: 6px; }
 .lil-gui .gui-row.row-mixed-buttons .controller:last-child { margin-left: 0; }
 .lil-gui .gui-row.row-mixed-buttons .controller.has-button { flex: 0 0 auto; }
@@ -83,9 +83,13 @@ canvas {
   width: auto;            /* shrink to fit content */
   min-width: 0;
   padding: 0 6px;         /* smaller arrows */
-  font-size: 14px;        /* larger than default lil-gui label size */
   height: var(--btn-h);
   line-height: var(--btn-h);
+}
+
+/* Special case: buttons flagged as largeFont in schema */
+.lil-gui .controller.has-button.large-font-button button {
+  font-size: 15px; 
 }
 
 /* ---------- Normalized vertical spacing ---------- */

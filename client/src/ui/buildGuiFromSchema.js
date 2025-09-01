@@ -120,6 +120,9 @@ export function buildGuiFromSchema(gui, schema, {
             // tag button controllers so CSS can hide their left label reliably
             if (c.domElement.querySelector('button')) {
               c.domElement.classList.add('has-button');
+              if (child.largeFont) {
+                c.domElement.classList.add('large-font-button');
+              }
             }
             row.appendChild(c.domElement);
           }

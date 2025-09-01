@@ -16,10 +16,12 @@ export const cometPhotosSchema = [
         folder: 'Paint Tools',
         key: 'paintTools',
         items: [
-          { type: 'bool',   key: 'enablePaint',   label: 'Enable Paint:' },
+          { type: 'row', rowKind: 'buttons', items: [
+            { type: 'bool',   key: 'enablePaint',   label: 'Enable Paint:' },
+            { type: 'button', key: 'clearPaint',    label: 'Clear Paint',     event: 'clearPaint' }
+          ]},
           { type: 'range',  key: 'brushSize',     label: 'Brush Size:',     min: 5,  max: 200, step: 1 },
           { type: 'range',  key: 'percentOverlap',label: 'Percent Overlap:',min: 1,  max: 100, step: 1 },
-          { type: 'button', key: 'clearPaint',    label: 'Clear Paint',     event: 'clearPaint' }
         ]
       },
 
@@ -58,8 +60,8 @@ export const cometPhotosSchema = [
 
           { type: 'row', rowKind: 'mixed-buttons', items: [
             { type: 'select', key: 'skipDuration', label: 'Skip Duration:', options: [SD_DAY, SD_MONTH, SD_YEAR] },
-            { type: 'button', key: 'skipBackward', label: '⮄',  event: 'skipBackward' },
-            { type: 'button', key: 'skipForward',  label: '⮆',   event: 'skipForward' },
+            { type: 'button', key: 'skipBackward', label: '⮄',  event: 'skipBackward', largeFont: true },
+            { type: 'button', key: 'skipForward',  label: '⮆',   event: 'skipForward', largeFont: true },
           ]}
         ]
       },
