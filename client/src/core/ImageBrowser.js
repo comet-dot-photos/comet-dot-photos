@@ -189,6 +189,14 @@ export class ImageBrowser {
         return -1;
 	}
 
+    // called to reset the ImageBrowser when a new dataset is loaded.
+    // for now, just make sure to load the first match
+    resetForNewDataset() {
+        if (this.dynamicArray?.length > 0) {
+            if (this.currentIndex != 0) this.loadCometByIndex(0);
+        }
+    }
+
     async clearPaint () {
         this.sceneMgr.clearPaintAux();            // clear the paint on the model
         this.ROI.init();                          // ROI now empty

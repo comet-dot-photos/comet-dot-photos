@@ -208,6 +208,8 @@ export class CometPhotosApp {
       this.installMetadata(data);
       document.title = `Comet.Photos: ${dataset.longName} (${data.length} images)`;
     }).catch((e) => console.error('Metadata load error:', e));
+
+    this.imageBrowser.resetForNewDataset();
   }
 
   installMetadata(metadata) {  // share the metadata only with the modules that need it

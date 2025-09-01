@@ -21,7 +21,7 @@ all: linux-popcnt
 
 # ===== Linux (GCC/Clang) ====================================================
 linux-popcnt: $(SRC)
-	$(CC) $(SRC) $(CFLAGS_COMMON) $(POPCNT) $(PIC) -shared -o $(NAME).so
+	$(CC) $(SRC) $(CFLAGS_COMMON) $(POPCNT) $(PIC) -shared -o $(NAME).linux_x64.so
 
 # ===== macOS (Clang) ========================================================
 # Build per-arch and lipo into a universal .dylib. Only the x86_64 slice gets -mpopcnt.
@@ -42,7 +42,7 @@ macos-popcnt: $(SRC)
 # Use inside MSYS2 MinGW64 shell, or pass CC=x86_64-w64-mingw32-gcc when cross-compiling.
 # We add -mpopcnt (x86_64 only). No other ISA flags.
 win-popcnt: $(SRC)
-	$(CC) $(SRC) $(CFLAGS_COMMON) -mpopcnt -shared -o $(NAME).dll
+	$(CC) $(SRC) $(CFLAGS_COMMON) -mpopcnt -shared -o $(NAME).win_x64.dll
 
 # ===== convenience & clean ==================================================
 .PHONY: macos-all clean
