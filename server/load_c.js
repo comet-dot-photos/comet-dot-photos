@@ -15,9 +15,9 @@ function resolveLibPath() {
     if (process.arch === "x64") return path2.join(base, "checkvis2.win_x64.dll");
   } else if (process.platform === "linux") {
     if (process.arch === "x64" && fs2.existsSync("/etc/redhat-release"))
-      return path2.join(base, "checkvis2.linux_redhat_x64.so");
+      return path2.join(base, "checkvis2.linux_x64.so");
     if (process.arch === "x64" && fs2.existsSync("/etc/debian_version"))
-      return path2.join(base, "checkvis2.linux_debian_x64.so");
+      return path2.join(base, "checkvis2.linux_x64.so");
   }
   throw new Error(`Unsupported platform ${process.platform}/${process.arch}`);
 }
