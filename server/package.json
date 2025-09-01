@@ -2,11 +2,11 @@
     "name": "cometserver",
     "version": "3.0.0",
     "scripts": {
-        "redirect_server": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem VISFILE=../data/visTableNAC.bin node cometserver.js",
-        "redirect_pc": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=../dataonlyserver/localhost+2.pem KEYFILE=../dataonlyserver/localhost+2-key.pem VISFILE=../data/visTableNAC.bin node cometserver.js",
+        "redirect_server": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem node cometserver.js",
+        "redirect_pc": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=../dataonlyserver/localhost+2.pem KEYFILE=../dataonlyserver/localhost+2-key.pem node cometserver.js",
         "preprocess": "cross-env PORT=8082 PREPROCESSING=TRUE DATASETSFILE=../data/preprocessing/preprocess.json node cometserver.js",
-        "server": "cross-env PORT=8082 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem VISFILE=../data/visTableNAC.bin node cometserver.js",
-        "local": "cross-env LAUNCHBROWSER=TRUE PORT=8082 VISFILE=../data/visTableNAC.bin node cometserver.js "
+        "server": "cross-env PORT=8082 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem node cometserver.js",
+        "local": "cross-env LAUNCHBROWSER=TRUE PORT=8082 node cometserver.js "
     },
     "engines": {
         "node": ">=14"

@@ -135,6 +135,7 @@ export class ImageBrowser {
 	}
 
     adjustNavEnabled () {
+        if (this.state['preprocessMode']) return;   // Preprocessmode has its own disable logic (nav stays disabled)
         this.bus.emit('setEnabled', {key: 'nextImage', enabled: this.currentIndex < this.dynamicArray.length-1});
         this.bus.emit('setEnabled', {key: 'previousImage', enabled: this.currentIndex > 0});
         this.bus.emit('setEnabled', {key: 'skipForward', enabled: this.getForwardSkipIndex() > 0 });
