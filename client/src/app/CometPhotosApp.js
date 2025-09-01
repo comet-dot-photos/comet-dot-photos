@@ -12,8 +12,11 @@ import { ImageBrowser } from '../core/ImageBrowser.js';
 import { Emitter } from '../utils/Emitter.js';
 import { ROI } from '../core/ROI.js';
 import { Preprocessor } from '../core/Preprocessor.js';
-import { TestHarness } from '../utils/TestHarness.js'
+import { TestHarness } from '../utils/TestHarness.js';
+import { loadCometModel, loadMetadata } from '../core/datasetLoader.js';
 import { SI_NONE, SD_MONTH, LL_REGRESSION } from '../core/constants.js';
+import { CometView } from '../view/CometView.js';
+
 
 const DEFAULT_UI_STATE = {
 	datasetName: 'NAC',
@@ -42,8 +45,9 @@ const DEFAULT_UI_STATE = {
 
 
 export class CometPhotosApp {
-  constructor(dataset, socket, defaults = {}) {
+  constructor(datasets, dataset, socket, defaults = {}) {
     this.bus = new Emitter(); // Event bus for cross-component communication
+    this.datasets = datasets;
     this.socket = socket;     // To be shared with modules that interact with server
 
     this.state = { ...DEFAULT_UI_STATE };
@@ -115,12 +119,18 @@ export class CometPhotosApp {
       uiState: DEFAULT_UI_STATE
     })
 
-    this.bus.emit('setEnabled', {key: 'datasetName', enabled: false});   // Can't change dataset yet in v3.0
+    this.bus.emit('setSelectOpts', {key: 'datasetName',
+      opts: this.datasets.map(x => x.shortName), val: dataset.shortName, silent: true});
+
+    this.loadDataset(dataset); // Load the comet model and metadata!
+
+    if (this.datasets.length == 1)
+      this.bus.emit('setEnabled', {key: 'datasetName', enabled: false});  // disable if only one choice!
 
 // one map to wire all semantic events
     const HANDLERS = {
         'quickstartHelp':   () => window.open("quickstart.html"),
-        'datasetName':      v => this.installDataset(v),
+        'datasetName':      v => this.loadDataset(v),
         'enablePaint':      v => this.sceneMgr.enablePaint(v),
         'percentOverlap':   v => this.filterEng.setPercentOverlap(v),
         'brushSize':       v => this.sceneMgr.adjustBrushSize(v),
@@ -177,6 +187,28 @@ export class CometPhotosApp {
   }
 
   // ---- Public API ----
+
+  // arg can be either a shortName or a dictionary
+  loadDataset(arg) {
+    const dataset = (typeof arg === 'string') ?
+      this.datasets.find(x => x.shortName === arg) : arg;
+
+    this.bus.emit('setVal', {key: 'datasetName', val: dataset.shortName, silent: true});
+
+    // Update CometView class constants to reflect dataset
+    CometView.FOV = dataset.FOV;
+    CometView.defaultRes = dataset.defaultRes;
+
+    // Start BOTH loads immediately / concurrently
+    loadCometModel(this.sceneMgr, this.ROI, dataset);
+    const metaTask  = loadMetadata(dataset);
+
+    // Handle metadata as soon as it lands
+    metaTask.then((data) => {
+      this.installMetadata(data);
+      document.title = `Comet.Photos: ${dataset.longName} (${data.length} images)`;
+    }).catch((e) => console.error('Metadata load error:', e));
+  }
 
   installMetadata(metadata) {  // share the metadata only with the modules that need it
         this.filterEng.installMetadata(metadata);

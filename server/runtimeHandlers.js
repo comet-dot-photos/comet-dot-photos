@@ -2,30 +2,27 @@ const fs = require('fs');
 const { exit } = require('process');
 const { load_c}  = require('./load_c.js');
 
-function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
-    let nRows;
-    const clientSet = new Set();
+function runtimeHandlers(io, datasets, VISFILE, BYTESPERROW) {
 
-    // Step 1 - if not PREPROCESSING, load the C Functions
-    // for visibility checks, and the VISFILE
-    const { c_load_vbuff, c_check_vis } = load_c();
-    const stats = fs.statSync(VISFILE);
-    nRows = stats.size / BYTESPERROW;    // each row is BYTESPERROW bytes, file size is nrows*BYTESPERROW;
-    if (c_load_vbuff(VISFILE, nRows, BYTESPERROW) == 0)
-        console.log(`Successfully loaded ${VISFILE}. nRows = ${nRows}, BYTESPERROW = ${BYTESPERROW}.`);
-    else {
-        console.log(`Loading of ${VISFILE} failed.`);   // no message back to client though...
-        exit();
-    }
-
+    // Step 1 - load the C Functions for fast visibility checks, and
+    //   one by one, load the VISFILES in the datasets
+    const { c_load_vbuff2, c_check_vis2 } = load_c();
+    
+    datasets.forEach((ds, i) => {
+        const visFile = '../data/' + ds.dataFolder + ds.visTable;
+        const stats = fs.statSync(visFile);
+        ds.nRows = stats.size / ds.rowSize;  // cache it for buffer size safety check
+        // each row is BYTESPERROW bytes, file size is nrows*BYTESPERROW;
+        if (c_load_vbuff2(i, visFile, ds.nRows, ds.rowSize) == 0)
+            console.log(`Successfully loaded ${visFile}. nRows = ${ds.nRows}, bytesPerRow = ${ds.rowSize}.`);
+        else {
+            console.log(`Loading of ${visFile} failed.`);   // no message back to client though...
+            exit();
+        }
+    });
+        
     // Step 2 - When a socket connection occurs, register handlers for events
     io.on('connection', function(socket) {
-        const clientIp = socket.handshake.address;      // print out the IP 
-        const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
-        console.log(`Client connection from: ${socket.handshake.query.clientID} at ${ipv4}`);
-        if (localServer)
-            clientSet.add(socket.handshake.query.clientID);
-
 
         // PPclientReadyToStart - just tell the client that server is not in preprocessing mode
         socket.on('PPclientReadyToStart', (message) => { 
@@ -41,35 +38,27 @@ function runtimeHandlers(io, localServer, VISFILE, BYTESPERROW) {
         socket.on('clientRequestsVis', function(message, ack) { 
             console.log(`clientRequestsVis: Client requesting visibility matches.`);
             try {
+                const tableIndex = datasets.findIndex(x => x.shortName == message.dsName);
+                if (tableIndex < 0) throw new Error(`Bad index in clietRequestsVis: ${tableIndex}`);
+
                 // checks to make sure client cannot cause check_vis to exceed buffers
+                const {nRows, rowSize} = datasets[tableIndex];
                 if (!Buffer.isBuffer(message.imgSel) || message.imgSel.length != Math.ceil(nRows/8)) {
-                    console.log(`message.imgSel must be a Buffer and at least ${Math.ceil(nRows/8)} long.`);
+                    console.log(`message.imgSel must be a Buffer and ${Math.ceil(nRows/8)} long.`);
                     return;
                 }
-                if (!Buffer.isBuffer(message.visAr) || message.visAr.length != BYTESPERROW) {
-                    console.log(`message.visArray must be a Buffer and ${BYTESPERROW} long.`);
+                if (!Buffer.isBuffer(message.visAr) || message.visAr.length != rowSize) {
+                    console.log(`message.visArray must be a Buffer and ${rowSize} long.`);
                     return;
                 }
                 if (!Number.isInteger(message.mustMatch)) {
                     console.log('message.mustMatch must be an integer.');
                     return;
                 }
-                c_check_vis(message.mustMatch, message.imgSel, message.visAr);
-                //socket.emit('serverProvidesVis', message.imgSel);
+                c_check_vis2(tableIndex, message.mustMatch, message.imgSel, message.visAr);
                 ack(message.imgSel);
             } catch (error) {  // Additional protection against malformed messages. Perhaps unneeded given earlier checks?
                 console.error(`An error occurred in clientRequestsVis handler: `, error.message);
-            }
-        });
-
-        socket.on('clientShutdown', () => {
-            console.log(`Client shutting down: ${socket.handshake.query.clientID}`);
-            if (localServer) {
-                clientSet.delete(socket.handshake.query.clientID);
-                if (clientSet.size === 0) {
-                    console.log('No more clients. Shutting down local server.');
-                    exit();
-                }
             }
         });
 

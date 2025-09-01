@@ -40,7 +40,7 @@ export class GuiController {
     });
     this.bus.on('setSelectOpts', ({key, opts, val, silent}) => {
       const ctrl = this.cpanel[key];
-      ctrl.options = opts;
+      ctrl.options(opts);
       this.set({key, val, silent});
       ctrl.updateDisplay();
     });

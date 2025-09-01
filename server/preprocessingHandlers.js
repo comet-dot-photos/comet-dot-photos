@@ -3,7 +3,6 @@ const { exit } = require('process');
 
 function preprocessingHandlers(io, localServer, VIEWFILE) {
     let fileText, viewArray;
-    const clientSet = new Set();
 
     // Step 1 - if PREPROCESSING, load the metaData file or...
     try {
@@ -18,11 +17,6 @@ function preprocessingHandlers(io, localServer, VIEWFILE) {
 
     // Step 2 - When a socket connection occurs, register handlers for events
     io.on('connection', function(socket) {
-        const clientIp = socket.handshake.address;      // print out the IP 
-        const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
-        console.log(`Client connection from: ${socket.handshake.query.clientID} at ${ipv4}`);
-        if (localServer)
-            clientSet.add(socket.handshake.query.clientID);
 
         socket.on('PPclientReadyToStart', (message) => { //message {count:n}, where count is number of images in client's viewArray
             console.log(`Got a PPclientReadyToStart event with the message ${message}`);
@@ -66,16 +60,6 @@ function preprocessingHandlers(io, localServer, VIEWFILE) {
             }
         });
 
-        socket.on('clientShutdown', () => {
-            console.log(`Client shutting down: ${socket.handshake.query.clientID}`);
-            if (localServer) {
-                clientSet.delete(socket.handshake.query.clientID);
-                if (clientSet.size === 0) {
-                    console.log('No more clients. Shutting down local server.');
-                    exit();
-                }
-            }
-        });
     });
 }
 

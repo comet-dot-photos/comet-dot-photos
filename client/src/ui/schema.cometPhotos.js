@@ -8,7 +8,7 @@ export const cometPhotosSchema = [
         key: 'help',
         items: [
           { type: 'button', key: 'showQuickStart', label: 'Show Quickstart Help', event: 'quickstartHelp' },
-          { type: 'select', key: 'datasetName',    label: 'Choose Dataset:', options: ['NAC']}
+          { type: 'select', key: 'datasetName',    label: 'Choose Dataset:', options: []}
         ]
       },
 

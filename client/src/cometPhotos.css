@@ -29,7 +29,7 @@ canvas {
 
 .lil-gui {
   --width: 280px;        /* panel width */
-  --name-width: 35%;     /* unused now (legacy lil-gui var) */
+  --name-width: 35%;     /* still used internally by lil-gui */
   --label-width: 95px;   /* fixed label column width for consistency */
   --btn-h: 20px;         /* button height baseline */
 }

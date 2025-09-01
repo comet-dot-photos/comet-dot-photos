@@ -166,7 +166,7 @@ export class FilterEngine {
                 const mustMatch = Math.ceil(this.ROI.numPainted*this.state['percentOverlap']/100);
                 const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
                 //console.error('BEFORE VIS REQUEST');
-                const result = await req('clientRequestsVis', {mustMatch: mustMatch, imgSel: this.bboxBitArray, visAr: this.ROI.paintArray});
+                const result = await req('clientRequestsVis', {dsName: this.state.datasetName, mustMatch: mustMatch, imgSel: this.bboxBitArray, visAr: this.ROI.paintArray});
                 //console.error('AFTER VIS REQUEST!!!');
                 this.processServerVisResult(result);
             }

@@ -13,6 +13,7 @@ const DEFAULTS = {
   VISFILE: "visTableNAC.bin",
   VIEWFILE: "imageMetadataNAC.json",
   BYTESPERROW: 12504, // dependent on the shape model
+  DATASETSFILE: "../data/datasets.json"
 };
 
 const PORT = +(process.env.PORT || DEFAULTS.PORT);
@@ -25,6 +26,7 @@ const CERTFILE = process.env.CERTFILE || null;
 const REDIRECT = !!process.env.REDIRECT;
 const LAUNCH_BROWSER = !!process.env.LAUNCHBROWSER;
 const PREPROCESSING = !!process.env.PREPROCESSING;
+const DATASETSFILE = process.env.DATASETSFILE || DEFAULTS.DATASETSFILE;
 
 // Step 2 - Check for data directory
 const dataDir = path.resolve(__dirname, '../data');
@@ -104,11 +106,14 @@ if (localServer) {
 }
 
 // Step 6 - Load and run the relevant event handlers
+const { commonHandlers } = require ('./commonHandlers.js');
+let datasets = commonHandlers(io, localServer, PREPROCESSING, DATASETSFILE);
+
 if (PREPROCESSING) {
     const { preprocessingHandlers } = require('./preprocessingHandlers.js');
     preprocessingHandlers(io, localServer, VIEWFILE);
 } 
 else {
     const { runtimeHandlers } = require('./runtimeHandlers.js');
-    runtimeHandlers(io, localServer, VISFILE, BYTESPERROW);
+    runtimeHandlers(io, datasets, VISFILE, BYTESPERROW);
 }
