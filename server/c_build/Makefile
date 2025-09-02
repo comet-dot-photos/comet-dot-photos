@@ -32,7 +32,7 @@ macos-arm64: $(SRC)
 	clang $(SRC) $(CFLAGS_COMMON) -arch arm64  -fPIC -dynamiclib              -o $(NAME).darwin_arm64.dylib
 
 macos-universal: macos-arm64 macos-x64
-	lipo -create $(NAME).darwin_arm64.dylib $(NAME).darwin_x64.dylib -output $(NAME).dylib
+	lipo -create $(NAME).darwin_arm64.dylib $(NAME).darwin_x64.dylib -output $(NAME).darwin.dylib
 
 # Single-arch build for the current Mac (adds -mpopcnt only if host is x86_64)
 macos-popcnt: $(SRC)
