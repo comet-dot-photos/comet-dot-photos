@@ -14,7 +14,7 @@ export default defineConfig(({ mode, command }) => {
       outDir: '../dist',
       emptyOutDir: true,
       assetsInlineLimit: 0,
-      sourcemap: isDev ? 'inline' : 'hidden', // examples: dev maps inline, prod hidden
+      sourcemap: isDev ? 'inline' : 'true',
       minify: isBuild ? 'esbuild' : false,
       chunkSizeWarningLimit: isDevBuild ? 5000 : 1000,
     }
