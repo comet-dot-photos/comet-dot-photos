@@ -110,13 +110,13 @@ export class TestHarness {
         if (result.count != dynamicArray.length) {
             // need to paint this on the screen too!
             console.error(`Inconsistent result: result.count = ${result.count}, but # current matches is ${dynamicArray.length}`);
-            throw new Error("TestHarness: Incorrect result count");
+            throw new Error("checkResult: Incorrect result count");
         }
         for (const [key, val] of Object.entries(result.samples)) {
             if (val != dynamicArray[key].nm) {
                 // need to paint this on the screen too!
                 console.error(`Mismatch of image in result set at position ${key}, expecting val ${val}.`);
-                throw new Error("TestHarness: Image mistmatch");
+                throw new Error("checkResult: Image mistmatch");
             }
         }
         console.log('CHECKRESULT: PASSED A TEST.');
@@ -222,7 +222,14 @@ export class TestHarness {
         }
         this.statusMessage('Running the log...')
         this.lastLogUsed = logName;
-        await this.executeLogEvents(log, timed);
+        try {
+            await this.executeLogEvents(log, timed);
+            if (log.some(obj => obj.event === "checkResult")) 
+                alert('Regression Test Succeeded.');
+        } catch (err) {
+            if (err.message.startsWith("checkResult:")) 
+                alert('Regression Test Failed.'); 
+        }
     }
 
     // Helper: wait until an absolute performance.now() time
