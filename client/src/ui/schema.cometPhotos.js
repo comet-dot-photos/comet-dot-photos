@@ -60,8 +60,8 @@ export const cometPhotosSchema = [
 
           { type: 'row', rowKind: 'mixed-buttons', items: [
             { type: 'select', key: 'skipDuration', label: 'Skip Duration:', options: [SD_DAY, SD_MONTH, SD_YEAR] },
-            { type: 'button', key: 'skipBackward', label: '⮄',  event: 'skipBackward', largeFont: true },
-            { type: 'button', key: 'skipForward',  label: '⮆',   event: 'skipForward', largeFont: true },
+            { type: 'button', key: 'skipBackward', label: '⇦',  event: 'skipBackward', largeFont: true },
+            { type: 'button', key: 'skipForward',  label: '⇨',   event: 'skipForward', largeFont: true },
           ]}
         ]
       },

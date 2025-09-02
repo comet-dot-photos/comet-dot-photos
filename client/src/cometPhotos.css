@@ -89,7 +89,7 @@ canvas {
 
 /* Special case: buttons flagged as largeFont in schema */
 .lil-gui .controller.has-button.large-font-button button {
-  font-size: 15px; 
+  font-size: 18px; 
 }
 
 /* ---------- Normalized vertical spacing ---------- */

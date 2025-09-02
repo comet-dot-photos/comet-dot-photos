@@ -3,14 +3,13 @@
 // ===============================
 /* Koffi loader for platform-specific shared libs */
 const koffi = require("koffi");
-const fs2 = require("fs");
 const path2 = require("path");
 
 function resolveLibPath() {
   const base = path2.join(__dirname, "/c_build");
   if (process.platform === "darwin") {
-    if (process.arch === 'arm64') return path2.join(base, "checkvis2.darwin_arm64.dylib");
-    if (process.arch === "x64") return path2.join(base, "checkvis2.darwin_x64.dylib");
+    if (process.arch === 'arm64' || process.arch === 'x64')
+         return path2.join(base, "checkvis2.darwin.dylib");
   } else if (process.platform === "win32") {
     if (process.arch === "x64") return path2.join(base, "checkvis2.win_x64.dll");
   } else if (process.platform === "linux") {

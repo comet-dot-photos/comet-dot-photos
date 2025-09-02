@@ -36,7 +36,6 @@ function runtimeHandlers(io, datasets) {
         //   Argument message is {imgSel: imgSelArray, visAr: visArray, mustMatch: int}
         //
         socket.on('clientRequestsVis', function(message, ack) { 
-            console.log(`clientRequestsVis: Client requesting visibility matches.`);
             try {
                 const tableIndex = datasets.findIndex(x => x.shortName == message.dsName);
                 if (tableIndex < 0) throw new Error(`Bad index in clietRequestsVis: ${tableIndex}`);
