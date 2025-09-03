@@ -4,7 +4,7 @@ Comet.Photos allows for fast spatial search of images from the Rosetta comet mis
 
 There are two different usage options for Comet.Photos. People who expect to make frequent use of the software for their research are encouraged to install the program locally on their computer for best performance, with seemingly instantaneous feedback. However, people casually interested in trying out Comet.Photos can access the latest version at https://comet.photos to take it out for a spin without installing any software. 
 
-## Table of contents
+## Table of Contents
 
 * [Installation](#installation)
 * [Testing the Installation](#testing-the-installation)
@@ -13,7 +13,8 @@ There are two different usage options for Comet.Photos. People who expect to mak
 * [Step-by-Step Example](#step-by-step-example)
 * [Design, Architecture, and Implementation](#design-architecture-and-implementation)
   * [The Data Files](#the-data-files)
-  * [An Implementation Walkthrough](#an-implementation-walkthrough)
+  * [An Architectural Walkthrough](#an-architectural-walkthrough)
+  * [Software Engineering Notes](#software-engineering-notes)
 * [Performance](#performance)
 * [Acknowledgments](#acknowledgments)
 * [References](#references)
@@ -39,7 +40,7 @@ Download the packaged Comet.Photos release by clicking here: [comet-photos-v3.0.
 Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v3.0.tar.gz** to allow your machine to trust the download.
 
 Run the following command in the terminal to extract the files from the package:
-**tar -xzf comet-photos-v3.0.tar.gz**
+**tar -xf comet-photos-v3.0.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
 
 Congratulations! You have now installed Comet.Photos. Advance to the [Starting Comet.Photos](#starting-cometphotos) section to learn how to start up the app.
@@ -63,7 +64,7 @@ Go into the top level folder (Comet.Photos), and type: **npm install** which wil
 4. Download and install the dataset into the /data subdirectory.
 
 The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [NAC-data.tar.gz](https://comet.photos/NAC-data.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
-**tar -xzf NAC-data.tar.gz**
+**tar -xf NAC-data.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed, and you can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
 
 ### Starting Comet.Photos
@@ -78,7 +79,7 @@ This should open up a browser on your machine and connect it to your own persona
 
 ### Testing the Installation
 
-When the program is installed correctly, invoking the appropriate **RUN_ME** specified above will open up a browser window (or a new tab in an existing browser window) to http://localhost:8082, and load a 3D model of 67P. The **Matches** field in the control panel  should report "27242/27242 matches", indicating that initially every image is loaded, and none are filtered out. On startup, the program checks key parts of its installation, and prints out messages to convey its state. If an error occurs, this output often points to a missed step in the installation, or a configuration inconsistency. Please report any problems (see [How to Report Issues](#how-to-report-issues)), and include this output. People wanting to further test the installation can follow along with the [Step-By-Step Example](#step-by-step-example) on their own computer, although expect small differences based on variations in the precise region of interest that is painted.
+When the program is installed correctly, invoking the appropriate **RUN_ME** specified above will open up a browser window (or a new tab in an existing browser window) to http://localhost:8082, and load a 3D model of 67P. The **Matches** field in the control panel should report "27242/27242 matches", indicating that initially every image is loaded, and none are filtered out. On startup, the program checks key parts of its installation, and prints out messages to convey its state. If an error occurs, this output often points to a missed step in the installation, or a configuration inconsistency. Please report any problems (see [How to Report Issues](#how-to-report-issues)), and include this output. People wanting to further test the installation can follow along with the [Step-By-Step Example](#step-by-step-example) on their own computer, although expect small differences based on variations in the precise region of interest that is painted.
 
 ## Motivation
 
@@ -512,7 +513,7 @@ core data files, Comet.Photos hosts 13.5 GB of comet image files in JPG
 format on the server. These images are individually retrieved and
 displayed by the client while navigating through search results.
 
-### An Implementation Walkthrough
+### An Architectural Walkthrough
 
 In this section we describe how the client and server interact, and
 process the data files in a session similar to the one described in
@@ -653,6 +654,16 @@ calculated average painted position transformed to screen pixel
 coordinates. The radius of the circle is the maximum distance from the
 center to all of the painted vertices after they have been transformed to screen pixel
 coordinates.
+
+## Software Engineering Notes
+
+Following good software engineering practices, Comet.Photos is implemented
+as a set of object-based modules (Filter Engine, 3D Scene Manager, Image Browser, GUI Controller, etc...)
+that communicate via events. The user interface is specified via a declarative schema,
+and is entirely separate from the view and the model. The event-driven run-time architecture
+is also the basis for a logging system with regression tests to ensure that software check-ins do
+not break the system. 
+
 
 ## Performance 
 
