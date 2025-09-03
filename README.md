@@ -657,12 +657,14 @@ coordinates.
 
 ## Software Engineering Notes
 
-Following good software engineering practices, Comet.Photos is implemented
+Following good software engineering practices, the Comet.Photos client is implemented
 as a set of object-based modules (Filter Engine, 3D Scene Manager, Image Browser, GUI Controller, etc...)
 that communicate via events. The user interface is specified via a declarative schema,
 and is entirely separate from the view and the model. The event-driven run-time architecture
 is also the basis for a logging system with regression tests to ensure that software check-ins do
-not break the system. 
+not break the system. The server is a small, modular node.js application with components for launching the 
+browser when run locally, loading the platform-specific C library 
+for rapidly checking visibility tables, and distinct modules that separate preprocessing and run-time event handling.
 
 
 ## Performance 
