@@ -10,9 +10,6 @@ const { openInBrowser } = require('./openInBrowser.js');
 const DEFAULTS = {
   PORT: 8080,
   HTTP_PORT: 8081,
-  VISFILE: "visTableNAC.bin",
-  VIEWFILE: "imageMetadataNAC.json",
-  BYTESPERROW: 12504, // dependent on the shape model
   DATASETSFILE: "../data/datasets.json"
 };
 

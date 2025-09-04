@@ -225,6 +225,7 @@ export class FilterEngine {
     }
 
     processServerVisResult(message) {
+        if (!message) return;
         const newBBoxBitArray = new Uint8Array(message);
         for (let i = 0; i < this.ogPhotoArray.length; i++){
             if (this.ROI.getNthBit(i, newBBoxBitArray) === 1) {
@@ -234,7 +235,7 @@ export class FilterEngine {
                 this.ogPhotoArray[i].filter |= FAIL_BBOX;
             }
         }
-        // this.filterCleanUp(); - nowdone elsewhere.
+        // this.filterCleanUp(); - now done elsewhere.
         let delta = this.state['clock'].getElapsedTime() - this.state['startTimer'];
         console.log(`Visibility check: ${(delta)*1000} milliseconds`);
     }

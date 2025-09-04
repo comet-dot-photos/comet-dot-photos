@@ -36,7 +36,6 @@ function commonHandlers(io, localServer, PREPROCESSING, DATASETSFILE) {
 
         // message is not used. ack is {params, datasets}
         socket.on('clientRequestsDatasets', function(message, ack) { 
-            console.log("Got a clientRequestsDatasets event");
             ack({preprocessMode: PREPROCESSING, datasets: datasets});
         });
 

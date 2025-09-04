@@ -12,7 +12,7 @@ function runtimeHandlers(io, datasets) {
         const visFile = '../data/' + ds.dataFolder + ds.visTable;
         const stats = fs.statSync(visFile);
         ds.nRows = stats.size / ds.rowSize;  // cache it for buffer size safety check
-        // each row is BYTESPERROW bytes, file size is nrows*BYTESPERROW;
+        // each row is ds.rowSize bytes, file size is ds.nRows*ds.rowSize;
         if (c_load_vbuff2(i, visFile, ds.nRows, ds.rowSize) == 0)
             console.log(`Successfully loaded ${visFile}. nRows = ${ds.nRows}, bytesPerRow = ${ds.rowSize}.`);
         else {
@@ -24,40 +24,35 @@ function runtimeHandlers(io, datasets) {
     // Step 2 - When a socket connection occurs, register handlers for events
     io.on('connection', function(socket) {
 
-        // PPclientReadyToStart - just tell the client that server is not in preprocessing mode
-        socket.on('PPclientReadyToStart', (message) => { 
-                socket.emit('PPserverNotInPreprocessingMode');
-        });
-
         // clientRequestsVis - requests a visibility check from the server for a 
         //   particular candidate set of images (imgSel), the painted region (visAr),
         //   and a number of vertices that must match (mustMatch)
         //
         //   Argument message is {imgSel: imgSelArray, visAr: visArray, mustMatch: int}
+        //   Replies with ack(imgSelArray), which altered to indicate the matches.
         //
         socket.on('clientRequestsVis', function(message, ack) { 
             try {
                 const tableIndex = datasets.findIndex(x => x.shortName == message.dsName);
-                if (tableIndex < 0) throw new Error(`Bad index in clietRequestsVis: ${tableIndex}`);
+                if (tableIndex < 0)
+                    throw new Error(`Bad tableInex: ${tableIndex}`);
 
                 // checks to make sure client cannot cause check_vis to exceed buffers
                 const {nRows, rowSize} = datasets[tableIndex];
                 if (!Buffer.isBuffer(message.imgSel) || message.imgSel.length != Math.ceil(nRows/8)) {
-                    console.log(`message.imgSel must be a Buffer and ${Math.ceil(nRows/8)} long.`);
-                    return;
+                    throw new Error (`message.imgSel must be a Buffer and ${Math.ceil(nRows/8)} long.`);
                 }
                 if (!Buffer.isBuffer(message.visAr) || message.visAr.length != rowSize) {
-                    console.log(`message.visArray must be a Buffer and ${rowSize} long.`);
-                    return;
+                    throw new Error (`message.visArray must be a Buffer and ${rowSize} long.`);
                 }
                 if (!Number.isInteger(message.mustMatch)) {
-                    console.log('message.mustMatch must be an integer.');
-                    return;
+                    throw new Error ('message.mustMatch must be an integer.');
                 }
                 c_check_vis2(tableIndex, message.mustMatch, message.imgSel, message.visAr);
                 ack(message.imgSel);
             } catch (error) {  // Additional protection against malformed messages. Perhaps unneeded given earlier checks?
-                console.error(`An error occurred in clientRequestsVis handler: `, error.message);
+                console.error(`clientRequestsVis error: `, error.message);
+                ack(null);
             }
         });
 
@@ -65,8 +60,11 @@ function runtimeHandlers(io, datasets) {
             return str.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         }
 
-        socket.on('clientRequestsLogSave', function(message, ack) { // message is json object to save (allow spec of file name?)
-            console.log("Got a clientRequestsLogSave event");
+        // 'clientRequestsLogSave' - Sent by the client to have the server save a log.
+        //      message.log is the json log to save, message.logName is the name.
+        //      replies with ack(bool), where bool is success.
+        //
+        socket.on('clientRequestsLogSave', function(message, ack) { 
             try {
                 const jsonString = JSON.stringify(message.log);           // write out a new json file
                 const filename = './logs/' + getLegalFilename(message.logName);
@@ -81,8 +79,11 @@ function runtimeHandlers(io, datasets) {
 
         });
 
+        // 'clientRequestsLogLoad' - Sent by the client to retrieve a log.
+        //      message.logName specifies which log. 
+        //      Replies with ack(log), where log is null if failed.
+        //
         socket.on('clientRequestsLogLoad', function(message, ack) { 
-            console.log("Got a clientRequestsLogLoad event");
             let log;
             try {
                 const filename = './logs/' + getLegalFilename(message.logName);

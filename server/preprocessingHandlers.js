@@ -5,7 +5,7 @@ function preprocessingHandlers(io, datasets) {
     let fileText, viewArray;
     const oldMetaFile = "../data/" + datasets[0].metaData;
 
-    // Step 1 - if PREPROCESSING, load the metaData file or...
+    // Step 1 - Load the original metaData file
     try {
         fileText = fs.readFileSync(oldMetaFile, 'utf-8');
     }
