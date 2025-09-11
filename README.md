@@ -24,7 +24,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
 
 ## Installation
 
-Scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best user experience. Installing Comet.Photos locally requires about 14GB of disk space (and an additional 14GB during the install process, which is freed up afterwards). 
+Scientists who expect to make frequent use of Comet.Photos should install it locally on their computer (Windows, Mac, or Linux) for the fastest, best user experience. Installing Comet.Photos locally requires about 10.3GB of disk space (and an additional 10.3GB during the install process, which is freed up afterwards). 
 
 There are two ways to install Comet.Photos locally: from a tar archive (option 1), or from GitHub (option 2). Installing from the tar archive is easiest and is highly recommended, while installing from GitHub may be preferable for people hoping to contribute to the project.
 
@@ -63,9 +63,9 @@ Go into the top level folder (Comet.Photos), and type: **npm install** which wil
 
 4. Download and install the dataset into the /data subdirectory.
 
-The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [NAC-data.tar.gz](https://comet.photos/NAC-data.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is close to 14GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
+The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [NAC-data.tar.gz](https://comet.photos/NAC-data.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is a little over 10GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
 **tar -xf NAC-data.tar.gz**
-This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed, and you can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
+This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed. You can delete the original tar file, and can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
 
 ### Starting Comet.Photos
 
@@ -422,7 +422,7 @@ information in a large visibility table, reducing the calculations needed at run
 To make the program widely and easily accessible, we implemented a client-server application, which can be run entirely on a local computer, or remotely via the web. This is important
 because having the image files locally allows for the fastest, smoothest user experience, 
 which is important to frequent users, but
-casual users might be reluctant to install the 14GB dataset of comet image files.
+casual users might be reluctant to install the 10GB dataset of comet image files.
 The client, running as a program in the browser, performs most of the operations,
 including the graphics manipulation (taking advantage of the GPU), displaying the user
 interface and responding to user interactions, paint operations,
@@ -509,7 +509,7 @@ compressed by the server before they are transmitted to the client,
 reducing them to less than a third of their original sizes. The
 visibility table is much larger, at approximately 325 MB, so
 pragmatically it must remain on the server. In addition to the three
-core data files, Comet.Photos hosts 13.5 GB of comet image files in JPG
+core data files, Comet.Photos hosts 10GB of comet image files in JPG
 format on the server. These images are individually retrieved and
 displayed by the client while navigating through search results.
 
