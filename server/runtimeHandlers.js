@@ -11,6 +11,7 @@ function runtimeHandlers(io, datasets) {
     datasets.forEach((ds, i) => {
         const visFile = '../data/' + ds.dataFolder + ds.visTable;
         const stats = fs.statSync(visFile);
+        ds.rowSize = Math.ceil(ds.nVerts/64)*8;
         ds.nRows = stats.size / ds.rowSize;  // cache it for buffer size safety check
         // each row is ds.rowSize bytes, file size is ds.nRows*ds.rowSize;
         if (c_load_vbuff2(i, visFile, ds.nRows, ds.rowSize) == 0)
