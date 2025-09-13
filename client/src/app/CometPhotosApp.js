@@ -69,7 +69,7 @@ export class CometPhotosApp {
      });
 
     this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay, {
-      fov: dataset?.FOV ?? 45,
+      xFOV: dataset.xFOV, yFOV: dataset.yFOV,
       initialEye: dataset?.initialEye ?? [100,100,100]
     });
 
@@ -198,7 +198,8 @@ export class CometPhotosApp {
     this.bus.emit('setVal', {key: 'datasetName', val: dataset.shortName, silent: true});
 
     // Update CometView class constants to reflect dataset
-    CometView.FOV = dataset.FOV;
+    CometView.xFOV = dataset.xFOV;
+    CometView.yFOV = dataset.yFOV;
     CometView.defaultRes = dataset.defaultRes;
 
     // Start BOTH loads immediately / concurrently

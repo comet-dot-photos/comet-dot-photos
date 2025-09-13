@@ -18,7 +18,7 @@ const COR_COLOR = 0x007090; // color of center of rotation sphere
 
 export class SceneManager {
   /**
-   * @param {{ fov?:number, initialEye?:[number,number,number] }} options
+   * @param {{ xFOV?:number, yFOV?:number, initialEye?:[number,number,number] }} options
    */
   constructor(bus, state, overlay, options = {}) {
     this.bus = bus; // Event bus for cross-component communication
@@ -91,7 +91,7 @@ export class SceneManager {
 	this.scene.add(this.CORMesh);
 
 	//camera setup
-	this.camera = new THREE.PerspectiveCamera(options.fov, window.innerWidth / window.innerHeight, 0.1, 500);
+	this.camera = new THREE.PerspectiveCamera(options.yFOV, window.innerWidth / window.innerHeight, 0.1, 500);
 	this.camera.position.set(...options.initialEye);
 	this.camera.updateProjectionMatrix();
 

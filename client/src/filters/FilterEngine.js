@@ -23,7 +23,7 @@ export class FilterEngine {
     
     // used later for fast m2 calculations
     this.defaultRes = this.state.dataset.defaultRes;   // cache this because it is used a lot in this module
-    const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(this.state.dataset.FOV/2.0)/180.0);
+    const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(this.state.dataset.xFOV/2.0)/180.0);
     this.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
 
     this.applyGeoFilter = serialize(this.applyGeoFilter.bind(this), { mode: 'queue' });
@@ -89,8 +89,8 @@ export class FilterEngine {
                 }
             } 
         } else {				// do m2 filtering based on painted region
-            const maxDist = (high * (.001*(this.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
-            const minDist = (low * (.001*(this.defaultRes/2))) / Math.tan(Math.PI*(CometView.FOV/2.0)/180.0);
+            const maxDist = (high * (.001*(this.defaultRes/2))) / Math.tan(Math.PI*(CometView.xFOV/2.0)/180.0);
+            const minDist = (low * (.001*(this.defaultRes/2))) / Math.tan(Math.PI*(CometView.xFOV/2.0)/180.0);
             const maxDistSquared = maxDist*maxDist;
             const minDistSquared = minDist*minDist;
             for (let i = 0; i < ogPhotoArray.length; i++) {

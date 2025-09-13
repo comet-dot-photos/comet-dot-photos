@@ -237,7 +237,7 @@ export class ImageBrowser {
         const incidAngle = Math.round(Math.acos(sun_vec.dot(avgNormal))*180/Math.PI);
         const phaseAngle = Math.round(Math.acos(avg_sc_vec.dot(sun_vec))*180/Math.PI);
         const rez = this.getResFromPhotoDict(photoDict);
-        const width = Math.tan(Math.PI*(CometView.FOV/2.0)/180.0) * photoDict.sc_v.distanceTo(avgPosition);
+        const width = Math.tan(Math.PI*(CometView.xFOV/2.0)/180.0) * photoDict.sc_v.distanceTo(avgPosition);
         const m2 = Math.round(width/(.001*(rez/2)) * 100) / 100;
         return `#${photoDict.ogIndex}  m: ${m2}  e: ${emissionAngle}  i: ${incidAngle}  p: ${phaseAngle}`;
     }
