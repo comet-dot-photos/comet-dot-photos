@@ -50,7 +50,7 @@ export class CometView {
         this.imageHeight = Math.tan(Math.PI*CometView.yFOV/180.0) * this.distToPlane;
         const halfWidth = this.imageWidth/2.0, halfHeight = this.imageHeight/2.0;
         const midTopLineVec = this.up.clone().setLength(halfHeight);
-        const midRightLineVec = this.up.clone().cross(this.normal).setLength(halfWidth);
+        const midRightLineVec = this.normal.clone().cross(this.up).setLength(halfWidth);
         //const midRightLineVec = midTopLineVec.clone().applyAxisAngle(this.normal, Math.PI/2.0);
         this.corners = [];
         this.corners.push(this.planeCenter.clone().add(midTopLineVec).sub(midRightLineVec));    // upper left

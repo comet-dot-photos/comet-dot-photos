@@ -3,7 +3,8 @@ const { exit } = require('process');
 
 function preprocessingHandlers(io, datasets) {
     let fileText, viewArray;
-    const oldMetaFile = "../data/" + datasets[0].metaData;
+    // Will preprocess the first dataset in datasets
+    const oldMetaFile = "../data/" + datasets[0].dataFolder + datasets[0].metaData;
 
     // Step 1 - Load the original metaData file
     try {
