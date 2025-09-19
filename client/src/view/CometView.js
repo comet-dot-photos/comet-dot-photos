@@ -2,9 +2,11 @@ import * as THREE from 'three';
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 
 export class CometView {
-    static xFOV;                    // set in paintComet:init according to dataset
-    static yFOV;                    // set in paintComet:init according to dataset
-    static defaultRes;              // set in paintComet:init according to dataset
+    static xFOV;                    // set via setContstants
+    static yFOV;                    // set via setContstants
+    static aspect;                  // set via setContstants
+    static defaultRes;              // set via setContstants
+    static urlPrefix = "";          // set via setContstants
     static MAX_COMET_WIDTH = 4.0;   // Comet does not extend beyond this distance from origin
     static EXTRA_CLIP_FAR = 400;      // this will mostly avoid clipping if we zoom out w/ trackball control, since far is not updated
     static map;     // We choose to make the map a class var because we keep the last view's map until the new one's loaded
@@ -17,7 +19,6 @@ export class CometView {
             console.log("In LoadingManager.onProgress: Loading %s: %i/%i", str, num, total);
         }
     }
-    static urlPrefix = "";
     static sMgr; // contains important methods for accessing three.js state
     constructor(photoDict, sceneMgr) {
         this.line = null;
@@ -44,19 +45,35 @@ export class CometView {
         this.sceneMgr = sceneMgr;
     }
 
+    static setConstants(xFOV, yFOV, defaultRes, urlPrefix) {
+        CometView.xFOV = xFOV;
+        CometView.yFOV = yFOV;
+        CometView.defaultRes = defaultRes;
+        CometView.urlPrefix = urlPrefix;
+        // cache away aspect - use half-angles
+        const xr = THREE.MathUtils.degToRad(xFOV) * 0.5;
+        const yr = THREE.MathUtils.degToRad(yFOV) * 0.5;
+        CometView.aspect = Math.tan(xr) / Math.tan(yr);
+    }
+
     computeViewRect () {
         this.planeCenter = this.sc_position.clone().add(this.normal.clone().setLength(this.distToPlane));
-        this.imageWidth = Math.tan(Math.PI*CometView.xFOV/180.0) * this.distToPlane;
-        this.imageHeight = Math.tan(Math.PI*CometView.yFOV/180.0) * this.distToPlane;
-        const halfWidth = this.imageWidth/2.0, halfHeight = this.imageHeight/2.0;
-        const midTopLineVec = this.up.clone().setLength(halfHeight);
-        const midRightLineVec = this.normal.clone().cross(this.up).setLength(halfWidth);
-        //const midRightLineVec = midTopLineVec.clone().applyAxisAngle(this.normal, Math.PI/2.0);
-        this.corners = [];
-        this.corners.push(this.planeCenter.clone().add(midTopLineVec).sub(midRightLineVec));    // upper left
-        this.corners.push(this.corners[0].clone().add(midRightLineVec).add(midRightLineVec));   // upper right
-        this.corners.push(this.corners[1].clone().sub(midTopLineVec).sub(midTopLineVec));       // lower right
-        this.corners.push(this.corners[2].clone().sub(midRightLineVec).sub(midRightLineVec));   // lower left
+        const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
+        const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;
+        const halfWidth = this.distToPlane * Math.tan(xr);
+        const halfHeight = this.distToPlane * Math.tan(yr);
+        this.imageWidth = 2*halfWidth;
+        this.imageHeight = 2*halfHeight;
+
+        const upVec = this.up.clone().setLength(halfHeight);
+        const right = this.normal.clone().cross(this.up).setLength(halfWidth);
+        const c = this.planeCenter;
+        this.corners = [
+            c.clone().add(upVec).sub(right), // UL
+            c.clone().add(upVec).add(right), // UR
+            c.clone().sub(upVec).add(right), // LR
+            c.clone().sub(upVec).sub(right), // LL 
+        ];
     }
 
     createViewRect() {
@@ -156,7 +173,13 @@ export class CometView {
             const lookAt = view.sc_position.clone().add((view.normal.clone().multiplyScalar(view.minDistAlongNormal+(view.imageDepthAlongNormal/2))));
             orientation.lookAt(view.sc_position, lookAt, view.up);
             euler.setFromRotationMatrix(orientation);
-            const size = new THREE.Vector3(view.imageWidth, view.imageHeight, view.imageDepthAlongNormal+0.05);
+            const centerDist = view.minDistAlongNormal + (view.imageDepthAlongNormal * 0.5);
+            const scale = centerDist / view.minDistAlongNormal;  // footprint grows with distance
+            const size = new THREE.Vector3(
+              view.imageWidth  * scale,
+              view.imageHeight * scale,
+              view.imageDepthAlongNormal + 0.05
+            );
             const decalGeometry = new DecalGeometry(mesh, lookAt, euler, size);
             CometView.decal = new THREE.Mesh(decalGeometry, decalMaterial); //should this be a const??
             scene.add(CometView.decal);
@@ -180,7 +203,7 @@ export class CometView {
             oldDecal.material.dispose();
             CometView.decal = null;
         }
-     }
+    }
 
     addProjection () {
         let mesh = this.sceneMgr.targetMesh, material = this.sceneMgr.cometMaterial;    
@@ -196,11 +219,9 @@ export class CometView {
             CometView.map = texture;
             material.texture = texture;
             material.camera = new THREE.PerspectiveCamera();
-            // ✅ Use half-angles
-            const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
-            const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;
-            const aspect = Math.tan(xr) / Math.tan(yr);
-            view.applyToCamera(material.camera, null, aspect); // clone the current camera, but set viewing properties for image
+
+            console.log(`Before applyToCamera, aspect = ${CometView.aspect}`);
+            view.applyToCamera(material.camera, null, CometView.aspect); // clone the current camera, but set viewing properties for image
             material.project(mesh);
             material.needsUpdate = true;
             material.texture.needsUpdate = true;

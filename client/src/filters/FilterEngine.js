@@ -141,6 +141,11 @@ export class FilterEngine {
         if (doFilterCleanup) this.filterCleanUp();
     }
 
+    resetBufferSizes() {
+        this.bboxBitBuffer = undefined;    // will be reinitialized next initBBoxBitBuffer
+        this.bboxBitArray = undefined;
+    }
+
     initBBOXBitBuffer(nPhotos) {
         if (typeof this.bboxBitBuffer === "undefined") {
             const numBytes = Math.ceil(nPhotos/8);
@@ -222,6 +227,7 @@ export class FilterEngine {
 
     installMetadata(metadata) {
         this.ogPhotoArray = this.cachePhotoInformation(metadata);  // add some extra info for filtering, and save it away
+        this.resetBufferSizes(); // new photoArray requires buffer reset
     }
 
     processServerVisResult(message) {

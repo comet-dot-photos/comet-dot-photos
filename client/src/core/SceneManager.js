@@ -20,7 +20,7 @@ export class SceneManager {
   /**
    * @param {{ xFOV?:number, yFOV?:number, initialEye?:[number,number,number] }} options
    */
-  constructor(bus, state, overlay, options = {}) {
+  constructor(bus, state, overlay, dataset) {
     this.bus = bus; // Event bus for cross-component communication
     this.state = state;
     this.overlay = overlay;  
@@ -91,9 +91,7 @@ export class SceneManager {
 	this.scene.add(this.CORMesh);
 
 	//camera setup
-	this.camera = new THREE.PerspectiveCamera(options.yFOV, window.innerWidth / window.innerHeight, 0.1, 500);
-	this.camera.position.set(...options.initialEye);
-	this.camera.updateProjectionMatrix();
+    this.initializeCameraForDataset(dataset);
 
     // trackball controls setup
     this.controls = new TrackballControls(this.camera, this.renderer.domElement);
@@ -116,8 +114,6 @@ export class SceneManager {
     this.controls.addEventListener('end', () => {
         this.CORMesh.visible = false;
     });
-
-    this.shiftCamera(this.camera);  // shift camera to account for GUI panel
 
 	// stats setup
 	this.stats = new Stats();
@@ -143,6 +139,18 @@ export class SceneManager {
 	
 
     this.renderLoop = this.renderLoop.bind(this); // So doesn't lose context when executed outside of its object
+    }
+
+    initializeCameraForDataset({initialEye, yFOV}) { 
+        if (!this.camera) this.camera = new THREE.PerspectiveCamera();   
+        this.camera.fov = yFOV;               // change vertical FOV
+        this.camera.aspect = window.innerWidth / window.innerHeight; 
+        this.camera.near = 0.1;
+        this.camera.far = 500;
+        if (initialEye) this.camera.position.set(...initialEye);
+        this.shiftCamera(this.camera);         // shift camera to account for GUI panel
+        
+        this.camera.updateProjectionMatrix();
     }
 
     overlayNeedsUpdate() {

@@ -81,7 +81,7 @@ export class OverlayCanvas {
         }
     };
     
-    drawImageOnOverlay(overlayCanvas, img) {
+    drawImageOnOverlay(overlayCanvas, img, aspectRatio) {
         const ctx = overlayCanvas.getContext('2d');
         const canvasWidth = overlayCanvas.width, canvasHeight = overlayCanvas.height;
         const guiElement = document.querySelector('.lil-gui');
@@ -94,8 +94,6 @@ export class OverlayCanvas {
 
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvasWidth, canvasHeight); // Black background
-    
-        const aspectRatio = img.width / img.height;
     
         // Scale the image height to fit the canvas height
         const drawHeight = canvasHeight;
@@ -114,7 +112,7 @@ export class OverlayCanvas {
     refreshOverlay (cometView, CometView) {
         if (!this.needsUpdate) return;
         if (CometView.map && CometView.map.image && cometView && cometView.imageFresh) {
-            this.drawImageOnOverlay(this.overlayCanvas, CometView.map.image);
+            this.drawImageOnOverlay(this.overlayCanvas, CometView.map.image, CometView.aspect);
             this.overlayPaintCircle();
         } else if (!cometView && this.state.metadataLoaded) { // everything loaded but no current cometView => no matches
             this.drawNoMatchesOverlay();

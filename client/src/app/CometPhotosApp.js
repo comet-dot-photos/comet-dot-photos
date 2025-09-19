@@ -40,7 +40,9 @@ const DEFAULT_UI_STATE = {
 	imageInfo: 'None Selected',
   status: '',
   logLevel: LL_REGRESSION,
-  flatShading: true       // debug menu option
+  flatShading: true,       // debug menu option
+  xFOV: '2',               // debug menu option - will be overridden by dataset
+  yFOV: '2',
 };
 
 
@@ -68,10 +70,7 @@ export class CometPhotosApp {
         ROI: this.ROI
      });
 
-    this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay, {
-      xFOV: dataset.xFOV, yFOV: dataset.yFOV,
-      initialEye: dataset?.initialEye ?? [100,100,100]
-    });
+    this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay, dataset);
 
     this.paintEvents = new PaintEvents({
       bus: this.bus,
@@ -172,6 +171,8 @@ export class CometPhotosApp {
         'runLogTimed':     () => this.testHarness.runLog(true),
         'paintVisible':    () => this.preprocessor.computeVisibleVertices(),
         'preprocess':      () => this.preprocessor.beginPreprocessing(),
+        'xFOV':         v => this.imageBrowser.setxFOV(v),
+        'yFOV':         v => this.imageBrowser.setyFOV(v),
 
         // For testing
         'setCam':          v => this.testHarness.setCameraState(v),
@@ -195,12 +196,21 @@ export class CometPhotosApp {
     const dataset = (typeof arg === 'string') ?
       this.datasets.find(x => x.shortName === arg) : arg;
 
+    this.state.datasetName = dataset.shortName;
     this.bus.emit('setVal', {key: 'datasetName', val: dataset.shortName, silent: true});
+    this.bus.emit('setVal', {key: 'xFOV', val: dataset.xFOV, silent: true});
+    this.bus.emit('setVal', {key: 'yFOV', val: dataset.yFOV, silent: true});
+    this.state.xFOV = dataset.xFOV;
+    this.state.yFOV = dataset.yFOV;
 
     // Update CometView class constants to reflect dataset
-    CometView.xFOV = dataset.xFOV;
-    CometView.yFOV = dataset.yFOV;
-    CometView.defaultRes = dataset.defaultRes;
+    CometView.setConstants(dataset.xFOV, dataset.yFOV, dataset.defaultRes, dataset.dataFolder);
+
+    // Update SceneManager with new camera parameters
+    this.sceneMgr.initializeCameraForDataset(dataset);
+
+    // reset ImageBrowser (unloads cometView, if any)
+    this.imageBrowser.resetForNewDataset();
 
     // Start BOTH loads immediately / concurrently
     loadCometModel(this.sceneMgr, this.ROI, dataset);
@@ -211,8 +221,6 @@ export class CometPhotosApp {
       this.installMetadata(data);
       document.title = `Comet.Photos: ${dataset.longName} (${data.length} images)`;
     }).catch((e) => console.error('Metadata load error:', e));
-
-    this.imageBrowser.resetForNewDataset();
   }
 
   installMetadata(metadata) {  // share the metadata only with the modules that need it

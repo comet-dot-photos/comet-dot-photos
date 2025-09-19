@@ -14,8 +14,7 @@ export class ImageBrowser {
         this.results = [];
         this.currentIndex = 0;
         this.lastSI = SI_NONE;     // keep track of last Show Image mode to properly undo it when changing modes
-            // Time constants
-        this.milliseconds = {'Day': 86400000, 'Month': 2628000000, 'Year': 31536000000};
+        this.milliseconds = {'Day': 86400000, 'Month': 2628000000, 'Year': 31536000000}; // Time constants
     }
 
     overlayNeedsUpdate() {
@@ -81,7 +80,7 @@ export class ImageBrowser {
     }
 
     // only called if there are no matches, and the current cometView must be unloaded
-    unloadComet() {
+    unloadComet(updateUI = true) {
         const cometView = this.getCometView();
         if (cometView) {
             if (this.state.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(this.scene);
@@ -89,12 +88,14 @@ export class ImageBrowser {
             CometView.lastRequestedImg = "";		// stop pending image requests from loading
             // Note: for SI_UNMAPPED, image will be automatically erased by the no matches overlay
             cometView.removeSelf();
-            this.updateCPanel('fileName', "");
-            this.updateCPanel('time', "");
-            this.updateCPanel('imageInfo', "No matching images");
             this.cometView = null;
-            this.adjustNavEnabled();     // disable nav buttons
-            this.overlayNeedsUpdate();   // may trigger No Matches overlay
+            if (updateUI) {
+                this.updateCPanel('fileName', "");
+                this.updateCPanel('time', "");
+                this.updateCPanel('imageInfo', "No matching images");
+                this.adjustNavEnabled();     // disable nav buttons
+                this.overlayNeedsUpdate();   // may trigger No Matches overlay
+            }
         }
     } 
 
@@ -192,10 +193,9 @@ export class ImageBrowser {
 
     // called to reset the ImageBrowser when a new dataset is loaded.
     // for now, just make sure to load the first match
+    // ? and unload cometData if loaded.
     resetForNewDataset() {
-        if (this.dynamicArray?.length > 0) {
-            if (this.currentIndex != 0) this.loadCometByIndex(0);
-        }
+        if (this.cometView) this.unloadComet(false);
     }
 
     async clearPaint () {
@@ -285,5 +285,29 @@ export class ImageBrowser {
         this.overlayNeedsUpdate();
         this.lastSI = val;
     }
+
+    // Helper functions for calibration - accessible from the debug menu
+    setxFOV(val) {
+        val = (typeof val === 'string' ? parseFloat(val) : val);
+        if (!isNaN(val) && val > 0 && val < 180) {
+            this.state['xFOV'] = val;
+            this.setFOV();
+        }
+    }
+
+    setyFOV(val) {
+        val = (typeof val === 'string' ? parseFloat(val) : val);
+        if (!isNaN(val) && val > 0 && val < 180) {
+            this.state['yFOV'] = val;
+            this.setFOV();
+        }
+    }
+
+    setFOV() {
+        this.unloadComet();
+        CometView.setConstants(this.state.xFOV, this.state.yFOV, CometView.defaultRes, CometView.urlPrefix);
+        this.sceneMgr.initializeCameraForDataset({yFOV: this.state.yFOV});
+        this.loadCometByIndex(this.currentIndex); // reload current image
+     }
 
 }

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { exit } = require('process');
 const { load_c}  = require('./load_c.js');
 
@@ -9,11 +10,12 @@ function runtimeHandlers(io, datasets) {
     const { c_load_vbuff2, c_check_vis2 } = load_c();
     
     datasets.forEach((ds, i) => {
-        const visFile = '../data/' + ds.dataFolder + ds.visTable;
+        const visFile = path.join(__dirname, '..', 'data', ds.dataFolder, ds.visTable);
         const stats = fs.statSync(visFile);
         ds.rowSize = Math.ceil(ds.nVerts/64)*8;
         ds.nRows = stats.size / ds.rowSize;  // cache it for buffer size safety check
         // each row is ds.rowSize bytes, file size is ds.nRows*ds.rowSize;
+        console.log(`calling c_load_vbuff2 for ${visFile}, i is ${i}, ds.nRows is ${ds.nRows}, ds.rowSize is ${ds.rowSize}`);
         if (c_load_vbuff2(i, visFile, ds.nRows, ds.rowSize) == 0)
             console.log(`Successfully loaded ${visFile}. nRows = ${ds.nRows}, bytesPerRow = ${ds.rowSize}.`);
         else {

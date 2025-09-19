@@ -91,7 +91,9 @@ export const cometPhotosSchema = [
           { type: 'button', key: 'memStats',    label: 'Memory Stats',  event: 'memStats' },
           { type: 'button', key: 'paintVisible',label: 'Paint Visible', event: 'paintVisible' },
           { type: 'button', key: 'preprocess',  label: 'Pre-Process',   event: 'preprocess' },
-          { type: 'bool',   key: 'flatShading', label: 'Flat Shading:' }
+          { type: 'bool',   key: 'flatShading', label: 'Flat Shading:' },
+          { type: 'text',   key: 'xFOV',  label: 'xFOV:' },
+          { type: 'text',   key: 'yFOV',  label: 'yFOV:' },
          ]
       }
     ];
