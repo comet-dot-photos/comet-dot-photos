@@ -53,7 +53,7 @@ export class CometPhotosApp {
     this.socket = socket;     // To be shared with modules that interact with server
 
     this.state = { ...DEFAULT_UI_STATE };
-    this.state['dataset'] = dataset;
+    // this.state['dataset'] = dataset;   // avoid this if possible
     this.state['preprocessMode'] = defaults.preprocessMode;
     this.state['debugMode'] = defaults.debugMode;
     this.state['isLocal'] = defaults.isLocal;
@@ -86,7 +86,8 @@ export class CometPhotosApp {
       bus: this.bus,
       state: this.state,
       ROI: this.ROI,
-      socket: this.socket
+      socket: this.socket,
+      dataset: dataset
     });
 
     this.imageBrowser = new ImageBrowser({
@@ -211,6 +212,9 @@ export class CometPhotosApp {
 
     // reset ImageBrowser (unloads cometView, if any)
     this.imageBrowser.resetForNewDataset();
+
+    // reset FilterEngine (caches m2-related dataset computed vals for efficiency)
+    this.filterEng.initializeForDataset(dataset);
 
     // Start BOTH loads immediately / concurrently
     loadCometModel(this.sceneMgr, this.ROI, dataset);
