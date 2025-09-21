@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # organize_imgs.py - creates a tree of .IMG files that are links to
 #  the .IMG files in the complex OSINAC tree, but more clearly
 #  organized. New files are placed in subdirectories of the form
@@ -7,20 +9,22 @@
 #  folder structure. (Note: the original files are not moved, only
 #  hard links are created to them.)
 
-import os
-import shutil
-import sys
-import subprocess
+import os, sys
+
+if len(sys.argv) != 3:
+    print(f"Usage: {sys.argv[0]} <fromDir> <toDir>")
+    sys.exit(1)
+
+fromDir = os.path.abspath(sys.argv[1])
+toDir   = os.path.abspath(sys.argv[2])
 
 print("Starting the directory walk!!!")
 
-fromdir = "/home/djk/cometdata/OSINAC"
-toDir = "/home/djk/cometdata/IMG"
 # Traverse the source directory tree
 
 filesDone = 0
 
-for root, dirs, files in os.walk(fromdir):
+for root, dirs, files in os.walk(fromDir):
     # Loop over the files
     for file in files:
         if file.endswith(".IMG"):

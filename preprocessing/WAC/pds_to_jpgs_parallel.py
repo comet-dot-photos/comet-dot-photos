@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
+
 # pds_to_jpgs_parallel.py — PDS3 .IMG → JPG via ISIS (parallelized, minimal changes)
 # Usage: python pds_to_jpgs.py <WAC|NAC> <fromDir> <toDir>
 
 import os, sys, subprocess, tempfile, concurrent.futures
 
-print("Starting the directory walk!!!")
-
 # ---- CLI ---------------------------------------------------------------
 if len(sys.argv) != 4 or sys.argv[1].upper() not in ("NAC", "WAC"):
     print("Usage: pds_to_jpgs_parallel.py <WAC|NAC> <fromDir> <toDir>")
     sys.exit(1)
+
+print("Starting the directory walk!!!")
 
 CAMERA  = sys.argv[1].upper()
 fromdir = os.path.abspath(sys.argv[2])
@@ -75,6 +76,7 @@ def process_one(task):
 
     try:
         # .IMG -> .cub
+        print(f"rososiris2isis from={src_file} to={cub_file}", flush=True)
         r = subprocess.run(['rososiris2isis', f'from={src_file}', f'to={cub_file}'], cwd=tmpdir)
         if r.returncode != 0:
             return (False, f"rososiris2isis failed on {src_file}")

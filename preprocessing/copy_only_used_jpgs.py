@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # copy_only_used_jpgs.py - walks the J80 (origBase) tree of images, copying only the
 #    .jpg files used in the viewData file (specified as the only command-line
 #    argument), to a J80New (newBase) tree.
