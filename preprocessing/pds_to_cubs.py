@@ -1,5 +1,7 @@
 # pds_to_cubs.py - Converts ESA Rosetta OSIRIS PDS3 .IMG files
 #   to .CUB files using the USGS tools.
+#
+# Used in Comet.Photos v1 to generate .CUB files for NAC images.
 
 import os
 import shutil

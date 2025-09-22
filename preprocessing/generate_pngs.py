@@ -1,8 +1,9 @@
 # generate_pngs.py - extracts .png files from all the .CUB files,
 #  using the USGS tools.
 
+# Requires .CUB files - used in Comet.Photos v1 for NAC images
+
 import os
-import shutil
 import sys
 import subprocess
 

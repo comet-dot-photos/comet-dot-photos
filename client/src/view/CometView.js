@@ -34,7 +34,8 @@ export class CometView {
         this.up = new THREE.Vector3(...photoDict.up);
         this.computeViewRect();
  
-        this.jpgPath = CometView.urlPrefix + 'J80/' + photoDict.nm.substring(1, 7) + '/' + photoDict.nm + '.jpg'
+        const YYYYMM = photoDict.nm.match(/(\d{6})\d{2}T/)?.[1] || "unknown"; // extract YYYYMM from filename
+        this.jpgPath = CometView.urlPrefix + 'J80/' + YYYYMM + '/' + photoDict.nm + '.jpg'
  
         this.fileName = photoDict.nm;
         this.time = photoDict.ti;

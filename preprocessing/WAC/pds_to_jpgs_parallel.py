@@ -3,6 +3,8 @@
 # pds_to_jpgs_parallel.py — PDS3 .IMG → JPG via ISIS (parallelized, minimal changes)
 # Usage: python pds_to_jpgs.py <WAC|NAC> <fromDir> <toDir>
 
+# Works for WAC, NAC images, but not NAVCAM (see quick_pds_to_jpgs_parallel.py)
+
 import os, sys, subprocess, tempfile, concurrent.futures
 
 # ---- CLI ---------------------------------------------------------------

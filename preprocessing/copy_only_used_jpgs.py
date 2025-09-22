@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 # copy_only_used_jpgs.py - walks the J80 (origBase) tree of images, copying only the
-#    .jpg files used in the viewData file (specified as the only command-line
-#    argument), to a J80New (newBase) tree.
+#    .jpg files used in the specified viewData file from the oldJPGTree to the newJPGTree.
+#
+# This is camera-agnostic.
 
 import os, json, shutil, sys
 
-if len(sys.argv) != 2:
-    print(f"Usage: {sys.argv[0]} <viewFile>"); sys.exit(1)
+if len(sys.argv) != 4:
+    print(f"Usage: {sys.argv[0]} <viewFile> <oldJPGTree> <newJPGTree>"); sys.exit(1)
 
 with open(sys.argv[1], "r") as f:
     data = json.load(f)
@@ -17,14 +18,15 @@ names = {item["nm"] for item in data if isinstance(item, dict) and "nm" in item}
 
 print("Starting the directory walk!!!")
 
-fromdir  = "/home/admin/domains/comet.photos/public_html/J80"
-origBase = "J80"
-newBase  = "J80New"
+fromDir  = sys.argv[2]
+toDir  = sys.argv[3]
+fromAbs = os.path.abspath(fromDir)
+toAbs  = os.path.abspath(toDir)
 
 filesDone = 0
 
-for root, dirs, files in os.walk(fromdir):
-    newRoot = root.replace(origBase, newBase, 1)
+for root, dirs, files in os.walk(fromAbs):
+    newRoot = root.replace(fromAbs, toAbs, 1)
     os.makedirs(newRoot, exist_ok=True)
 
     for file in files:
@@ -34,4 +36,5 @@ for root, dirs, files in os.walk(fromdir):
             dst_file = os.path.join(newRoot, file)
             shutil.copy2(src_file, dst_file)
             filesDone += 1
-            print(f"Finished {filesDone}", flush=True)
+
+print(f"Finished {filesDone}", flush=True)

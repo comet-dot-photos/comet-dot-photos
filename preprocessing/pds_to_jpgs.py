@@ -1,5 +1,8 @@
 # pds_to_jpgs.py - creates .jpg files for each .IMG file
 #         .IMG -> (temp .cub) -> (temp .png) -> J80/.jpg, then cleanup.
+#
+# Used in in Comet.Photos v1 and v2 to generate J80/.jpg files.
+# Works for NAC images only.
 
 import os
 import sys

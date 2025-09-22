@@ -9,11 +9,15 @@
 #  folder structure. (Note: the original files are not moved, only
 #  hard links are created to them.)
 
+# Works for WAC, NAC, and NAVCAM images
+
 import os, sys
 
-if len(sys.argv) != 3:
-    print(f"Usage: {sys.argv[0]} <fromDir> <toDir>")
+if len(sys.argv) != 3 and len(sys.argv) != 4:
+    print(f"Usage: {sys.argv[0]} <fromDir> <toDir> [<date_offset>]")
     sys.exit(1)
+
+dateOffset = 1 if len (sys.argv) < 4 else int(sys.argv[3])
 
 fromDir = os.path.abspath(sys.argv[1])
 toDir   = os.path.abspath(sys.argv[2])
@@ -27,10 +31,9 @@ filesDone = 0
 for root, dirs, files in os.walk(fromDir):
     # Loop over the files
     for file in files:
-        if file.endswith(".IMG"):
+        if file.endswith(".IMG") or file.endswith(".LBL"):
             # get the date string from the filename
-            dateStr = file[:7]    # get first 7 chars
-            dateStr = dateStr[1:] # discard first char
+            dateStr = file[dateOffset:(dateOffset+6)]    # get date portion of filename
             toPath = f'{toDir}/{dateStr}'
             # create the folder if it doesn't already exit
             if not os.path.exists(toPath):
@@ -45,5 +48,5 @@ for root, dirs, files in os.walk(fromDir):
             os.link(src_file, dst_file)
 
             filesDone += 1
-            print(f"Finished {filesDone}", flush=True)
+print(f"Finished processing {filesDone}", flush=True)
 

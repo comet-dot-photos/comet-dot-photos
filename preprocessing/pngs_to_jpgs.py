@@ -1,5 +1,8 @@
 # pngs_to_jpgs.py - walks the PNG tree of images to generate .jpg
 #  files for each image.
+#
+# Used in Comet.Photos v1 to generate J80/.jpg files.
+# Camera-agnostic.
 
 import os
 import shutil

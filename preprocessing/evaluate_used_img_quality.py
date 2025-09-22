@@ -3,6 +3,8 @@
 # evaluate_used_img_quality.py - For all .IMG files represented in the JSON file,
 # checks the image quality info stored in the .IMG headers and provides some basic stats.
 
+# This works for NAC and WAC images, but not NAVCAM (which lacks the relevant DATA_QUALITY_ID).
+
 import os, json, re, sys
 
 if len(sys.argv) != 2:

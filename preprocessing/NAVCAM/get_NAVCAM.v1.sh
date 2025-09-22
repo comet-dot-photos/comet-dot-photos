@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# get_navcam_l3_data.sh
+# get_NAVCAM3.1.sh
 # Download NAVCAM Level-3 DATA folders only (skips EXTRAS/ → skips FITS).
 # Patterns included:
 #   - RO-C-NAVCAM-3-*-V1.0/   (PRL, ESC1–4, EXT1–3)
