@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { SI_NONE, SI_UNMAPPED } from '../core/constants.js';
 
 // Needs access to ROI, because overlay can highlight the ROI in displayed images .

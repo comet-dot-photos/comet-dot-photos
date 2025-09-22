@@ -6,7 +6,7 @@ function preprocessingHandlers(io, datasets) {
     let fileText, viewArray;
     // Will preprocess the first dataset in datasets
 
-    // Step 1 - Load the original metaData file
+    // Step 1 - Load the phase1 metaData file
     const oldMetaFile = path.join(__dirname, '..', 'data', datasets[0].dataFolder, datasets[0].metaData);
     try {
         fileText = fs.readFileSync(oldMetaFile, 'utf-8');
