@@ -120,13 +120,11 @@ export class ImageBrowser {
 	}
     
     loadNext () {
-        console.log("In loadNext, fov is " + this.sceneMgr.camera.fov);
 		if (this.cometView) {
 			if (this.currentIndex != this.dynamicArray.length-1) {
 				this.loadCometByIndex(this.currentIndex + 1);
 			}
 		}
-        console.log("Exiting loadNext, fov is " + this.sceneMgr.camera.fov);
 	}
 
 	loadPrevious () {
