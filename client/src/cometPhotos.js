@@ -26,12 +26,12 @@ function processURL() {
 	return {debugMode, isLocal, dsOnURL};
 }
 
-function init(datasets, preprocessMode) {
+function init(dsArray, preprocessMode) {
 	let {debugMode, isLocal, dsOnURL } = processURL();
-	const dataset = datasets.find(x => x.shortName === dsOnURL) ?? datasets[0];
 	debugMode |= preprocessMode;  // always be verbose when preprocessing
 
-	window.app = new CometPhotosApp(datasets, dataset, socket, { debugMode, preprocessMode, isLocal });
+
+	window.app = new CometPhotosApp(dsArray, socket, { debugMode, preprocessMode, isLocal, dsOnURL });
 
 	// Let the server know on client shutdown, so it too can shut down if running locally
 	window.addEventListener('beforeunload', () => {  

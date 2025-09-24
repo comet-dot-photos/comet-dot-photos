@@ -2,6 +2,7 @@
 // import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import GUI from 'lil-gui';
 import { makeDualSlider } from './makeDualSlider.js';
+import { makeMultiSelect } from './makeMultiSelect.js';
 
 /**
  * Build a lil-gui from a schema.
@@ -72,6 +73,18 @@ export function buildGuiFromSchema(gui, schema, {
             .add(state, item.key, item.options)
             .name(item.label)
             .onChange(v => emitChange(item.key, v));
+          return ctrls[item.key];
+        }
+
+        case 'multiselect': {
+          // Ensure an array exists on state for this key
+          if (!Array.isArray(state[item.key])) state[item.key] = [];
+          ctrls[item.key] = makeMultiSelect(folder, {
+            label: item.label,
+            options: item.options ?? [],
+            bind: { obj: state, key: item.key },           // keep state[key] as array
+            onChange: (arr) => emitChange(item.key, arr)    // emit '<key>' on user edits
+          });
           return ctrls[item.key];
         }
 

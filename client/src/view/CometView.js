@@ -21,6 +21,16 @@ export class CometView {
     }
     static sMgr; // contains important methods for accessing three.js state
     constructor(photoDict, sceneMgr) {
+        // set statics that are now in the photoDict's dataset
+        CometView.xFOV = photoDict.dataset.xFOV;
+        CometView.yFOV = photoDict.dataset.yFOV;
+        CometView.defaultRes = photoDict.dataset.defaultRes;
+        CometView.urlPrefix = photoDict.dataset.dataFolder;
+        // cache away aspect - use half-angles
+        const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
+        const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;
+        CometView.aspect = Math.tan(xr) / Math.tan(yr);
+
         this.line = null;
         this.sc_position = new THREE.Vector3();
         this.sc_position.fromArray(photoDict.sc);
@@ -46,16 +56,6 @@ export class CometView {
         this.sceneMgr = sceneMgr;
     }
 
-    static setConstants(xFOV, yFOV, defaultRes, urlPrefix) {
-        CometView.xFOV = xFOV;
-        CometView.yFOV = yFOV;
-        CometView.defaultRes = defaultRes;
-        CometView.urlPrefix = urlPrefix;
-        // cache away aspect - use half-angles
-        const xr = THREE.MathUtils.degToRad(xFOV) * 0.5;
-        const yr = THREE.MathUtils.degToRad(yFOV) * 0.5;
-        CometView.aspect = Math.tan(xr) / Math.tan(yr);
-    }
 
     computeViewRect () {
         this.planeCenter = this.sc_position.clone().add(this.normal.clone().setLength(this.distToPlane));

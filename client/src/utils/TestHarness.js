@@ -11,7 +11,7 @@ export class TestHarness {
         this.ROI = ROI;
         delete uiState.status; // don't clear the status field on log replay
         delete uiState.logLevel; // don't reset the log level on log replay
-        delete uiState.datasetName; // don't reset the dataset
+        delete uiState.datasets; // don't reset the active dataset for now... may reconsider
         this.uiState = uiState;
 
         this.initEmitterFilters();

@@ -127,6 +127,92 @@ canvas {
   appearance: textfield;
 }
 
+/* ==== Multiselect (checkbox-dropdown) ==== */
+.lil-gui .controller .widget { overflow: visible; height: auto; } /* allow overlays */
+
+.ms-btn {
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: space-between;
+  padding: 6px 8px; border: 1px solid rgba(255,255,255,.12); border-radius: 6px;
+  background: rgba(255,255,255,.08); color: inherit; cursor: pointer;
+}
+.ms-caret { opacity: .7; margin-left: .5em; }
+
+/* Multiselect dropdown popover */
+.ms-pop {
+  position: fixed;
+  z-index: 100000;
+  display: none;
+  background: #1e1e1e;
+  color: #eee;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.45);
+  padding: 8px;
+  min-width: 220px;
+  max-width: 340px;
+
+  /* match lil-gui font */
+  font: inherit;
+  line-height: 1.2;
+}
+.ms-pop.open { display: block; }
+
+.ms-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+.ms-actions button {
+  flex: 1; padding: 6px; border: 1px solid rgba(255,255,255,.14);
+  background: #2a2a2a; color: inherit; border-radius: 8px; cursor: pointer;
+}
+
+.ms-list {
+  max-height: 260px; overflow: auto; padding: 6px;
+  border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: #121212;
+}
+.ms-item { display: flex; align-items: center; gap: .6em; padding: 6px 2px; }
+
+.controller.is-disabled .ms-btn { opacity: .5; pointer-events: none; }
+
+/* Keep lil-GUI font, but make everything in the popover larger */
+.ms-pop,
+.ms-pop button,
+.ms-pop .ms-item,
+.ms-pop .ms-item span {
+  font-family: inherit;   /* same font as lil-GUI */
+  font-size: 1.1em;      /* 10% larger */
+  line-height: 1.3;       /* loosen spacing slightly */
+}
+
+/* Begin style checkboxes inside the multiselect */
+.ms-pop input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #fff;     /* white border */
+  border-radius: 3px;
+  cursor: pointer;
+  background: transparent;    /* no fill when unchecked */
+  vertical-align: middle;
+}
+
+/* Checked state: cyan fill + black ✓ mark */
+.ms-pop input[type="checkbox"]:checked {
+  background-color: rgb(41, 201, 255);
+  border-color: rgb(41, 201, 255);
+
+  background-image: url("data:image/svg+xml;utf8,\
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'>\
+      <polyline points='1.5 6 4.5 9 10.5 1' \
+        fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>\
+    </svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80% 80%;
+}
+/* End checkbox inside multiselect styling */
+
+
 /* ---------- Folder headers ---------- */
 /* vertical gap between folders: controls gap (4px) comes from title margin */
 .lil-gui > .children > div + div > .title { margin-top: 4px !important; }

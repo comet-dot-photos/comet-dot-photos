@@ -69,7 +69,7 @@ export class ImageBrowser {
             cometView.LoadImageForOverlay(overlayCanvas);
     
         this.overlayNeedsUpdate();
-        if (this.state['spacecraftView']) {
+        if (this.state['spacecraftView']) {     // note spacecraftView will change FOV if necessary
             const {camera, controls} = this.sceneMgr;
             cometView.applyToCamera(camera, controls);
             controls.dispatchEvent({ type: 'change' });
@@ -120,11 +120,13 @@ export class ImageBrowser {
 	}
     
     loadNext () {
+        console.log("In loadNext, fov is " + this.sceneMgr.camera.fov);
 		if (this.cometView) {
 			if (this.currentIndex != this.dynamicArray.length-1) {
 				this.loadCometByIndex(this.currentIndex + 1);
 			}
 		}
+        console.log("Exiting loadNext, fov is " + this.sceneMgr.camera.fov);
 	}
 
 	loadPrevious () {

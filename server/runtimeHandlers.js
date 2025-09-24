@@ -31,28 +31,32 @@ function runtimeHandlers(io, datasets) {
         //   particular candidate set of images (imgSel), the painted region (visAr),
         //   and a number of vertices that must match (mustMatch)
         //
-        //   Argument message is {imgSel: imgSelArray, visAr: visArray, mustMatch: int}
-        //   Replies with ack(imgSelArray), which altered to indicate the matches.
+        //   Argument message is {imgSels: [[dsName, imgSel]...], visAr: visArray, mustMatch: int}
+        //   Replies with ack(imgSels), which are altered to indicate the matches.
         //
         socket.on('clientRequestsVis', function(message, ack) { 
             try {
-                const tableIndex = datasets.findIndex(x => x.shortName == message.dsName);
-                if (tableIndex < 0)
-                    throw new Error(`Bad tableInex: ${tableIndex}`);
-
-                // checks to make sure client cannot cause check_vis to exceed buffers
-                const {nRows, rowSize} = datasets[tableIndex];
-                if (!Buffer.isBuffer(message.imgSel) || message.imgSel.length != Math.ceil(nRows/8)) {
-                    throw new Error (`message.imgSel must be a Buffer and ${Math.ceil(nRows/8)} long.`);
-                }
-                if (!Buffer.isBuffer(message.visAr) || message.visAr.length != rowSize) {
-                    throw new Error (`message.visArray must be a Buffer and ${rowSize} long.`);
-                }
                 if (!Number.isInteger(message.mustMatch)) {
                     throw new Error ('message.mustMatch must be an integer.');
                 }
-                c_check_vis2(tableIndex, message.mustMatch, message.imgSel, message.visAr);
-                ack(message.imgSel);
+                for (const [shortName, imgSelBuff] of message.imgSels) {
+                    const tableIndex = datasets.findIndex(x => x.shortName == shortName);
+                    if (tableIndex < 0)
+                        throw new Error(`Bad tableInex: ${tableIndex}`);
+
+                    // checks to make sure client cannot cause check_vis to exceed buffers
+                    const {nRows, rowSize} = datasets[tableIndex];
+                    if (!Buffer.isBuffer(imgSelBuff) || imgSelBuff.length != Math.ceil(nRows/8)) {
+                        throw new Error (`imgSelBuff must be a Buffer and ${Math.ceil(nRows/8)} long.`);
+                    }
+                    if (!Buffer.isBuffer(message.visAr) || message.visAr.length != rowSize) {
+                        throw new Error (`message.visArray must be a Buffer and ${rowSize} long.`);
+                    }
+
+                    c_check_vis2(tableIndex, message.mustMatch, imgSelBuff, message.visAr);
+                }
+                // All done, reply with altered imgSels
+                ack(message.imgSels);
             } catch (error) {  // Additional protection against malformed messages. Perhaps unneeded given earlier checks?
                 console.error(`clientRequestsVis error: `, error.message);
                 ack(null);

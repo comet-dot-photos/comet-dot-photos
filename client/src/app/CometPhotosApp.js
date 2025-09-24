@@ -14,12 +14,11 @@ import { ROI } from '../core/ROI.js';
 import { Preprocessor } from '../core/Preprocessor.js';
 import { TestHarness } from '../utils/TestHarness.js';
 import { loadCometModel, loadMetadata } from '../core/datasetLoader.js';
+import { mergeK } from '../utils/mergeK.js';
 import { SI_NONE, SD_MONTH, LL_REGRESSION } from '../core/constants.js';
-import { CometView } from '../view/CometView.js';
-
 
 const DEFAULT_UI_STATE = {
-	datasetName: 'NAC',
+	datasets: [],
   enablePaint: false,
 	brushSize: 100, // meters
 	percentOverlap: 75,
@@ -47,13 +46,12 @@ const DEFAULT_UI_STATE = {
 
 
 export class CometPhotosApp {
-  constructor(datasets, dataset, socket, defaults = {}) {
+  constructor(dsArray, socket, defaults = {}) {
     this.bus = new Emitter(); // Event bus for cross-component communication
-    this.datasets = datasets;
+    this.dsArray = dsArray;   // array of dataset descriptors
     this.socket = socket;     // To be shared with modules that interact with server
 
     this.state = { ...DEFAULT_UI_STATE };
-    // this.state['dataset'] = dataset;   // avoid this if possible
     this.state['preprocessMode'] = defaults.preprocessMode;
     this.state['debugMode'] = defaults.debugMode;
     this.state['isLocal'] = defaults.isLocal;
@@ -70,7 +68,7 @@ export class CometPhotosApp {
         ROI: this.ROI
      });
 
-    this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay, dataset);
+    this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay, this.dsArray[0]);
 
     this.paintEvents = new PaintEvents({
       bus: this.bus,
@@ -87,7 +85,6 @@ export class CometPhotosApp {
       state: this.state,
       ROI: this.ROI,
       socket: this.socket,
-      dataset: dataset
     });
 
     this.imageBrowser = new ImageBrowser({
@@ -119,22 +116,22 @@ export class CometPhotosApp {
       uiState: DEFAULT_UI_STATE
     })
 
-    this.bus.emit('setSelectOpts', {key: 'datasetName',
-      opts: this.datasets.map(x => x.shortName), val: dataset.shortName, silent: true});
+    const dsNames = this.dsArray.map(x => x.shortName);
+    this.bus.emit('setSelectOpts', {key: 'datasets', opts: dsNames, val: dsNames, silent: true});
 
-    this.loadDataset(dataset); // Load the comet model and metadata!
+    this.loadDatasets(dsNames); // Load the comet model and metadata!
 
-    if (this.datasets.length == 1)
-      this.bus.emit('setEnabled', {key: 'datasetName', enabled: false});  // disable if only one choice!
+    if (this.dsArray.length == 1)
+      this.bus.emit('setEnabled', {key: 'datasets', enabled: false});  // disable if only one choice!
 
     if (defaults.preprocessMode) this.bus.emit('preprocessMode');
 
 // one map to wire all semantic events
     const HANDLERS = {
-        'quickstartHelp':   () => window.open("quickstart.html"),
-        'datasetName':      v => this.loadDataset(v),
-        'enablePaint':      v => this.sceneMgr.enablePaint(v),
-        'percentOverlap':   v => this.filterEng.setPercentOverlap(v),
+        'quickstartHelp':  () => window.open("quickstart.html"),
+        'datasets':        v => this.loadDatasets(v),
+        'enablePaint':     v => this.sceneMgr.enablePaint(v),
+        'percentOverlap':  v => this.filterEng.setPercentOverlap(v),
         'brushSize':       v => this.sceneMgr.adjustBrushSize(v),
         'clearPaint':      () => this.imageBrowser.clearPaint(),
         'metersPerPixel':  (v)=> this.filterEng.entryMpPFilter(v),
@@ -192,46 +189,58 @@ export class CometPhotosApp {
 
   // ---- Public API ----
 
-  // arg can be either a shortName or a dictionary
-  loadDataset(arg) {
-    const dataset = (typeof arg === 'string') ?
-      this.datasets.find(x => x.shortName === arg) : arg;
+  // arg is an array of dataset shortNames
+  loadDatasets(nameArray) {
+    this.state.datasets = nameArray;  // used?
 
-    this.state.datasetName = dataset.shortName;
-    this.bus.emit('setVal', {key: 'datasetName', val: dataset.shortName, silent: true});
-    this.bus.emit('setVal', {key: 'xFOV', val: dataset.xFOV, silent: true});
-    this.bus.emit('setVal', {key: 'yFOV', val: dataset.yFOV, silent: true});
-    this.state.xFOV = dataset.xFOV;
-    this.state.yFOV = dataset.yFOV;
+    // create a dictionary of selected datasets keyed by shortname
+    this.dsDict = Object.fromEntries(
+      this.dsArray
+        .filter(d => nameArray.includes(d.shortName))
+        .map(d => [d.shortName, d]));
 
-    // Update CometView class constants to reflect dataset
-    CometView.setConstants(dataset.xFOV, dataset.yFOV, dataset.defaultRes, dataset.dataFolder);
+    this.bus.emit('setVal', {key: 'datasets', val: this.state.datasets, silent: true});
 
-    // Update SceneManager with new camera parameters
-    this.sceneMgr.initializeCameraForDataset(dataset);
-
-    // reset ImageBrowser (unloads cometView, if any)
     this.imageBrowser.resetForNewDataset();
 
-    // reset FilterEngine (caches m2-related dataset computed vals for efficiency)
-    this.filterEng.initializeForDataset(dataset);
+    // Start model and metadata loads immediately / concurrently
+    loadCometModel(this.sceneMgr, this.ROI, this.dsArray[0]); // all loaded datasets must share the same comet model
 
-    // Start BOTH loads immediately / concurrently
-    loadCometModel(this.sceneMgr, this.ROI, dataset);
-    const metaTask  = loadMetadata(dataset);
+    // Load metadata for all selected datasets - but perhaps already loaded?
+    const allHavePhotoData = Object.values(this.dsDict).every(d => d.photoData);
+    if (allHavePhotoData) {  // already loaded?
+      this.installMetadata();
+      return;
+    }
 
-    // Handle metadata as soon as it lands
-    metaTask.then((data) => {
-      this.installMetadata(data);
-      document.title = `Comet.Photos: ${dataset.longName} (${data.length} images)`;
-    }).catch((e) => console.error('Metadata load error:', e));
+    // Still need to load at least one...
+    for (const dataset of Object.values(this.dsDict)) {
+      if (dataset.photoData) continue;  // don't load if already loaded!
+      const metaTask  = loadMetadata(dataset);
+      // Handle metadata as soon as it lands
+      metaTask.then((data) => {
+        data.forEach(d => d.dataset = dataset); // tag each entry with its dataset
+        dataset.photoData = data;     // cache it
+        this.installMetadata();       // installs if last to arrive
+      }).catch((e) => console.error('Metadata load error:', e));
+    }
   }
 
-  installMetadata(metadata) {  // share the metadata only with the modules that need it
-        this.filterEng.installMetadata(metadata);
-        this.imageBrowser.installMetadata(metadata);
-        this.state.metadataLoaded = true;
-        this.filterEng.updateAllFilters();
+
+  installMetadata() {  // finalize metadata and share with only with the modules that need it
+      const allHavePhotoData = Object.values(this.dsDict).every(d => d.photoData);
+      if (!allHavePhotoData) return; // wait for all to arrive
+
+      // Merge all photoDatas into one big sorted array
+      const metadata = mergeK(Object.values(this.dsDict).map(d => d.photoData), {key: "ti"});
+
+      const dsString = this.state.datasets.join(' + ');
+      document.title = `Comet.Photos: ${dsString} (${metadata.length}) images`;
+
+      this.filterEng.installDatasetsAndMetadata(this.dsDict, metadata);
+      this.imageBrowser.installMetadata(metadata);
+      this.state.metadataLoaded = true;
+      this.filterEng.updateAllFilters();
   }
 
   dispose() {   // dispose of event bindingers

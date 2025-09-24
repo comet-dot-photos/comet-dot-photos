@@ -14,25 +14,27 @@ const FAIL_BBOX = 8;
 const FAIL_INCIDENCE = 16;
 
 export class FilterEngine {
-  constructor({ bus, state, ROI, socket, dataset } ) {
+  constructor({ bus, state, ROI, socket /*, dataset*/ } ) {
     this.bus = bus;
     this.state = state;
     this.ROI = ROI;
     //this.timer = timer;
     this.socket = socket;
     
-    this.initializeForDataset(dataset);
+    // this.initializeForDataset(dataset);
 
     this.applyGeoFilter = serialize(this.applyGeoFilter.bind(this), { mode: 'queue' });
     this.setPercentOverlap = serialize(this.setPercentOverlap.bind(this), { mode: 'latest' });
    }
 
+   /*
     initializeForDataset(dataset) {
         // used later for fast m2 calculations
         this.defaultRes = dataset.defaultRes;   // cache this because it is used a lot in this module
         const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(dataset.xFOV/2.0)/180.0);
         this.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
     }
+    */
 
     entryEmissionFilter(newVal) {
         this.state.emissionAngle = newVal;
@@ -91,16 +93,19 @@ export class FilterEngine {
                     ogPhotoArray[i].filter &= ~FAIL_MPP;
                 }
             } 
-        } else {				// do m2 filtering based on painted region
-            const maxDist = (high * (.001*(this.defaultRes/2))) / Math.tan(Math.PI*(CometView.xFOV/2.0)/180.0);
-            const minDist = (low * (.001*(this.defaultRes/2))) / Math.tan(Math.PI*(CometView.xFOV/2.0)/180.0);
-            const maxDistSquared = maxDist*maxDist;
-            const minDistSquared = minDist*minDist;
+        } else {	// do m2 filtering based on painted region
+            for (const ds of Object.values(this.dsDict)) {   // cache some key values per dataset
+                const maxDist = (high * (.001*(ds.defaultRes/2))) / Math.tan(Math.PI*(ds.xFOV/2.0)/180.0);
+                const minDist = (low * (.001*(ds.defaultRes/2))) / Math.tan(Math.PI*(ds.xFOV/2.0)/180.0);
+                ds.maxDistSquared = maxDist*maxDist;
+                ds.minDistSquared = minDist*minDist;
+            }
             for (let i = 0; i < ogPhotoArray.length; i++) {
+                const ds = ogPhotoArray[i].dataset;
                 let trueDistSquared = ogPhotoArray[i].sc_v.distanceToSquared(avgPosition);
                 if (ogPhotoArray[i].rz) // hence, not default
-                    trueDistSquared *= (this.defaultRes/ogPhotoArray[i].rz)**2; // more computationally efficient to adjust trueDistSquared 
-                if (trueDistSquared > maxDistSquared || trueDistSquared < minDistSquared)
+                    trueDistSquared *= (ds.defaultRes/ogPhotoArray[i].rz)**2; // more computationally efficient to adjust trueDistSquared 
+                if (trueDistSquared > ds.maxDistSquared || trueDistSquared < ds.minDistSquared)
                     ogPhotoArray[i].filter |= FAIL_MPP;
                 else
                     ogPhotoArray[i].filter &= ~FAIL_MPP;
@@ -144,40 +149,34 @@ export class FilterEngine {
         if (doFilterCleanup) this.filterCleanUp();
     }
 
-    resetBufferSizes() {
-        this.bboxBitBuffer = undefined;    // will be reinitialized next initBBoxBitBuffer
-        this.bboxBitArray = undefined;
-    }
-
-    initBBOXBitBuffer(nPhotos) {
-        if (typeof this.bboxBitBuffer === "undefined") {
-            const numBytes = Math.ceil(nPhotos/8);
-            this.bboxBitBuffer = new ArrayBuffer(numBytes);
-            this.bboxBitArray = new Uint8Array(this.bboxBitBuffer);
+    prepareImageCandidates() {
+        let dsNameBitArrayPairs = [];
+        for (const dataset of Object.values(this.dsDict)) {
+            dataset.bboxBitArray.fill(0)
+            if (typeof this.ROI.bbox !== "undefined") {
+                for (let i = 0; i < dataset.photoData.length; i++) {
+                    if (this.ROI.bbox.intersectsBox(dataset.photoData[i].bbox)) {
+                        this.ROI.setNthBit(i, dataset.bboxBitArray);
+                    }
+                }
+                dsNameBitArrayPairs.push([dataset.shortName, dataset.bboxBitArray]);
+            }
         }
-        else {
-            this.bboxBitArray.fill(0);
-        }
+        return dsNameBitArrayPairs
     }
 
     async applyGeoFilter (doFilterCleanup = true) {
         this.state['startTimer'] = this.state['clock'].getElapsedTime();
         let ogPhotoArray = this.ogPhotoArray;
         if (this.ROI.numPainted > 0) {
-            this.initBBOXBitBuffer(ogPhotoArray.length);
-            if (typeof this.ROI.bbox !== "undefined") {
-                for (let i = 0; i < ogPhotoArray.length; i++) {
-                    if (this.ROI.bbox.intersectsBox(ogPhotoArray[i].bbox)) {
-                            this.ROI.setNthBit(i, this.bboxBitArray);
-                    }
-                }
-                const mustMatch = Math.ceil(this.ROI.numPainted*this.state['percentOverlap']/100);
-                const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
-                //console.error('BEFORE VIS REQUEST');
-                const result = await req('clientRequestsVis', {dsName: this.state.datasetName, mustMatch: mustMatch, imgSel: this.bboxBitArray, visAr: this.ROI.paintArray});
-                //console.error('AFTER VIS REQUEST!!!');
-                this.processServerVisResult(result);
-            }
+            const imgSels = this.prepareImageCandidates();
+            const mustMatch = Math.ceil(this.ROI.numPainted*this.state['percentOverlap']/100);
+            const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
+            //console.error('BEFORE VIS REQUEST');
+            const result = await req('clientRequestsVis',
+                {imgSels: imgSels, mustMatch: mustMatch, visAr: this.ROI.paintArray});
+            //console.error('AFTER VIS REQUEST!!!');
+            this.processServerVisResult(result);
         } else {  // nothing is painted, so all images pass
             for (let i = 0; i < ogPhotoArray.length; i++)
                 ogPhotoArray[i].filter &= ~FAIL_BBOX;
@@ -223,25 +222,46 @@ export class FilterEngine {
 	}
 
     getM2FromDistance(photoDict, dist) {
-        let m2 = dist * this.M2MULTIPLIER;
-        if ('rz' in photoDict) m2 *= this.defaultRes / photoDict.rz;	// adjust for different resolutions
+        let m2 = dist * photoDict.dataset.M2MULTIPLIER;
+        if ('rz' in photoDict) m2 *= photoDict.dataset.defaultRes / photoDict.rz;	// adjust for different resolutions
         return Math.round(m2 * 100) / 100;  // rounding to 2 digits after decimal
     }
 
-    installMetadata(metadata) {
-        this.ogPhotoArray = this.cachePhotoInformation(metadata);  // add some extra info for filtering, and save it away
-        this.resetBufferSizes(); // new photoArray requires buffer reset
+    installDatasetsAndMetadata(dsDict, metadata) {
+        this.dsDict = dsDict;
+        for (const dataset of Object.values(this.dsDict)) {  // for every dataset...
+            // cache away M2MULTIPLIER for this dataset
+            const M2DIST = (.001*(dataset.defaultRes/2)) / Math.tan(Math.PI*(dataset.xFOV/2.0)/180.0);
+            dataset.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
+
+            // allocate bboxbitBuffer for each dataset
+            const nPhotos = dataset.photoData.length;
+            const numBytes = Math.ceil(nPhotos/8);
+            dataset.bboxBitBuffer = new ArrayBuffer(numBytes);
+            dataset.bboxBitArray = new Uint8Array(dataset.bboxBitBuffer);
+        } 
+        
+        // add some extra info for filtering, and save it away
+        this.ogPhotoArray = this.cachePhotoInformation(metadata);  
     }
+   
 
     processServerVisResult(message) {
         if (!message) return;
-        const newBBoxBitArray = new Uint8Array(message);
-        for (let i = 0; i < this.ogPhotoArray.length; i++){
-            if (this.ROI.getNthBit(i, newBBoxBitArray) === 1) {
-                this.ogPhotoArray[i].filter &= ~FAIL_BBOX;
-            }
-            else {
-                this.ogPhotoArray[i].filter |= FAIL_BBOX;
+        // message is the altered imgSels: [[dsName, imgSel]...]
+        for (const [dsName, imgSel] of message) {
+            const dataset = this.dsDict[dsName];
+            const bytes = imgSel instanceof Uint8Array 
+                        ? imgSel                            // use as-is, no copy
+                        : new Uint8Array(imgSel);           // ArrayBuffer → cheap view
+
+            for (let i = 0; i < dataset.photoData.length; i++){
+                if (this.ROI.getNthBit(i, bytes) === 1) {
+                    dataset.photoData[i].filter &= ~FAIL_BBOX;
+                }
+                else {
+                    dataset.photoData[i].filter |= FAIL_BBOX;
+                }
             }
         }
         // this.filterCleanUp(); - now done elsewhere.
