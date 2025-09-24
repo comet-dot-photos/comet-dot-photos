@@ -5,8 +5,11 @@
 // opts.key:  string prop name OR function(item)->key (default: identity)
 // opts.cmp:  optional comparator (a,b) -> negative if a<b
 export function mergeK(arrs, opts = {}) {
-  const { key, cmp } = opts;
   const k = arrs.length;
+  if (k === 0) return [];
+  if (k === 1) return arrs;
+  
+  const { key, cmp } = opts;
   const idx  = new Array(k).fill(0);       // per-array pointer
   const keys = new Array(k);                // cached head keys
   const out  = [];

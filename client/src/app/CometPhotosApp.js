@@ -189,17 +189,16 @@ export class CometPhotosApp {
 
   // ---- Public API ----
 
-  // arg is an array of dataset shortNames
+  // nameArray is an array of dataset shortNames
   loadDatasets(nameArray) {
-    this.state.datasets = nameArray;  // used?
+    this.state.datasets = nameArray;
+    this.bus.emit('setVal', {key: 'datasets', val: this.state.datasets, silent: true});
 
     // create a dictionary of selected datasets keyed by shortname
     this.dsDict = Object.fromEntries(
       this.dsArray
         .filter(d => nameArray.includes(d.shortName))
         .map(d => [d.shortName, d]));
-
-    this.bus.emit('setVal', {key: 'datasets', val: this.state.datasets, silent: true});
 
     this.imageBrowser.resetForNewDataset();
 
