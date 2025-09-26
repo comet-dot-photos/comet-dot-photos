@@ -2,12 +2,15 @@
   "name": "comet-dot-photos",
   "version": "3.0.0",
   "private": true,
-  "workspaces": ["client", "server"],
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "build": "npm run build --workspaces --if-present"
   },
   "engines": {
-        "node": ">=14"
+    "node": ">=14"
   },
   "license": "MIT",
   "author": "D. Kurlander"
