@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Projected Texture – minimal demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; color: #ddd; font: 14px/1.3 system-ui, sans-serif; }
+    #hud { position: fixed; left: 10px; top: 10px; background: rgba(0,0,0,0.5); padding: 8px 10px; border-radius: 6px; }
+    #hud kbd { background: #222; padding: 2px 5px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <div><b>Keys</b>:
+      <kbd>E</kbd> enable/disable,
+      <kbd>[</kbd>/<kbd>]</kbd> blend −/+,
+      <kbd>D</kbd> toggle debug-tint,
+      <kbd>P</kbd> pause projector,
+      <kbd>R</kbd> reset projector
+    </div>
+  </div>
+  <script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.154.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

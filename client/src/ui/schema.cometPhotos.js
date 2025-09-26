@@ -1,6 +1,6 @@
 // ui/schema.cometPhotos.js
 
-import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC, LL_REGRESSION, LL_TERSE, LL_VERBOSE, SD_DAY, SD_MONTH, SD_YEAR} from '../core/constants.js';
+import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, LL_REGRESSION, LL_TERSE, LL_VERBOSE, SD_DAY, SD_MONTH, SD_YEAR} from '../core/constants.js';
 
 export const cometPhotosSchema = [
       {
@@ -40,7 +40,7 @@ export const cometPhotosSchema = [
         folder: 'Image Display and Navigation',
         key: 'displayNav',
         items: [
-          { type: 'select', key: 'showImage',    label: 'Show Image:', options: [SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC] },
+          { type: 'select', key: 'showImage',    label: 'Show Image:', options: [SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE] },
           { type: 'row', items: [
             { type: 'bool', key: 'encircleRegion', label: 'Encircle Region:' },
             { type: 'bool', key: 'showViewport', label: 'Show Viewport:' },

@@ -1,7 +1,7 @@
 // Constants used across modules in Comet.Photos
 
 // Show Index choices
-export const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Perspective", SI_ORTHOGRAPHIC = "Orthographic"; // "Show Image" choices
+export const SI_NONE = "None", SI_UNMAPPED = "Unmapped 2D", SI_PERSPECTIVE = "Projected 3D"; // "Show Image" choices
 
 // Skip Duration choices
 export const SD_DAY = "Day", SD_MONTH = "Month", SD_YEAR = "Year";

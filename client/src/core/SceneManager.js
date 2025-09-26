@@ -9,7 +9,7 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { CometView } from '../view/CometView.js';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree, CONTAINED, INTERSECTED, NOT_INTERSECTED } from 'three-mesh-bvh';
-import { COMETGREYVAL, SI_NONE, SI_UNMAPPED, SI_ORTHOGRAPHIC, PAINT_RED, PAINT_GREEN, PAINT_BLUE } from '../core/constants.js';
+import { COMETGREYVAL, SI_NONE, SI_UNMAPPED, PAINT_RED, PAINT_GREEN, PAINT_BLUE } from '../core/constants.js';
 
 // CONSTANTS!
 // Specify Colors
@@ -153,6 +153,15 @@ export class SceneManager {
         this.camera.updateProjectionMatrix();
     }
 
+    installCometInfo({geom, colorArray, colorAttr, mat, mesh}) {
+        this.cometGeometry = geom;
+        this.colorArray = colorArray;
+        this.colorAttr = colorAttr;
+        this.cometMaterial = mat;
+        this.targetMesh = mesh;
+        this.scene.add(mesh);
+    }
+
     overlayNeedsUpdate() {
         this.overlay.overlayNeedsUpdate();
     }
@@ -262,7 +271,7 @@ export class SceneManager {
         this.bus.emit('setVal', {key: 'enablePaint', val: enable, silent: true});
         this.controls.enabled = !enable; // disable controls while painting
         if (!enable) this.brushMesh.visible = false
-        if (enable && (this.state['showImage'] == SI_UNMAPPED || this.state['showImage'] == SI_ORTHOGRAPHIC)) {
+        if (enable && (this.state['showImage'] == SI_UNMAPPED)) {
             // only can paint in certain showImage modes - as though user immediately changes showImage mode
             this.bus.emit('setVal', {key: 'showImage', val: SI_NONE, silent: false}); 
         }
@@ -336,10 +345,10 @@ export class SceneManager {
 
     adjustShading () {
 		if (this.state['enablePaint'] || this.state['showImage'] == SI_NONE) {
-			this.setFlatShading(true);
+//			this.setFlatShading(true);
 			this.showPaint(true);
 		} else {
-			this.setFlatShading(false);
+//			this.setFlatShading(false);
 			this.showPaint(false);
 		}
 	}

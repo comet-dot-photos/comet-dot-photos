@@ -1,7 +1,8 @@
 // core/datasetLoader.js
 import * as THREE from 'three';
 import { OBJLoader2 } from 'wwobjloader2';
-import ProjectedMaterial from 'three-projected-material';
+import { CometView } from '../view/CometView.js';
+import { wrapMaterialWithProjector, makeProjectorDepthRT} from '../utils/ProjectedImages.js';
 import { COMETGREYVAL, COMETCOLOR } from '../core/constants.js'; 
 
 function loadOBJ(url) {
@@ -36,26 +37,36 @@ export async function loadCometModel(sceneMgr, ROI, dataset) {
   ROI.allocatePaintBuffer(geom.attributes.position.count, colorArray);
 
   // Material + mesh
-  const mat = new ProjectedMaterial({
-    cover: false,
+  const mat = new THREE.MeshStandardMaterial({
     color: COMETCOLOR,
-    transparent: false,
-    opacity: 1.0,
+    roughness: 1.0,
+    metalness: 0,
     vertexColors: true,
-    flatShading: sceneMgr.state['flatShading'],
+    flatShading: sceneMgr.state['flatShading']
   });
+
+  // 1 Wrap ONCE (no camera/texture yet). Start crisp by default.
+  const handle = wrapMaterialWithProjector(mat, null, null, {
+    renderer: sceneMgr.renderer,
+    maskAA: 0.0,      // 0 = off (crisp edge); can be changed later
+    edgeSoft: 0.0,    // 0 = no feather; can be changed later
+   });
+
+  // 2 Create ONE reusable depth render target, attach it, and enable masking.
+  let depthRT = makeProjectorDepthRT(sceneMgr.renderer, 1024, 1024); // baseline size; we’ll resize per camera
+  handle.setDepthTexture(depthRT.texture);
+  handle.enableDepthMask(0.05); // increase to ~0.002–0.003 if acne effects .0025
+  handle.setDepthRenderTarget(depthRT);
 
   const mesh = new THREE.Mesh(geom, mat);
   mesh.geometry.computeBoundsTree();
 
-  // Save references on sceneMgr (matches your current design)
-  sceneMgr.cometGeometry = geom;
-  sceneMgr.colorArray = colorArray;
-  sceneMgr.colorAttr = colorAttr;
-  sceneMgr.cometMaterial = mat;
-  sceneMgr.targetMesh = mesh;
+  // Save references on sceneMgr
+  sceneMgr.installCometInfo({geom, colorArray, colorAttr, mat, mesh});
 
-  sceneMgr.scene.add(mesh);
+  // Save projector handle and mesh radius for later use
+  mesh.geometry.computeBoundingSphere();
+  CometView.installCometInfo(handle, mesh.geometry.boundingSphere.radius);
 }
 
 /** Fetch and return the parsed metadata JSON (startable immediately) */

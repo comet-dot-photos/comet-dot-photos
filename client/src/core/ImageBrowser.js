@@ -1,5 +1,5 @@
 import {CometView} from '../view/CometView.js';
-import {SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, SI_ORTHOGRAPHIC} from './constants.js';
+import {SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE} from './constants.js';
 
 export class ImageBrowser {
     constructor({bus, state, ROI, overlay, sceneMgr, filterEng}) {
@@ -61,8 +61,6 @@ export class ImageBrowser {
 
         if (this.state['showViewport'])
             cometView.addViewport();
-        if (this.state['showImage'] == SI_ORTHOGRAPHIC)
-            cometView.addDecal();
         if (this.state['showImage'] == SI_PERSPECTIVE)
             cometView.addProjection();
         if (this.state['showImage'] == SI_UNMAPPED)
@@ -83,7 +81,6 @@ export class ImageBrowser {
     unloadComet(updateUI = true) {
         const cometView = this.getCometView();
         if (cometView) {
-            if (this.state.showImage == SI_ORTHOGRAPHIC) cometView.removeDecal(this.scene);
             if (this.state.showImage == SI_PERSPECTIVE) cometView.removeProjection(this.cometMaterial);
             CometView.lastRequestedImg = "";		// stop pending image requests from loading
             // Note: for SI_UNMAPPED, image will be automatically erased by the no matches overlay
@@ -225,7 +222,7 @@ export class ImageBrowser {
 
     getResFromPhotoDict(photoDict) {
         if ('rz' in photoDict) return photoDict.rz;
-        else return CometView.defaultRes;
+        else return photoDict.dataset.defaultRes;
     }
 
     getInfoString(photoDict) {
@@ -237,7 +234,7 @@ export class ImageBrowser {
         const incidAngle = Math.round(Math.acos(sun_vec.dot(avgNormal))*180/Math.PI);
         const phaseAngle = Math.round(Math.acos(avg_sc_vec.dot(sun_vec))*180/Math.PI);
         const rez = this.getResFromPhotoDict(photoDict);
-        const width = Math.tan(Math.PI*(CometView.xFOV/2.0)/180.0) * photoDict.sc_v.distanceTo(avgPosition);
+        const width = Math.tan(Math.PI*(photoDict.dataset.xFOV/2.0)/180.0) * photoDict.sc_v.distanceTo(avgPosition);
         const m2 = Math.round(width/(.001*(rez/2)) * 100) / 100;
         return `#${photoDict.ogIndex}  m: ${m2}  e: ${emissionAngle}  i: ${incidAngle}  p: ${phaseAngle}`;
     }
@@ -256,18 +253,14 @@ export class ImageBrowser {
     showImage(val) {
         let cometView = this.getCometView();
         // first undo last setting as necessary
-        if (this.lastSI == SI_ORTHOGRAPHIC) {
-            if (cometView) cometView.removeDecal();
-        } else if (this.lastSI == SI_PERSPECTIVE) {
+        if (this.lastSI == SI_PERSPECTIVE) {
             if (cometView) cometView.removeProjection();
         } else if (this.lastSI == SI_UNMAPPED) {
             this.enableOverlayCanvas(false);
         }
 
         // then establish the new setting
-        if (val == SI_ORTHOGRAPHIC) {
-            if (cometView) cometView.addDecal();
-        } else if (val == SI_PERSPECTIVE) {
+        if (val == SI_PERSPECTIVE) {
             if (cometView) cometView.addProjection();
         } else if (val == SI_UNMAPPED) {
             this.enableOverlayCanvas(true);

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
+import { renderProjectorDepth } from '../utils/ProjectedImages.js';
 
 export class CometView {
     static xFOV;                    // set via setContstants
@@ -10,7 +10,6 @@ export class CometView {
     static MAX_COMET_WIDTH = 4.0;   // Comet does not extend beyond this distance from origin
     static EXTRA_CLIP_FAR = 400;      // this will mostly avoid clipping if we zoom out w/ trackball control, since far is not updated
     static map;     // We choose to make the map a class var because we keep the last view's map until the new one's loaded
-    static decal;   // ... and same for decal
     static lastRequestedImg;  // name of the last requested image, so previous requests don't get displayed!
     static blankTexture = new THREE.Texture();
     static mgr = new THREE.LoadingManager();
@@ -19,7 +18,9 @@ export class CometView {
             console.log("In LoadingManager.onProgress: Loading %s: %i/%i", str, num, total);
         }
     }
-    static sMgr; // contains important methods for accessing three.js state
+    static projectorHandle; // handle for projector material, set in loadCometModel
+    static radiusUB;        // upperbound for the object radius (used for setting near/far)
+
     constructor(photoDict, sceneMgr) {
         // set statics that are now in the photoDict's dataset
         CometView.xFOV = photoDict.dataset.xFOV;
@@ -131,6 +132,7 @@ export class CometView {
     setUp(x) {
         this.up = x.clone();
     }
+
     addViewport() {
         const lineMaterial = new THREE.LineBasicMaterial({color: 0x0000ff});
         const linepts = [...this.corners]; // copy of the corners array
@@ -139,6 +141,7 @@ export class CometView {
         this.line = new THREE.Line(squareGeometry, lineMaterial);
         this.sceneMgr.scene.add(this.line);
     }
+
     removeViewport() {
         if (this.line) {
             this.sceneMgr.scene.remove(this.line);
@@ -147,67 +150,8 @@ export class CometView {
             this.line = null;
         }
     }
-    addDecal() {
-        let scene = this.sceneMgr.scene, mesh = this.sceneMgr.targetMesh;
-        this.imageFresh = false;
-        let view = this;
-        function onDecalLoaded(texture) {
-            if (CometView.lastRequestedImg != view.fileName) {
-                texture.dispose();
-                return;
-            } 
-
-            let oldMap = CometView.map;
-            let oldDecal = CometView.decal;
-            CometView.map = texture;
-            const decalMaterial = new THREE.MeshPhongMaterial({
-                map: CometView.map,
-                transparent: true,  // what do the scientists want?
-                depthTest: true,
-                depthWrite: false,
-                polygonOffset: true,
-                polygonOffsetFactor: - 4
-            });
-            const euler = new THREE.Euler();
-            const orientation = new THREE.Matrix4();
-            view.imageDepthAlongNormal = view.maxDistAlongNormal - view.minDistAlongNormal;
-            const lookAt = view.sc_position.clone().add((view.normal.clone().multiplyScalar(view.minDistAlongNormal+(view.imageDepthAlongNormal/2))));
-            orientation.lookAt(view.sc_position, lookAt, view.up);
-            euler.setFromRotationMatrix(orientation);
-            const centerDist = view.minDistAlongNormal + (view.imageDepthAlongNormal * 0.5);
-            const scale = centerDist / view.minDistAlongNormal;  // footprint grows with distance
-            const size = new THREE.Vector3(
-              view.imageWidth  * scale,
-              view.imageHeight * scale,
-              view.imageDepthAlongNormal + 0.05
-            );
-            const decalGeometry = new DecalGeometry(mesh, lookAt, euler, size);
-            CometView.decal = new THREE.Mesh(decalGeometry, decalMaterial); //should this be a const??
-            scene.add(CometView.decal);
-            view.imageFresh = true;
-            // Cleanup
-            if (oldDecal) {
-                scene.remove(oldDecal);
-                oldDecal.geometry.dispose();
-                oldDecal.material.dispose();
-            }
-            if (oldMap) oldMap.dispose();
-        }
-        this.loadImage(onDecalLoaded);        // now we do it on demand
-    }
-
-    removeDecal() {
-        if (CometView.decal) {
-            const oldDecal = CometView.decal;
-            this.sceneMgr.scene.remove(oldDecal);
-            oldDecal.geometry.dispose();
-            oldDecal.material.dispose();
-            CometView.decal = null;
-        }
-    }
 
     addProjection () {
-        let mesh = this.sceneMgr.targetMesh, material = this.sceneMgr.cometMaterial;    
         this.imageFresh = false;
         let view = this;
         function onProjectionLoaded(texture) {
@@ -218,14 +162,10 @@ export class CometView {
 
             let oldMap = CometView.map;
             CometView.map = texture;
-            material.texture = texture;
-            material.camera = new THREE.PerspectiveCamera();
-
-            console.log(`Before applyToCamera, aspect = ${CometView.aspect}`);
-            view.applyToCamera(material.camera, null, CometView.aspect); // clone the current camera, but set viewing properties for image
-            material.project(mesh);
-            material.needsUpdate = true;
-            material.texture.needsUpdate = true;
+            const cam = new THREE.PerspectiveCamera();
+            view.applyToCamera(cam, null, CometView.aspect); // clone the current camera, but set viewing properties for image
+            view.fitProjectorNearFar(cam);
+            view.applyProjection(cam, texture);
             view.imageFresh = true;
 
             // cleanup for oldMap
@@ -234,20 +174,55 @@ export class CometView {
         this.loadImage(onProjectionLoaded);        // now we do it on demand
     }
 
+    /**
+     * applyProjection - helper function for addProjection
+     * cam: a fully configured THREE.Camera for this image
+     * tex: THREE.Texture for the image
+     */
+    applyProjection(cam, tex) {
+        const handle = CometView.projectorHandle;
+        const depthRT = handle.getDepthRenderTarget();
+        const {renderer, scene} = this.sceneMgr;
+
+        // 1) Give the projector this camera and update PV
+        handle.setCamera(cam);
+        cam.updateProjectionMatrix();
+        cam.updateMatrixWorld(true);
+        handle.update();
+
+        // 2) Make depthRT match the camera’s aspect, then render the mask once
+        const W = 1024; // choose 1024 or 2048; higher = cleaner edges, more GPU
+        const H = Math.max(1, Math.round(W / Math.max(1e-6, cam.aspect))); // camera drives aspect
+        depthRT.setSize(W, H);
+        renderProjectorDepth(renderer, scene, cam, depthRT);
+
+        // 3) Bind the texture and show it
+        tex.colorSpace = THREE.SRGBColorSpace; // keeps brightness faithful
+        handle.setTexture(tex, renderer);
+        handle.enable(); // setBlend(1)
+
+        // debug
+//        handle.setDebugMode('z');
+//        handle.refreshDepth(renderer, scene, cam, { bias: 0.01});
+    }
+
+    fitProjectorNearFar(cam) {
+        const padding = .1;   // .1 km should be sufficient padding
+        cam.near = this.minDistAlongNormal - padding;
+        cam.far = this.minDistAlongNormal + (2 * CometView.radiusUB) + padding
+        cam.updateProjectionMatrix();
+}
+
+
     removeProjection () {
-        let material = this.sceneMgr.cometMaterial;
         if (CometView.map) {
-            /*
-            CometView.map.dispose();
-            CometView.map = null;
-            */
-            material.texture = CometView.blankTexture;
-            material.texture.isTextureProjected = false;
-            material.needsUpdate = true;
+            const handle = CometView.projectorHandle;
+            handle.disable();   // blend -> 0 (no projection)
+            handle.setTexture(null);
         }
       }
 
-      LoadImageForOverlay(overlayCanvas) {
+    LoadImageForOverlay(overlayCanvas) {
         let view = this;
         this.imageFresh = false;
         function onOverlayImageLoaded(texture) {
@@ -266,15 +241,6 @@ export class CometView {
         this.loadImage(onOverlayImageLoaded);        // now we do it on demand
     }
 
-    /*
-    removeImageForOverlay() {
-        if (CometView.map) {
-            CometView.map.dispose();
-            CometView.map = null;
-        }
-    }
-    */
-
     removeSelf(){
         this.removeViewport();
     }
@@ -282,6 +248,11 @@ export class CometView {
     saveExtentInfo(bbox, normDepth) {
         this.bbox = bbox;
         this.normDepth = normDepth;
+    }
+
+    static installCometInfo (handle, radius) {    // called when loading model
+        CometView.projectorHandle = handle;
+        CometView.radiusUB = radius;
     }
 }
 
