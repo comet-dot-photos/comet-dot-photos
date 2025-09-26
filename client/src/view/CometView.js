@@ -162,9 +162,12 @@ export class CometView {
 
             let oldMap = CometView.map;
             CometView.map = texture;
-            const cam = new THREE.PerspectiveCamera();
+            view._projCam ||= new THREE.PerspectiveCamera();  // only allocate the first time
+            const cam = view._projCam;
             view.applyToCamera(cam, null, CometView.aspect); // clone the current camera, but set viewing properties for image
-            view.fitProjectorNearFar(cam);
+            const padding = .1;   // .1 km should be sufficient padding
+            cam.near = view.minDistAlongNormal - padding;
+            cam.far = view.minDistAlongNormal + (2 * CometView.radiusUB) + padding
             view.applyProjection(cam, texture);
             view.imageFresh = true;
 
@@ -200,19 +203,7 @@ export class CometView {
         tex.colorSpace = THREE.SRGBColorSpace; // keeps brightness faithful
         handle.setTexture(tex, renderer);
         handle.enable(); // setBlend(1)
-
-        // debug
-//        handle.setDebugMode('z');
-//        handle.refreshDepth(renderer, scene, cam, { bias: 0.01});
     }
-
-    fitProjectorNearFar(cam) {
-        const padding = .1;   // .1 km should be sufficient padding
-        cam.near = this.minDistAlongNormal - padding;
-        cam.far = this.minDistAlongNormal + (2 * CometView.radiusUB) + padding
-        cam.updateProjectionMatrix();
-}
-
 
     removeProjection () {
         if (CometView.map) {

@@ -232,6 +232,7 @@ export class CometPhotosApp {
 
       // Merge all photoDatas into one big sorted array
       const metadata = mergeK(Object.values(this.dsDict).map(d => d.photoData), {key: "ti"});
+      console.log(`result of mergeK is an array of length ${metadata.length}`);
 
       const dsString = this.state.datasets.join(' + ');
       document.title = `Comet.Photos: ${dsString} (${metadata.length}) images`;

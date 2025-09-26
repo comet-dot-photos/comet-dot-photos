@@ -1,9 +1,9 @@
 // ProjectedImages.js
 // Texture projector wrapper for three.js
-// - Post-compose in output (sRGB) space for viewer-matched brightness
 // - Stable on tiny triangles (projector clip computed in vertex shader)
-// - Analytic 1px AA at projector edges + optional LOD bias (WebGL2 textureGrad)
 // - Optional static depth mask (RGBADepthPacking) to prevent "bleed-through"
+// - Runtime-toggleable debug modes ('z'|'mask'|'uv'|'center'|null)
+// - WebGL2 sRGB sampling handled correctly; minimal overhead in hot path
 
 import * as THREE from 'three';
 
@@ -66,8 +66,12 @@ class ProjectionHandle {
 
       // depth mask
       uUseDepth:  { value: 0.0 },      // 0/1
-      uDepthBias: { value: 0.001 },    // 0.0005..0.003
-      uDepthTex:  { value: null }      // RGBADepthPacking
+      uDepthBias: { value: 0.001 },    // base bias
+      uDepthTex:  { value: null },     // RGBADepthPacking
+
+      // adaptive bias (optional; safe defaults)
+      uDepthBiasK:   { value: 2.0 },
+      uDepthBiasMax: { value: 0.02 },
     };
 
     this._attached = true;
@@ -119,16 +123,24 @@ class ProjectionHandle {
   disableDepthMask() {
     this.uniforms.uUseDepth.value = 0.0;
   }
+  setDepthBias(base = 0.001) { this.uniforms.uDepthBias.value = base; }
+  setAdaptiveDepthBias(k = 2.0, maxBias = 0.02) {
+    this.uniforms.uDepthBiasK.value = k;
+    this.uniforms.uDepthBiasMax.value = maxBias;
+  }
+  enableDepthMaskAdaptive(base = 0.001, k = 2.0, maxBias = 0.02) {
+    this.setDepthBias(base);
+    this.setAdaptiveDepthBias(k, maxBias);
+    this.enableDepthMask(base);
+  }
 
-  // ---------- NEW: runtime debug toggles ----------
+  // ---------- Runtime debug toggles ----------
   setDebugMode(mode /* 'mask'|'uv'|'center'|'z'|null */) {
     this.material.userData ??= {};
     this.material.userData._projectorDebugMode = mode || null;
     this.material.needsUpdate = true; // triggers define switch
   }
-  getDebugMode() {
-    return this.material.userData?._projectorDebugMode || null;
-  }
+  getDebugMode() { return this.material.userData?._projectorDebugMode || null; }
   setDebugTint(on /* boolean */) {
     this.material.userData ??= {};
     this.material.userData._projectorDebugTint = !!on;
@@ -191,8 +203,11 @@ export function wrapMaterialWithProjector(
   material.userData._projectorDebugMode = opts.debugMode ?? null;   // 'mask'|'uv'|'center'|'z'|null
   material.userData._projectorDebugTint = !!opts.debugTint;
 
+  // Enable derivatives extension only on WebGL1 (WebGL2 has it built-in)
   material.extensions ??= {};
-  material.extensions.derivatives = true; // for AA + textureGrad derivatives
+  if (!isWebGL2) {
+    material.extensions.derivatives = true; // needed for fwidth() on WebGL1
+  }
 
   const handle = new ProjectionHandle(
     material, projectorCamera, texture, initialBlend, material.onBeforeCompile
@@ -229,7 +244,7 @@ export function wrapMaterialWithProjector(
       if (dbgMode === 'center') shader.defines.PROJECTOR_DEBUG_CENTER = 1;
       if (dbgMode === 'mask')   shader.defines.PROJECTOR_DEBUG_MASK   = 1;
       if (dbgMode === 'uv')     shader.defines.PROJECTOR_DEBUG_UV     = 1;
-      if (dbgMode === 'z')      shader.defines.PROJECTOR_DEBUG_Z      = 1; // runtime mode
+      if (dbgMode === 'z')      shader.defines.PROJECTOR_DEBUG_Z      = 1;
     }
     if (isWebGL2) shader.defines.PI_USE_TEXGRAD = 1;
 
@@ -241,7 +256,6 @@ export function wrapMaterialWithProjector(
       'void main() {',
       `
       uniform mat4 uProjectorPV;
-      varying highp vec3 vWorldPos;
       varying highp vec4 vProjClip;
       void main() {
       `
@@ -251,16 +265,14 @@ export function wrapMaterialWithProjector(
         '#include <project_vertex>',
         `
         #include <project_vertex>
-        vWorldPos = (modelMatrix * vec4( transformed, 1.0 )).xyz;
-        vProjClip = uProjectorPV * vec4( vWorldPos, 1.0 );
+        vProjClip = uProjectorPV * vec4( (modelMatrix * vec4( transformed, 1.0 )).xyz, 1.0 );
         `
       );
     } else if (vsrc.includes('gl_Position')) {
       vsrc = vsrc.replace(
         /gl_Position\s*=\s*[^;]+;/,
         m => `
-          vWorldPos = (modelMatrix * vec4( position, 1.0 )).xyz;
-          vProjClip = uProjectorPV * vec4( vWorldPos, 1.0 );
+          vProjClip = uProjectorPV * vec4( (modelMatrix * vec4( position, 1.0 )).xyz, 1.0 );
           ${m}
         `
       );
@@ -285,8 +297,9 @@ export function wrapMaterialWithProjector(
       uniform float uUseDepth;
       uniform float uDepthBias;
       uniform sampler2D uDepthTex; // RGBADepthPacking
+      uniform float uDepthBiasK;
+      uniform float uDepthBiasMax;
 
-      varying highp vec3 vWorldPos;
       varying highp vec4 vProjClip;
 
       float inUnit(float x){ return step(0.0,x)*step(x,1.0); }
@@ -352,13 +365,22 @@ export function wrapMaterialWithProjector(
 
           if (uUseDepth > 0.5) {
             float sceneDepth = PI_unpackRGBADepth( texture2D(uDepthTex, puv) );
-            pass = step(z01 - uDepthBias, sceneDepth); // 1 if projected in front of scene
+
+            // Adaptive bias for ridges/silhouettes
+            #ifdef GL_OES_standard_derivatives
+              float slope = fwidth(z01);
+            #else
+              float slope = 0.0;
+            #endif
+            float biasLocal = uDepthBias + uDepthBiasK * slope;
+            biasLocal = min(biasLocal, uDepthBiasMax);
+
+            pass = step(z01 - biasLocal, sceneDepth); // 1 if projected in front of scene
             inside *= pass;
           }
         }
 
         #if defined(PROJECTOR_DEBUG_MASK)
-          // visualize coverage *and* depth: bright where both pass
           return vec4(vec3(inside), 1.0);
         #elif defined(PROJECTOR_DEBUG_UV)
           return vec4(clamp(vec3(puv, 0.0), 0.0, 1.0), 1.0);
@@ -369,21 +391,20 @@ export function wrapMaterialWithProjector(
           baseColor.rgb = mix(baseColor.rgb, centerRGB, tC);
           return baseColor;
         #elif defined(PROJECTOR_DEBUG_Z)
-          // Grayscale = projected z in [0..1]. If depth mask is active, tint red where it FAILS.
+          // Grayscale = projected z in [0..1]; tint red where depth-mask fails
           vec3 gray = vec3(clamp(z01, 0.0, 1.0));
           #ifdef GL_OES_standard_derivatives
-            // soften edges a bit for readability
             float e = max(fwidth(z01), 1e-5);
             gray = mix(vec3(0.0), vec3(1.0), smoothstep(0.0 - e, 1.0 + e, z01));
           #endif
           vec3 col = gray;
           if (uUseDepth > 0.5) {
-            // Recompute "pass" exactly as above for clarity
-            float zndc2 = valid ? (pclip.z / pw) : 0.0;
-            float z012  = 0.5 * (zndc2 + 1.0);
             float sceneDepth2 = PI_unpackRGBADepth( texture2D(uDepthTex, puv) );
-            float pass2 = step(z012 - uDepthBias, sceneDepth2);
-            // Fail (behind scene) -> overlay red
+            float biasLocal2 = uDepthBias; // show base behavior here
+            #ifdef GL_OES_standard_derivatives
+              biasLocal2 = min(uDepthBias + uDepthBiasK * fwidth(z01), uDepthBiasMax);
+            #endif
+            float pass2 = step(z01 - biasLocal2, sceneDepth2);
             col = mix(vec3(1.0, 0.0, 0.0), col, pass2);
           }
           return vec4(col, 1.0);
@@ -456,8 +477,7 @@ export function makeProjectorDepthRT(renderer, w, h) {
     depthPacking: THREE.RGBADepthPacking
   });
   depthMat.blending = THREE.NoBlending;
-  depthMat.side = THREE.FrontSide; // explicit: we want nearest front faces
-  //depthMat.side = THREE.DoubleSide; // robust: write depth for either winding
+  depthMat.side = THREE.FrontSide; // avoid backface overwrites
   return {
     target: rt,
     texture: rt.texture,
@@ -493,7 +513,7 @@ export function setupStaticProjectorDepthMask(renderer, scene, projectorCam, pro
   const {
     width = 1024,
     height = Math.max(1, Math.round(width / Math.max(1e-6, projectorCam.aspect))),
-    bias = 0.001,
+    bias = 0.005, // tighter, typical default
     log = false
   } = opts;
 

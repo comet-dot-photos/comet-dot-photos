@@ -7,7 +7,7 @@
 export function mergeK(arrs, opts = {}) {
   const k = arrs.length;
   if (k === 0) return [];
-  if (k === 1) return arrs;
+  if (k === 1) return arrs[0];
   
   const { key, cmp } = opts;
   const idx  = new Array(k).fill(0);       // per-array pointer
