@@ -542,15 +542,19 @@ also supported.
 Requests from the client are indicated by light grey dashed arrows and
 these requests always precede the server's responses which appear as
 dark solid arrows. In response to client requests, the server sends (1)
-the initial HTML page, (2) the JavaScript program, (3) the 3D shape
-model of 67P, (4) the image metadata which contains information such as
-spacecraft location and camera direction for each image, (5) visibility
-responses, providing indices of images that contain the painted region
-of interest (ROI), and (6) a requested image of the comet in JPG form.
+the initial HTML page and the JavaScript program, and (2) the dataset catalog
+which describes the dataset files to be loaded. The client then loads
+these datasets, including (3) the 3D shape model of 67P, and 
+(4) the image metadata which contains information such as
+spacecraft location and camera direction for each image. As the user paints
+the comet, a query is sent to the server on every mouseup (5), and the server
+returns the indices of images that contain the painted region
+of interest (ROI). Prior to displaying each image, (6) the client requests and receives from the server
+the image of the comet in JPG form.
 Steps 1-4 only happen at start-up. Step 5 is repeated whenever the
 region of interest is updated. Step 6 is repeated whenever the user
 requests to see a new image from the data set. In this diagram, there
-are n images and m vertices in the comet's shape model.</em>
+are k datasets, each dataset has its own n images (a number that varies per dataset), and m vertices in the comet's shape model.</em>
 </div>
 <br>
 
