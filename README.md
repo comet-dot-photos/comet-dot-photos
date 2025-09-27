@@ -535,7 +535,7 @@ also supported.
 
 <a id="fig8"></a>
 <div align="center">
-  <img src="docs/article/Client-Server-Diagram.svg" alt="Comet.photo's client-server model.">
+  <img src="docs/article/Client-Server-Diagram-v3.svg" alt="Comet.photo's client-server model.">
 </div>
 <div>
   <em>Figure 8. The flow of information in Comet.photo's client-server model.
