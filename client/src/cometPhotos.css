@@ -201,11 +201,7 @@ canvas {
   background-color: rgb(41, 201, 255);
   border-color: rgb(41, 201, 255);
 
-  background-image: url("data:image/svg+xml;utf8,\
-    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'>\
-      <polyline points='1.5 6 4.5 9 10.5 1' \
-        fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>\
-    </svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'><polyline points='1.5 6 4.5 9 10.5 1' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 80% 80%;
@@ -307,4 +303,49 @@ input[type="range"]::-moz-range-thumb {
     position: absolute;
     z-index: 2;
     pointer-events: none; /* overlay doesn’t block mouse input */
+}
+
+/* =========================================
+   iPad / iPhone: font + iOS-only behavior
+   (no sizing or layout overrides)
+   ========================================= */
+@media (pointer: coarse), (max-width: 1024px) {
+
+  /* iOS: guard against accidental sideways scroll */
+  html, body { overflow-x: hidden; }
+
+  /* Buttons use the lil-gui font by default (incl. multiselect trigger) */
+  .lil-gui .controller button { 
+    font: inherit !important; 
+  }
+
+  /* Exception: mixed-button rows keep system UI look for contrast */
+  .lil-gui .gui-row.row-mixed-buttons .controller button {
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial,
+                 "Apple Color Emoji", "Segoe UI Emoji" !important;
+  }
+
+  /* Make skip arrows large/readable on mobile (font only) */
+  .lil-gui .gui-row.row-mixed-buttons .controller.has-button.large-font-button button {
+    font-size: 20px !important;
+    line-height: 1.2;
+  }
+
+  /* Text / number inputs & selects match the panel font + size */
+  .lil-gui input[type="text"],
+  .lil-gui input[type="number"],
+  .lil-gui .controller input[type="text"],
+  .lil-gui .controller input[type="number"],
+  .lil-gui select {
+    font: inherit !important;
+    font-size: inherit !important;
+  }
+
+  .lil-gui .controller.number input {
+    font: inherit !important;
+    font-size: inherit !important;
+  }
+
+  /* iOS: prevent Safari auto text-size inflation on focus */
+  html { -webkit-text-size-adjust: 100%; }
 }

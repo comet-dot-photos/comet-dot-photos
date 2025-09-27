@@ -7,7 +7,6 @@ export class CometView {
     static aspect;                  // set via setContstants
     static defaultRes;              // set via setContstants
     static urlPrefix = "";          // set via setContstants
-    static MAX_COMET_WIDTH = 4.0;   // Comet does not extend beyond this distance from origin
     static EXTRA_CLIP_FAR = 400;      // this will mostly avoid clipping if we zoom out w/ trackball control, since far is not updated
     static map;     // We choose to make the map a class var because we keep the last view's map until the new one's loaded
     static lastRequestedImg;  // name of the last requested image, so previous requests don't get displayed!
@@ -104,13 +103,18 @@ export class CometView {
         }
     }
 
-    applyToCamera(camera, orbControls, aspect = 0) {
+    applyToCamera(camera, orbControls, aspect = 0, projCam = false) {
         camera.fov = CometView.yFOV;
-        if (aspect == 0) aspect = window.innerWidth / window.innerHeight;
-        camera.aspect = aspect;
-        camera.near = .1;
-        const scToComet = this.sc_position.clone().length();
-        camera.far = scToComet + CometView.MAX_COMET_WIDTH + CometView.EXTRA_CLIP_FAR; // EXTRA_CLIP_FAR allows us to zoom out 
+        aspect = (aspect != 0) ? aspect : window.innerWidth / window.innerHeight; 
+        if (projCam) {            // need a tight near/far pair for proj depth buffer
+            const padding = .1;   // .1 km should be sufficient padding
+            camera.near = this.minDistAlongNormal - padding;
+            camera.far = this.minDistAlongNormal + (2 * CometView.radiusUB) + padding
+        } else {
+            camera.near = .1;
+            // EXTRA_CLIP_FAR allows us to zoom out 
+            camera.far = this.minDistAlongNormal + (2* CometView.radiusUB) + CometView.EXTRA_CLIP_FAR;
+        }
         camera.position.set(this.sc_position.x, this.sc_position.y, this.sc_position.z);
         camera.up.set(this.up.x, this.up.y, this.up.z);
         camera.lookAt(this.planeCenter.x, this.planeCenter.y, this.planeCenter.z);
@@ -164,10 +168,7 @@ export class CometView {
             CometView.map = texture;
             view._projCam ||= new THREE.PerspectiveCamera();  // only allocate the first time
             const cam = view._projCam;
-            view.applyToCamera(cam, null, CometView.aspect); // clone the current camera, but set viewing properties for image
-            const padding = .1;   // .1 km should be sufficient padding
-            cam.near = view.minDistAlongNormal - padding;
-            cam.far = view.minDistAlongNormal + (2 * CometView.radiusUB) + padding
+            view.applyToCamera(cam, null, CometView.aspect, true); // clone the current camera, but set viewing properties for image
             view.applyProjection(cam, texture);
             view.imageFresh = true;
 
