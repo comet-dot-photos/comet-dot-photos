@@ -25,7 +25,7 @@ export class CometView {
         CometView.xFOV = photoDict.dataset.xFOV;
         CometView.yFOV = photoDict.dataset.yFOV;
         CometView.defaultRes = photoDict.dataset.defaultRes;
-        CometView.urlPrefix = photoDict.dataset.dataFolder;
+        CometView.urlPrefix = photoDict.dataset.dataFolder + photoDict.dataset.imgFolder;
         // cache away aspect - use half-angles
         const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
         const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;
@@ -45,7 +45,7 @@ export class CometView {
         this.computeViewRect();
  
         const YYYYMM = photoDict.nm.match(/(\d{6})\d{2}T/)?.[1] || "unknown"; // extract YYYYMM from filename
-        this.jpgPath = CometView.urlPrefix + 'J80/' + YYYYMM + '/' + photoDict.nm + '.jpg'
+        this.jpgPath = CometView.urlPrefix + YYYYMM + '/' + photoDict.nm + '.jpg'
  
         this.fileName = photoDict.nm;
         this.time = photoDict.ti;
