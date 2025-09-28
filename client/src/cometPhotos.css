@@ -290,6 +290,11 @@ input[type="range"]::-moz-range-thumb {
   pointer-events: none;
 }
 
+/* Restore bottom breathing room without affecting folder spacing */
+.lil-gui > .children {
+  padding-bottom: 4px; /* or 8px if you want to match the default */
+}
+
 
 /* ========================================================================
    Canvas layering
