@@ -522,11 +522,12 @@ handles web file requests as well visibility operations. When Comet.Photos is ru
 
 [Figure 8](#fig8) shows the interactions between the client and server. Upon
 browsing to the server, the client receives a
-small HTML file ([Figure 8, #1](#fig8)), that, when loaded in the browser,
-requests and runs the JavaScript program ([Figure 8, #2](#fig8)). This in turn
-requests the 3D shape model of 67P ([Figure 8, #3](#fig8)) and the image metadata
-file in JSON format ([Figure 8, #4](#fig8)), which are sent in parallel from the
-server. Then the client displays the 3D shape model using the Three.js
+small HTML file and a Javascript application ([Figure 8, #1](#fig8)). The application's
+first step is to load the dataset catalog from the server ([Figure 8, #2](#fig8)).
+This catalog specifies the names of the 3D shape model and 
+image metadata files (one for each dataset) in JSON format. Having these names,
+the client requests them in parallel from the server ([Figure 8, #3](#fig8) and [Figure 8, #4](#fig8)).
+Then the client displays the 3D shape model using the Three.js
 JavaScript library for 3D rendering (Cabello, 2023). Using a virtual
 trackball control, the 3D shape model can be rotated about its center
 with the left mouse button, and the camera can be moved nearer or
@@ -640,17 +641,13 @@ of the image in the complete data set, and if a region of interest has
 been painted, the average meters per pixel, emission, incidence, and
 phase angles for that region. When the **Show Image** control is set to
 display an image, the client requests a JPG file for the current image
-from the server ([Figure 8, #6](#fig8)). When **Show Image** is set to either
-*Perspective* or *Orthographic*, we texture map the image onto the 3D
+from the server ([Figure 8, #6](#fig8)). With **Show Image** set to
+*Unmapped 2D* the original images is displayed in two-dimensions on an
+overlay canvas.
+However, when **Show Image** is set to
+*Projected 3D*, we texture map the image onto the 3D
 shape model at the appropriate location (using the camera information
-stored in the image metadata to do so). With **Show Image** set to
-*Perspective*, we use the three-projected-material package for
-Three.js (Fugaro, 2023), which supports texture mapping via perspective
-projections. With **Show Image** set to *Orthographic* we use the
-Three.js decal construct for displaying the texture map. They have
-different advantages but are subject to certain imaging artifacts that
-can be avoided with **Show Image** set to *Unmapped 2D*, which displays
-the image on an overlay canvas above the Three.js canvas. To help draw
+stored in the image metadata to do so). To help draw
 the user's eye to the region of interest, if **Encircle Region** is checked,
 Comet.Photos will draw a circle around the region of interest, projected
 onto the overlay canvas. The center of the circle is the previously
