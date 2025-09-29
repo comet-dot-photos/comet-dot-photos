@@ -60,8 +60,6 @@ shortcoming, we have built `Comet.Photos`, an interactive tool that enables high
 
 `Comet.Photos` enables fast, intuitive spatial searches of the over 44,000 images with the highest level of surface detail taken by the Rosetta spacecraft’s OSIRIS Narrow Angle Camera and Wide Angle Camera [@keller2007], as well as the Rosetta NAVCAM (CITE!). Users select a region of interest on a 3D model of the comet [@preusker2017] by painting with a virtual brush (Figure 1a). The application then seemingly instantly (~ 50 ms) returns a time-ordered list of all images containing that region. Images can be filtered by resolution and viewing geometry (emission, incidence, and phase angles), and displayed in either their original 2D form (Figure 1b) or projected onto the 3D surface (Figure 1c).
 
-![Figure 1. (a) The user paints a region of interest on the 3D comet shape model; (b) One of the resulting images is displayed in its original 2D form; (c) The same image is projected onto the 3D model.](Fig1.png)
-
 Designed for professional researchers and the public alike, `Comet.Photos` can be installed locally for fastest performance, but is also accessible in any modern browser without requiring installation. It combines preprocessed data with real-time client-side filtering to enable sub-second search performance, even on large datasets.
 
 # Statement of need
@@ -95,5 +93,7 @@ The `Comet.Photos` GitHub repository [@kurlander2025github] includes the source 
 
 This research was supported by the NASA Discovery Data Analysis Program (grant 80NSSC22K1399 supported D.A.K., J.M.S., and J.K.S., and grant 80NSSC24K0060 supported A.S.J. and S.P.D.B.). We gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made this software possible as he helped us navigate Rosetta’s dataset. A 2023 MIT Open Data Prize for an earlier version
 of this work also provided recognition and encouragement to continue developing IRIS `Comet.Photos`[@fay2023opendata]. Lastly, we thank all of the early users of the program for feedback that led to improvements.
+
+![(a) The user paints a region of interest on the 3D comet shape model; (b) One of the resulting images is displayed in its original 2D form; (c) The same image is projected onto the 3D model.](Fig1.png){ height=0.9\textheight }
 
 # References
