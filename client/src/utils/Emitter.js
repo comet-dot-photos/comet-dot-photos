@@ -38,6 +38,7 @@ export class Emitter {
         const ret = fn(...args);
         if (isAsync && isThenable(ret)) await ret;
       } catch (e) {
+        if (e instanceof CancelledError) continue;  // expected from serialize({mode:'latest'})
         console.warn(`[bus.emit] listener error for "${event}":`, e);
         firstError ??= e;
       }
@@ -77,6 +78,7 @@ async emitAsync(event, ...args) {
     console.log(`[bus.emitAsync] -> L${i} START ${event}`);
     const ret = fn(...args);
     if (!isThenable(ret)) {
+      if (e instanceof CancelledError) continue;  // expected from serialize({mode:'latest'})
       console.warn(`[bus.emitAsync] WARN: L${i} for "${event}" did not return a promise`);
     }
     await Promise.resolve(ret); // normalize sync/async
