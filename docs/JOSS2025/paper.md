@@ -94,6 +94,11 @@ The `Comet.Photos` GitHub repository [@kurlander2025github] includes the source 
 This research was supported by the NASA Discovery Data Analysis Program (grant 80NSSC22K1399 supported D.A.K., J.M.S., and J.K.S., and grant 80NSSC24K0060 supported A.S.J. and S.P.D.B.). We gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made this software possible as he helped us navigate Rosetta’s dataset. A 2023 MIT Open Data Prize for an earlier version
 of this work also provided recognition and encouragement to continue developing IRIS `Comet.Photos`[@fay2023opendata]. Lastly, we thank all of the early users of the program for feedback that led to improvements.
 
-![(a) The user paints a region of interest on the 3D comet shape model; (b) One of the resulting images is displayed in its original 2D form; (c) The same image is projected onto the 3D model.](Fig1.png){ width=0.05\linewidth }
+![The user paints a region of interest on the 3D comet shape model.](Fig1a.png)
+
+![One of the resulting images is displayed in its original 2D form.](Fig1b.png)
+
+![The same image is projected onto the 3D model.](Fig1c.png)
+
 
 # References
