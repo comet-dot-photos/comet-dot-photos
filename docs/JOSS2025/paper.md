@@ -12,9 +12,11 @@ authors:
 #    equal-contrib: true
     affiliation: 1
   - name: Jason M. Soderblom
+    orcid: 0000-0003-3715-6407
 #    equal-contrib: true
     affiliation: 1
   - name: Abhinav S. Jindal
+    orcid: 0000-0002-1158-3446
 #   equal-contrib: true
     affiliation: 2
   - name: David J. Kurlander
@@ -26,6 +28,7 @@ authors:
     orcid: 0000-0002-1717-2226
     affiliation: 4
   - name: Samuel P. D. Birch
+    orcid: 0000-0002-4578-1694
 #    equal-contrib: true
     affiliation: 2
 
