@@ -77,7 +77,7 @@ Efforts have been made to mitigate these challenges — for example, ESA has int
 Although designed for scientists, `Comet.Photos` is also a very user-friendly way for astronomy instructors, students, or anyone interested in the solar system to explore Rosetta's extraordinary images of 67P. In making the tool freely available, rapid, and simple-to-use, we aim to open up Rosetta’s rich dataset to the broader scientific community,
 bringing in new scientists with fresh perspectives and innovative ideas that will more fully realize Rosetta’s scientific promise and capitalize on the unique insights it provided.Scientists expecting to make frequent use of `Comet.Photos` will want to install it locally, as then all functions, including search and image display, seem instantaneous. People casually interested in the program can access it on the web, requiring absolutely no software installation, simply by visiting [https://comet.photos](https://comet.photos).
 
-# Additional information
+# Notes on the implementation
 
 `Comet.Photos` achieves its speed through extensive
 preprocessing of image metadata. During this preprocessing, for each image, we simulate the spacecraft camera and its relative location to the comet's 3D shape model to detemine which of the model's vertices would have been visible. These vertices are saved in a table, and at runtime fast bit-wise operations allow us to quickly determine the percentage of the region of interest (painted vertices) that would have been visible. Additional image metadata pre-computed for each image, such as the Sun's and spacecraft's position, and resolution allows us to quickly filter through images according to photometric and surface relationships with minimal computation.
