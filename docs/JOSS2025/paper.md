@@ -96,7 +96,7 @@ of this work also provided recognition and encouragement to continue developing 
 
 ![The user paints a region of interest on the 3D comet shape model. Almost immediately, the application finds 2,602 matches over the 44,520 images in the dataset.](Fig1a.PNG)
 
-![To find only those images with a high level of surface detail, the meters per pixel is set to a maximum 1. This results in 318 matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
+![To find only those images with a high level of surface detail, the user sets the meters per pixel slider to a maximum 1. This results in 318 matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
 
 ![The image from Figure 3 is projected onto the 3D model.](Fig1c.PNG)
 
