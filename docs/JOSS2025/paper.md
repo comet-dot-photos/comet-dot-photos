@@ -94,7 +94,7 @@ The `Comet.Photos` GitHub repository [@kurlander2025github] includes the source 
 This research was supported by the NASA Discovery Data Analysis Program (grant 80NSSC22K1399 supported D.A.K., J.M.S., and J.K.S., and grant 80NSSC24K0060 supported A.S.J. and S.P.D.B.). We gratefully acknowledge Jean-Baptiste Vincent, discussions with whom made this software possible as he helped us navigate Rosetta’s dataset. A 2023 MIT Open Data Prize for an earlier version
 of this work also provided recognition and encouragement to continue developing `Comet.Photos` [@fay2023opendata]. Lastly, we thank all of the early users of the program for feedback that led to improvements.
 
-![The user paints a region of interest on the 3D comet shape model. Almost immediately, the application finds 2,602 matches over the 44,520 images in the dataset.](Fig1a.PNG)
+![The user paints a region of interest on the 3D comet shape model. Almost immediately, the application finds 2,602 matches over the 44,520 images in the dataset.](Fig1a.PNG) 
 
 ![To find only those images with a high level of surface detail, the user sets the meters per pixel slider to a maximum 1. This results in 318 matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
 
