@@ -58,7 +58,7 @@ bibliography: paper.bib
 The European Space Agency’s Rosetta mission to Comet 67P/Churyumov-Gerasimenko (hereafter, 67P) provided an unparalleled dataset that has fully reshaped our understanding of comets. Despite these significant strides, the complexity and volume of Rosetta’s data, coupled with the lack of efficient tools for comprehensive analyses, have hindered its broader utilization. To address this
 shortcoming, we have built `Comet.Photos`, an interactive tool that enables highly efficient searching, visualizing, and handling of images of irregular bodies.
 
-`Comet.Photos` enables fast, intuitive spatial searches of the over 44,000 images with the highest level of surface detail taken by the Rosetta spacecraft’s OSIRIS Narrow Angle Camera and Wide Angle Camera [@keller2007], as well as the Rosetta NAVCAM [@geiger2021]. Users select a region of interest on a 3D model of the comet [@preusker2017shape] by painting with a virtual brush (Figure 1). The application then instantly (< 50 ms in this example) returns a time-ordered list of all images containing that region. Images can be filtered by resolution and viewing geometry (emission, incidence, and phase angles), and displayed in either their original 2D form (Figure 2) or projected onto the 3D surface (Figure 3).
+`Comet.Photos` enables fast, intuitive spatial searches of the over 44,000 images with the highest level of surface detail taken by the Rosetta spacecraft’s OSIRIS Narrow Angle Camera and Wide Angle Camera [@keller2007], as well as the Rosetta NAVCAM [@geiger2021]. Users select a region of interest on a 3D model of the comet [@preusker2017shape] by painting with a virtual brush (Figure 1). The application then instantly (< 50 ms in this example) returns a time-ordered list of all images containing that region. Images can be filtered by resolution and viewing geometry (emission, incidence, and phase angles), and displayed in either their original 2D form (Figure 2) or projected onto the 3D model (Figure 3).
 
 Designed for professional researchers and the public alike, `Comet.Photos` can be installed locally for fastest performance, but is also accessible in any modern browser without requiring installation. It combines preprocessed data with real-time client-side filtering to enable subsecond search performance, even on large datasets.
 
@@ -98,7 +98,7 @@ of this work also provided recognition and encouragement to continue developing 
 
 ![To find only those images with a high level of surface detail, the user sets the meters per pixel slider to a maximum 1. This results in 318 matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
 
-![The image from Figure 2 is projected onto the 3D model.](Fig1c.PNG)
+![To see the image from Figure 2 in context, the user projects this image onto the 3D model.](Fig1c.PNG)
 
 
 # References
