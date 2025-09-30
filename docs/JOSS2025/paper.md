@@ -98,7 +98,7 @@ of this work also provided recognition and encouragement to continue developing 
 
 ![To find only those images with a high level of surface detail, the user sets the meters per pixel slider to a maximum 1. This results in 318 matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
 
-![To see the image from Figure 2 in context, the user projects it onto the 3D model.](Fig1c.PNG)
+![To examine the image from Figure 2 in context, the user projects it onto the 3D model.](Fig1c.PNG)
 
 
 # References
