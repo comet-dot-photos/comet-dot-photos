@@ -1,6 +1,6 @@
 # Comet.Photos
 
-Comet.Photos allows for fast spatial search of images from the Rosetta comet mission, specifically images from Osiris' Narrow Angle Camera, which captured the most detailed images of Comet 67P. Users of Comet.Photos can paint a region of interest on a 3D model of the comet, optionally specifying various lighting / geometry parameters. In a fraction of a second, all matching images are found and made available for browsing, either projected onto the comet 3D shape model, or in their original 2D form.
+Comet.Photos allows for fast spatial search of images from the Rosetta comet mission, including images from Osiris' Narrow Angle Camera, Wide Angle Camera, and the NavCam. Users of Comet.Photos can paint a region of interest on a 3D model of the comet, optionally specifying various lighting / geometry parameters. In a fraction of a second, all matching images are found and made available for browsing, either projected onto the comet 3D shape model, or in their original 2D form.
 
 There are two different usage options for Comet.Photos. People who expect to make frequent use of the software for their research are encouraged to install the program locally on their computer for best performance, with seemingly instantaneous feedback. However, people casually interested in trying out Comet.Photos can access the latest version at https://comet.photos to take it out for a spin without installing any software. 
 
@@ -85,10 +85,11 @@ When the program is installed correctly, invoking the appropriate **RUN_ME** spe
 
 The European Space Agency's (ESA) Rosetta mission to Comet
 67P/Churyumov-Gerasimenko (hereafter, 67P) provided the most
-comprehensive dataset for a comet to date. The OSIRIS Narrow Angle
-Camera (NAC) returned an immense corpus of the most detailed
+comprehensive dataset for a comet to date. The OSIRIS (Keller et al., 2007)
+Narrow Angle Camera (NAC), Wide Angle Camera (WAC), and Navigation Camera (NavCam)
+returned an immense corpus of detailed
 high-resolution images, providing unprecedented spatial and temporal
-coverage of a cometary surface (Keller et al., 2007). This extensive
+coverage of a cometary surface. This extensive
 dataset enables a diverse range of analyses for regions of interest on
 the comet. Multiple images of the same area can be leveraged for
 photometric studies (Oklay et al., 2015; Fornasier et al., 2023), used
@@ -145,9 +146,13 @@ the public interested in exploring the surface of comet 67P.
 
 ## User Manual
 
-Using Comet.Photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 4 easy steps.
+Using Comet.Photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 5 easy steps.
 
-### Step 1: Finding the Region of Interest
+### Step 1: Selecting the Datasets
+
+Comet.Photos can search for images taken by any of the three conventional cameras onboard Rosetta. By default, searches include the Narrow Angle Camera (NAC), Wide Angle Camera (WAC), and Navigation Camera (NAVCAM). Using the **Choose Datasets** menu in the control panel on the right, users can restrict the search to one or more datasets.
+
+### Step 2: Finding the Region of Interest
 [Figure 1](#fig1) shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
 
 <a id="fig1"></a>
@@ -169,7 +174,7 @@ supports interactively choosing a new center of rotation, and the 3D
 model can be translated parallel to the screen by using
 shift-right-click, or a three fingered panning gesture on touch devices.
 
-### Step 2: Painting the Region of Interest
+### Step 3: Painting the Region of Interest
 
 For a typical research project, the first step is to specify a region of
 interest on the shape model for the image search. This is done by
@@ -189,7 +194,7 @@ least the given percentage (from 1% to 100%) of the painted region to be
 considered a match. The **Clear Paint** button erases all the paint,
 allowing the region selection to begin anew.  After every paint stroke, the **Matches** text field updates to show how many of the images match the filter. To exit paint mode, deselect the **Enable Paint** checkbox. At any time, you can go back to paint mode to adjust the region of interest.
 
-### Step 3: Setting Other Image Filters
+### Step 4: Setting Other Image Filters
 
 Painting on the shape model automatically filters the images by spatial
 location, but the **Image Filters** pane (see [Figure 1](#fig1)) allows filtering on additional
@@ -213,14 +218,13 @@ typically interested in these values within the selected region of
 interest. So for these calculations, we use the average surface position
 and surface normal over this region of interest.
 
-### Step 4: Navigating through the Images
+### Step 5: Navigating through the Images
 
 The next pane of the interface controls **Image Display and Navigation**
 (see [Figure 1](#fig1)). Initially, the **Show Image** selector is set to *None*.
 However, at any time it can be changed to *Unmapped 2D* to display the
 current image as originally taken, or projected onto the comet by
-setting the selector to *Perspective* (for a perspective projection) or
-*Orthographic* (for an orthographic projection). Given the shifting
+setting the selector to *Projected 3D*. Given the shifting
 camera and comet positions, it can be difficult to visually locate the
 region of interest even in an image that is known to contain it. To
 address this, we added the **Encircle Region** checkbox, which places a
@@ -242,7 +246,7 @@ that matches the filters, and the **Previous Image** button displays the
 previous match. Since images taken close together in time often appear
 similar, we provide an option to skip forward or backward in time. The
 **Skip Duration** control specifies how much time should be skipped
-(day, month, or year), and the **Skip Forward** and **Skip Backward**
+(day, month, or year), and the **⇨** and **⇦**
 buttons advance or revert to the next match at least the specified
 duration from the current match.
 
