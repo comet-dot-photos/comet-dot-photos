@@ -146,23 +146,24 @@ the public interested in exploring the surface of comet 67P.
 
 ## User Manual
 
-Using Comet.Photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 5 easy steps.
+<a id="fig1"></a>
+<div align="center">
+  <img src="docs/article/Fig1.png" alt="Comet.Photos Initial Window">
+</div>
+<div>
+  <em>Figure 1. Comet.Photos user-interface. On the left side is a 3D shape model of 67P that can be rotated and scaled with a mouse or touch, and on the right is a panel of controls that help set up an image search.</em>
+</div>
+<br>
+
+[Figure 1](#fig1) shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right.
+
+Upon starting up Comet.Photos, the window in [Figure 1](#fig1) appears, showing a 3D comet model and the control panel. Using Comet.Photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 5 easy steps.
 
 ### Step 1: Selecting the Datasets
 
 Comet.Photos can search for images taken by any of the three conventional cameras onboard Rosetta. By default, searches include the Narrow Angle Camera (NAC), Wide Angle Camera (WAC), and Navigation Camera (NAVCAM). Using the **Choose Datasets** menu in the control panel on the right, users can restrict the search to one or more datasets.
 
 ### Step 2: Finding the Region of Interest
-[Figure 1](#fig1) shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right. 
-
-<a id="fig1"></a>
-<div align="center">
-  <img src="docs/article/Fig1.PNG" alt="Comet.Photos Initial Window">
-</div>
-<div>
-  <em>Figure 1. Comet.Photos user-interface. On the left side is a 3D shape model of 67P that can be rotated and scaled with a mouse or touch, and on the right is a panel of controls that help set up an image search.</em>
-</div>
-<br>
 
 The shape
 model can be rotated or scaled about a point in its interior. Moving the
@@ -277,7 +278,7 @@ checkbox, adjust the brush size, and paint the three boulders.
 
 <a id="fig2"></a>
 <div align="center">
-  <img src="docs/article/Fig2.PNG" alt="Comet.Photos After Paint">
+  <img src="docs/article/Fig2.png" alt="Comet.Photos After Paint">
 </div>
 <div>
   <em>Figure 2. Painting an area of interest. With the <b>Enable Paint</b> checkbox set, we paint a region of the comet in which three large boulders are visible in the shape model.</em>
@@ -303,7 +304,7 @@ model ([Figure 3b](#fig3)).
 
 <a id="fig3"></a>
 <div align="center">
-  <img src="docs/article/Comet-Projection-2-High.png" alt="Two image projections onto Comet 67P">
+  <img src="docs/article/Fig3.png" alt="Two image projections onto Comet 67P">
 </div>
 <div>
   <em>Figure 3. Two different images projected onto the shape model, showing the region of interest circled in red. Looking at the <b>Time</b> field, we see these were taken in (a) late August and (b) early September of 2014.</em>
@@ -324,7 +325,7 @@ image presents the best view.
 
 <a id="fig4"></a>
 <div align="center">
-  <img src="docs/article/Comet-from-SpaceCraft-2-High.png" alt="Views of the region of interest from Rosetta.">
+  <img src="docs/article/Fig4.png" alt="Views of the region of interest from Rosetta.">
 </div>
 <div>
   <em>Figure 4. Views of the region of interest from Rosetta. (a) An image projected onto the 3D shape model. (b) The original 2D image.</em>
@@ -344,7 +345,7 @@ has an incidence of 78° at the region of interest.
 
 <a id="fig5"></a>
 <div align="center">
-  <img src="docs/article/Comet-Incidence-High.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
+  <img src="docs/article/Fig5v2.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
 </div>
 <div>
   <em>Figure 5. Two images of the region of interest with high angle of incidence, and hence heavily shadowed. (a) Image with an incidence angle of 83&deg, partially shadowed by a nearby ridge; (b) Image with incidence angle of 78&deg.</em>
@@ -361,7 +362,7 @@ are other boulders of similar sizes nearby. We advance to the next image, wich i
 
 <a id="fig6"></a>
 <div align="center">
-  <img src="docs/article/Comet-Emission-High.png" alt="Two close-up images of the boulders in profile.">
+  <img src="docs/article/Fig6.png" alt="Two close-up images of the boulders in profile.">
 </div>
 <div>
   <em>Figure 6. Two close-up images of the boulders in profile. (a) Image with a sample resolution of 0.16 meters<sup>2</sup>/pixel and emission angle of 78&deg; (b) Image with a sample resolution
@@ -392,7 +393,7 @@ craters are actually part of a large cluster of similar features ([Figure 7b](#f
 
 <a id="fig7"></a>
 <div align="center">
-  <img src="docs/article/Crater-High-Option-2.png" alt="Specifying a new search by iterative refinement.">
+  <img src="docs/article/Fig7.png" alt="Specifying a new search by iterative refinement.">
 </div>
 <div>
   <em>Figure 7. Specifying a new search by iterative refinement. (a) A boulder image from an earlier search (Figure 4a) with a crater detail painted as the new area of interest; (b) A close-up image match revealing additional craters.</em>
