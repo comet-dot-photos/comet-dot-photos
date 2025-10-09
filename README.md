@@ -119,7 +119,7 @@ critical gap, providing a powerful solution for spatially targeted image
 searches and facilitating detailed studies of cometary surface
 evolution (Kurlander, 2025). Users can define a region of interest by interactively
 selecting the desired region on a 3D model of 67P. In a fraction of a
-second, the application searches through over 27,000 NAC images to find
+second, the application searches through over 44,000 NAC, WAC, and NavCam images to find
 only those that feature the selected region. In addition to this spatial
 search filter, Comet.Photos also allows users to filter images based on
 their resolution and viewing geometry. To search only images with a fine
@@ -463,7 +463,7 @@ The second data file is the *image metadata*, which is an array of
 dictionaries, with one dictionary for each image in the data set
 containing information related to that image. The image metadata is
 computed in a preprocessing step and includes information from three
-sources. Data extracted from the original OSIRIS NAC .IMG file headers and filenames
+sources. Data extracted from the original NAC, WAC, and NavCam .IMG file headers and filenames
 include the image resolution, the time the image was taken, and the name
 of the image. Metadata computed from the SPICE (Acton, 1996) kernels
 associated with the Rosetta mission (ESA, 2022) include the
@@ -471,7 +471,7 @@ position of the spacecraft at the time of the image, the camera viewing
 vector and "up" vector, and the position of the Sun. Finally, a third
 type of metadata is computed by doing visibility calculations on the 3D
 shape model using the spacecraft position and camera vectors calculated
-in the previous step for every NAC image. For the portion of the comet
+in the previous step for every NAC, WAC, and NavCam image. For the portion of the comet
 that we calculate to be visible to the spacecraft at the time the image
 was taken, we store the axis-aligned bounding as well as the minimum and
 maximum distances along the camera vector. All positions and vectors are
