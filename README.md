@@ -64,7 +64,7 @@ Go into the top level folder (Comet.Photos), and type: **npm install** which wil
 4. Download and install the dataset into the /data subdirectory.
 
 The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [comet-photos-data-v3.tar.gz](https://comet.photos/comet-photos-data-v3.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is a little over 12.3 GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
-**tar -xf NAC-data.tar.gz**
+**tar -xf comet-photos-data-v3.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed. You can delete the original tar file, and can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
 
 ### Starting Comet.Photos
