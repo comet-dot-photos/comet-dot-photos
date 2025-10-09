@@ -155,9 +155,7 @@ the public interested in exploring the surface of comet 67P.
 </div>
 <br>
 
-[Figure 1](#fig1) shows the window upon starting up Comet.Photos. A 3D shape model of 67P appears on the left, and a control panel appears on the right.
-
-Upon starting up Comet.Photos, the window in [Figure 1](#fig1) appears, showing a 3D comet model and the control panel. Using Comet.Photos, you can manipulate a 3D model of Comet 67P, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 5 easy steps.
+Upon starting up Comet.Photos, the window in [Figure 1](#fig1) appears, with a 3D shape model of 67P on the left, and a control panel on the right. Using Comet.Photos, you can manipulate the 3D comet model, paint a region of interest, and quickly retrieve all images taken of that region. You can further filter down the image set by specifying other image parameters, and at any time you can navigate through all of the matching images, and display them in either two dimensions or texture-mapped onto the 3D comet model. This is done in 5 easy steps.
 
 ### Step 1: Selecting the Datasets
 
