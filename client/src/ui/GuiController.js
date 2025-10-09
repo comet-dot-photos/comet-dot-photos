@@ -6,7 +6,6 @@
 //   the details related to the actual widgets used, and events emitted, hidden from 
 //   this object.
 
-//import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import GUI from 'lil-gui';
 import { buildGuiFromSchema } from './buildGuiFromSchema.js';
 import { cometPhotosSchema } from './schema.cometPhotos.js'
@@ -49,15 +48,8 @@ export class GuiController {
         this.debugDisplayed ? this.folders['debugOptions']?.hide() : this.folders['debugOptions']?.show();
         this.debugDisplayed = !this.debugDisplayed;
     });
-    this.bus.on('preprocessMode', () => { // /*disable all but preprocess button and*/ show debug menu
-      /*
-      Object.entries(ctrls).forEach(([key, val]) => {
-          console.log(`Iterating on ${key}`);
-          (key == 'preprocess' ? val.enable() : val.disable())} );
-      */
+    this.bus.on('preprocessMode', () => { // open up the debug menu since that will be needed
       this.bus.emit('toggleDebugMenu');
     })
   }
-
-  on(topic, handler){ this.bus.on(topic, handler); }
 }
