@@ -630,7 +630,7 @@ The results are ordered ascendingly by the time each image was taken, a
 decision made to assist scientists studying how the comet's landscapes
 change through time. The interface shows a single image match at a time,
 referred to as the current match, and other matches can be viewed by using the **Image Index** slider, as
-well as the **Next**/**Previous** and Interval **⇨**/**⇦** buttons. These buttons therefore allow the user to navigate
+well as the **Next Image**/**Previous Image** and skip interval **⇨**/**⇦** buttons. These controls therefore allow the user to navigate
 forward and backwards in time through the matches to watch how the
 surface evolves. This has proven to be an exceptionally powerful
 capability, as it rapidly allows for determination of any surface
