@@ -40,8 +40,6 @@ const DEFAULT_UI_STATE = {
   status: '',
   logLevel: LL_REGRESSION,
   flatShading: true,       // debug menu option
-  xFOV: '2',               // debug menu option - will be overridden by dataset
-  yFOV: '2',
 };
 
 
@@ -169,8 +167,6 @@ export class CometPhotosApp {
         'runLogTimed':     () => this.testHarness.runLog(true),
         'paintVisible':    () => this.preprocessor.computeVisibleVertices(),
         'preprocess':      () => this.preprocessor.beginPreprocessing(),
-        'xFOV':         v => this.imageBrowser.setxFOV(v),
-        'yFOV':         v => this.imageBrowser.setyFOV(v),
 
         // For testing
         'setCam':          v => this.testHarness.setCameraState(v),

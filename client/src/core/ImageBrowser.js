@@ -279,28 +279,4 @@ export class ImageBrowser {
         this.lastSI = val;
     }
 
-    // Helper functions for calibration - accessible from the debug menu
-    setxFOV(val) {
-        val = (typeof val === 'string' ? parseFloat(val) : val);
-        if (!isNaN(val) && val > 0 && val < 180) {
-            this.state['xFOV'] = val;
-            this.setFOV();
-        }
-    }
-
-    setyFOV(val) {
-        val = (typeof val === 'string' ? parseFloat(val) : val);
-        if (!isNaN(val) && val > 0 && val < 180) {
-            this.state['yFOV'] = val;
-            this.setFOV();
-        }
-    }
-
-    setFOV() {
-        this.unloadComet();
-        CometView.setConstants(this.state.xFOV, this.state.yFOV, CometView.defaultRes, CometView.urlPrefix);
-        this.sceneMgr.initializeCameraForDataset({yFOV: this.state.yFOV});
-        this.loadCometByIndex(this.currentIndex); // reload current image
-     }
-
 }

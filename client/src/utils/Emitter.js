@@ -31,24 +31,27 @@ export class Emitter {
     const shouldCheckAfter = this._logEnabled && this._checkAfterSet?.has(event);
     const isAsync = this._asyncEvents.has(event);
     const isThenable = (x) => x && typeof x.then === 'function';
-    let firstError = null;
+    let firstError = null, sawCancel = false, sawSuccess = false;
 
     for (const fn of listeners) {
       try {
         const ret = fn(...args);
         if (isAsync && isThenable(ret)) await ret;
+        sawSuccess = true;
       } catch (e) {
-        if (e instanceof CancelledError) continue;  // expected from serialize({mode:'latest'})
+        if (e instanceof CancelledError) { sawCancel = true; continue; }  // expected from serialize({mode:'latest'})
         console.warn(`[bus.emit] listener error for "${event}":`, e);
         firstError ??= e;
       }
     }
-    const wasCancelled = isAsync && firstError instanceof CancelledError;
-    // Skip logging if this async event was canceled by the serializer
-    if (shouldLog && !wasCancelled)
+    // Consider the event "effectively canceled" if it was async, at least one listener canceled,
+    // and none completed successfully.
+    const effectivelyCancelled = isAsync && sawCancel && !sawSuccess;
+    // Skip logging/checks if the async event was effectively canceled
+    if (shouldLog && !effectivelyCancelled)
       this._log.push({ event, args, timestamp: performance.now() });
 
-    if (shouldCheckAfter && !wasCancelled) 
+    if (shouldCheckAfter && !effectivelyCancelled) 
       this.emit('logCheck');   // record a checkResult
 
     if (firstError) throw firstError;
