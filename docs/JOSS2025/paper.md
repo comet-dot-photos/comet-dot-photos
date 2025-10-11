@@ -11,14 +11,14 @@ authors:
     orcid: 0009-0009-6828-3266
 #    equal-contrib: true
     affiliation: 1
-  - name: Jason M. Soderblom
-    orcid: 0000-0003-3715-6407
-#    equal-contrib: true
-    affiliation: 1
   - name: Abhinav S. Jindal
     orcid: 0000-0002-1158-3446
 #   equal-contrib: true
     affiliation: 2
+  - name: Jason M. Soderblom
+    orcid: 0000-0003-3715-6407
+#    equal-contrib: true
+    affiliation: 1
   - name: David J. Kurlander
     orcid: 0009-0008-9551-7243
 #    equal-contrib: true
