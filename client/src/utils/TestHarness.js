@@ -260,7 +260,11 @@ export class TestHarness {
             this.statusMessage(`Executing: ${entry.event}.`);
             // Trigger the event, but wait for it to return
             await this.bus.emitAsync(entry.event, ...(entry.args ?? []));
+
+            // Let the UI Update (not strictly necessary, but prettier)
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         }
+
         this.statusMessage('Log executed successfully.');
     }
 }
