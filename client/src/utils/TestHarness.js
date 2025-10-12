@@ -242,10 +242,9 @@ export class TestHarness {
         if (!Array.isArray(log) || log.length === 0) return;
 
         // Establish timing baselines only if we're honoring recorded timings
-        let t0Log = 0, t0Play = 0;
+        let t0Log = 0, t0Play = performance.now();
         if (timed) {
             t0Log = log[0].timestamp ?? 0;   // recorded start (entries guaranteed sorted)
-            t0Play = performance.now();     // playback start
         }
 
         console.log(`Loading a log with ${log.length} entries`);
@@ -258,14 +257,17 @@ export class TestHarness {
 
             console.log(`Replaying log event: ${entry.event} with args:`, entry.args);
             this.statusMessage(`Executing: ${entry.event}.`);
+            const t_pre = performance.now();
             // Trigger the event, but wait for it to return
             await this.bus.emitAsync(entry.event, ...(entry.args ?? []));
+            console.log(`Event took ${(performance.now()-t_pre)} ms.`);
 
             // Let the UI Update (not strictly necessary, but prettier)
             if (framed)
                 await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         }
 
+        console.log(`Log / regression playback took ${(performance.now()-t0Play) / 1000} seconds.`);
         this.statusMessage('Log executed successfully.');
     }
 }
