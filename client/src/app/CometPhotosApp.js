@@ -163,8 +163,9 @@ export class CometPhotosApp {
         'logLevel':        v => this.testHarness.setLogLevel(v),
         'startLog':        () => this.testHarness.startLog(),
         'endLog':          () => this.testHarness.saveLog(),
-        'runLogFast':      () => this.testHarness.runLog(false),
-        'runLogTimed':     () => this.testHarness.runLog(true),
+        'runLogFastest':   () => this.testHarness.runLog(false, false),
+        'runLogFast':      () => this.testHarness.runLog(false, true),
+        'runLogTimed':     () => this.testHarness.runLog(true, false),
         'paintVisible':    () => this.preprocessor.computeVisibleVertices(),
         'preprocess':      () => this.preprocessor.beginPreprocessing(),
 

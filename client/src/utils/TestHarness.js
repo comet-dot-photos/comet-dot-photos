@@ -211,7 +211,7 @@ export class TestHarness {
         }
   } 
 
-    async runLog(timed) {
+    async runLog(timed, framed) {
         const logName = prompt("Name of log or test:", this.lastLogUsed); // default will be set to previous save
         const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
         const log = await req('clientRequestsLogLoad', {logName});
@@ -222,7 +222,7 @@ export class TestHarness {
         this.statusMessage('Running the log...')
         this.lastLogUsed = logName;
         try {
-            await this.executeLogEvents(log, timed);
+            await this.executeLogEvents(log, timed, framed);
             if (log.some(obj => obj.event === "checkResult")) 
                 alert('Regression Test Succeeded.');
         } catch (err) {
@@ -238,7 +238,7 @@ export class TestHarness {
         return new Promise(res => setTimeout(res, delay));
     }
 
-    async executeLogEvents(log, timed = false) {
+    async executeLogEvents(log, timed = false, framed = true) {
         if (!Array.isArray(log) || log.length === 0) return;
 
         // Establish timing baselines only if we're honoring recorded timings
@@ -262,7 +262,8 @@ export class TestHarness {
             await this.bus.emitAsync(entry.event, ...(entry.args ?? []));
 
             // Let the UI Update (not strictly necessary, but prettier)
-            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+            if (framed)
+                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         }
 
         this.statusMessage('Log executed successfully.');

@@ -103,6 +103,10 @@ export class CometView {
         }
     }
 
+    static cancelImageLoads() {   // cancels pending image loads, which happen asynchronously with app ui
+        CometView.lastRequestedImg = "";
+    }
+
     applyToCamera(camera, orbControls, aspect = 0, projCam = false) {
         camera.fov = CometView.yFOV;
         aspect = (aspect != 0) ? aspect : window.innerWidth / window.innerHeight; 

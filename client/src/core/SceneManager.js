@@ -275,7 +275,7 @@ export class SceneManager {
             // only can paint in certain showImage modes - as though user immediately changes showImage mode
             this.bus.emit('setVal', {key: 'showImage', val: SI_NONE, silent: false}); 
         }
-        this.adjustShading();
+        this.adjustPaintMode();
     }
 
     adjustBrushSize(size) {
@@ -343,12 +343,10 @@ export class SceneManager {
 		}
 	}
 
-    adjustShading () {
+    adjustPaintMode () {
 		if (this.state['enablePaint'] || this.state['showImage'] == SI_NONE) {
-//			this.setFlatShading(true);
 			this.showPaint(true);
 		} else {
-//			this.setFlatShading(false);
 			this.showPaint(false);
 		}
 	}

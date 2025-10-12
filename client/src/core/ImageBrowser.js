@@ -82,7 +82,7 @@ export class ImageBrowser {
         const cometView = this.getCometView();
         if (cometView) {
             if (this.state.showImage == SI_PERSPECTIVE) cometView.removeProjection(this.cometMaterial);
-            CometView.lastRequestedImg = "";		// stop pending image requests from loading
+            CometView.cancelImageLoads();		// stop pending image requests from loading
             // Note: for SI_UNMAPPED, image will be automatically erased by the no matches overlay
             cometView.removeSelf();
             this.cometView = null;
@@ -269,11 +269,12 @@ export class ImageBrowser {
 
         if (val != SI_NONE) { // disable paint when entering any image display
             if (this.state['enablePaint']) {
-                this.bus.emit('setVal', {key: 'enablePaint', val: false, silent: false}); // note this calls adjustShading
+                this.bus.emit('setVal', {key: 'enablePaint', val: false, silent: false}); // note this calls adjustPaintMode
             }
         }
-        else {
-            this.sceneMgr.adjustShading();
+        else { // val == SI_NONE
+            CometView.cancelImageLoads();       // in case any are pending
+            this.sceneMgr.adjustPaintMode();
         }
         this.overlayNeedsUpdate();
         this.lastSI = val;
