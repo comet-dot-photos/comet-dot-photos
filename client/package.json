@@ -20,6 +20,6 @@
   "license": "MIT",
   "author": "D. Kurlander",
   "devDependencies": {
-    "vite": "^4.5.14"
+    "vite": "^7.1.9"
   }
 }
