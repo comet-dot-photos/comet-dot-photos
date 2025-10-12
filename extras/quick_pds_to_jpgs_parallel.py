@@ -28,7 +28,7 @@ todir   = os.path.abspath(sys.argv[3])
 NEEDED_EXT = ".LBL" if CAMERA == "NAVCAM" else ".IMG"
 
 # External tools we invoke (must be in PATH)
-PDS2PNG = "quick_pds_to_png.py"        # your LE PDS->PNG converter
+PDS2PNG = "quick_pds_to_png.py"        #  PDS->PNG converter
 CONVERT = os.environ.get("IM_CONVERT", "convert")  # ImageMagick 'convert' (or set IM_CONVERT)
 
 # Optional env overrides
@@ -68,7 +68,7 @@ def process_one(task):
     png_tmp.close()
 
     try:
-        # 1) PDS -> PNG (your tool handles .LBL vs attached .IMG automatically)
+        # 1) PDS -> PNG (handles .LBL vs attached .IMG automatically)
         r = subprocess.run([PDS2PNG, src_file, png_file])
         if r.returncode != 0 or not os.path.exists(png_file):
             return (False, f"{PDS2PNG} failed: {src_file}")

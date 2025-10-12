@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import {
   wrapMaterialWithProjector,
   setupStaticProjectorDepthMask
-} from '../../client/src/utils/ProjectedImages.js';
+} from '../../../client/src/utils/ProjectedImages.js';
 
 // ---- renderer / scene / view camera ----
 const renderer = new THREE.WebGLRenderer({ antialias: true });

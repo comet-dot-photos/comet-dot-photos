@@ -10,7 +10,7 @@
 #
 # Notes:
 # - Except for NAC, we enforce TARGET_TYPE == COMET. (revisit this)
-# - Kernel loading follows your early/late split and keeps outputs identical.
+# - Kernel loading follows the early/late split and keeps outputs identical.
 
 import os, re, sys, json, datetime
 import spiceypy as spice
@@ -35,7 +35,7 @@ SCREENRES = 2048             # expected active frame (kept from original)
 # CROP_MAP  = {2304: 2048, 1152: 1024, 576: 512, 288: 256}  # overscan -> active
 OK_RES    = {2048, 1024, 512, 256}
 
-# ---- Kernel paths (match your environment) ----
+# ---- Kernel paths  ----
 IK_OSIRIS_V17 = '/home/djk/anaconda3/envs/asp/data/rosetta_updated/kernels/ik/ROS_OSIRIS_V17.TI'
 IAK_WAC       = '/home/djk/anaconda3/envs/asp/data/rosetta/kernels/iak/osi_wacAddendum_v004.ti'
 IAK_NAC       = '/home/djk/anaconda3/envs/asp/data/rosetta_updated/kernels/iak/osi_nacAddendum_v004.ti'
@@ -48,7 +48,7 @@ CK_LATE       = '/home/djk/anaconda3/envs/asp/data/rosetta_updated/kernels/ck/RO
 # Instrument IDs
 ID_NAC   = -226113
 ID_WAC   = -226112
-ID_NAV_A = -226170   # you said all NAVCAM are CAM1
+ID_NAV_A = -226170   # all NAVCAM are CAM1
 
 EARLY_LATE_SPLIT = 201606  # YYYYMM
 
@@ -170,7 +170,7 @@ def addCalculatedValues(view, camera='NAC'):
 def extractViewData(file):
     header = getHeaderString(file)
 
-    # WAC-only filter: TARGET_TYPE must be COMET
+    # WAC and NAVCAM only filter: TARGET_TYPE must be COMET
     if CAMERA != 'NAC':
         is_comet = re.search(r'(?im)^[ \t]*TARGET_TYPE\s*=\s*["\']?COMET["\']?\b', header) is not None
         if not is_comet:
@@ -194,7 +194,7 @@ def extractViewData(file):
     xres = int(findKey(r'\s*LINE_SAMPLES\s*=\s*(\d+)', subHeader, file))
     yres = int(findKey(r'\s*LINES\s*=\s*(\d+)', subHeader, file))
 
-    # Keep your square-frame requirement and warnings
+    # Keep square-frame requirement and warnings
     if xres != yres:
         print(f"NON-SQUARE RESOLUTION - OMITTING: {xres} x {yres} in {file}")
         return None
