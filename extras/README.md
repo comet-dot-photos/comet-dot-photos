@@ -30,7 +30,7 @@ Preprocessing is done separately for each dataset, and takes place in two phases
 
 ### Preprocessing Phase 2
 
-Additional visibility/spatial information is generated in phase 2 of preprocessing. This is done by using the imageMetadata_phase1.json file generated in Phase 1 as the input metadata file to the Comet.Photos server (cometserver.js), while the environmental variable "PREPROCESSING" is set to be true. The cometserver will open up a window, do visibility processing on all of the images, and create a new, complete imageMetadata_phase2.json file and visTableV2.0.bin.new in the server directory. Those two files are then renamed (imageMetaDataNAC.json and visTableNAC.bin) and moved to the data folder for comet.photos searches. 
+Additional visibility/spatial information is generated in phase 2 of preprocessing. This is done by using the imageMetadata_phase1.json file generated in Phase 1 as the input metadata file to the Comet.Photos server (cometserver.js), while the environmental variable "PREPROCESSING" is set to be true. A client window is opened in "Preprocessing mode", and the user needs to press the "Pre-process" button in the control panel. The cometserver and client together will do visibility processing on all of the images, and create a new, complete imageMetadata_phase2.json file and visTableV2.0.bin.new. Those two files are then renamed (imageMetaDataNAC.json and visTableNAC.bin) and moved to the data folder for comet.photos searches. 
 
 Since some jpg files will not be included (they may not contain the comet or the pixel scale might be too low-resolution), copy_only_used_jpgs.py creates a jpg tree with only the jpgs represented in the imageMetaData, removing extraneous images from the dataset.
 
