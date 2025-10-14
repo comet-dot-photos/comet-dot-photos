@@ -41,7 +41,7 @@ Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and 
 
 Run the following command in the terminal to extract the files from the package:
 **tar -xf comet-photos-v3.0.tar.gz**
-This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
+This may take up to ten minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
 
 Congratulations! You have now installed Comet.Photos. Advance to the [Starting Comet.Photos](#starting-cometphotos) section to learn how to start up the app.
 
