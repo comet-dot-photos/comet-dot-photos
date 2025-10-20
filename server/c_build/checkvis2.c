@@ -1,10 +1,30 @@
+/* checkVis2.c - low level C code for visibility checking, version 2.
+ *
+ * This file implements functions to load visibility buffers from files,
+ * and to check visibility against those buffers.
+ *
+ * This version supports multiple visibility tables, each identified by an integer ID.
+ * Each table can be loaded independently and checked independently.
+ *
+ * Functions:
+ *   int load_vbuff2(int table_id, const char *visFile, int rows, int bytesPerRow);
+ *       Load visibility buffer from file into specified table.
+ *       Returns 0 on success, nonzero on failure.
+ *
+ *   int check_nRows2(int table_id);
+ *       Return number of rows in specified table, or -1 if invalid table_id.
+ *
+ *   void check_vis2(int table_id, int mustMatch, uint8_t *filterArray, uint64_t *this_v);
+ *       Check visibility against specified table, modifying filterArray in place.
+ *
+ */
+
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "popcount.h"
-
-
 
 typedef struct {
     uint64_t *vbuff;

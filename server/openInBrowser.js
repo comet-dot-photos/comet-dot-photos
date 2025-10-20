@@ -1,3 +1,7 @@
+// openInBrowser.js -
+//   Function to open a given URL in Google Chrome if installed,
+//   otherwise falls back to the system default browser.
+
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');

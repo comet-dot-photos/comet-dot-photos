@@ -1,3 +1,6 @@
+// preprocessingHandlers.js -
+//   Socket.io event handlers for preprocessing mode.
+
 const fs = require('fs');
 const path = require('path');
 const { exit } = require('process');

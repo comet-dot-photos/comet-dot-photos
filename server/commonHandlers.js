@@ -1,3 +1,6 @@
+// commonHandlers.js -
+//   Common socket.io event handlers for both preprocessing and runtime modes.
+
 const fs = require('fs');
 const { exit } = require('process');
 
