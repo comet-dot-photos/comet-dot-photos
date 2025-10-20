@@ -1,3 +1,8 @@
+// cometserver.js -
+//    Main server code for Comet.Photos application.
+//    Sets up an express/httpolyglot web server, serves static files,
+//    and sets up socket.io event handlers for client-server communication.
+
 const express = require('express');
 const socketIO = require('socket.io');
 const httpolyglot = require('httpolyglot');

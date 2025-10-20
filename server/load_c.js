@@ -1,7 +1,7 @@
-// ===============================
-// server/native/loader.js
-// ===============================
-/* Koffi loader for platform-specific shared libs */
+// load_c.js -
+//   Load the platform-specific C shared library for visibility checking
+//   using the koffi module, and provide access to its functions.
+
 const koffi = require("koffi");
 const path2 = require("path");
 
