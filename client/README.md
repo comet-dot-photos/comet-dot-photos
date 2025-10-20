@@ -31,5 +31,3 @@ This folder has the source for the Comet.Photos client. It is broken up into app
 23. view/OverlayCanvas.js - implements the OverlayCanvas, which is used to show images in "Unmapped 2D" mode.
 24. public/cometIcon.png - a favIcon for Comet.Photos.
 25. public/quickstart.html - quickstart documentation for Comet.Photos.
-
-## Subdirectory 
