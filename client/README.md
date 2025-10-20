@@ -1,6 +1,6 @@
 # Comet.Photos client 
 
-As described elsewhere, Comet.Photos has a client-server architecture. The client folder contains code (mostly Javascript) that runs in the browser.
+As described elsewhere, Comet.Photos has a client-server architecture. The client folder contains code (mostly Javascript) that implements the client.
 
 ## Subdirectory src
 
