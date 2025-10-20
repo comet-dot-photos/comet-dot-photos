@@ -85,7 +85,7 @@ This research was supported by the NASA Discovery Data Analysis Program (grant 8
 
 ![In this example, the user paints a region of interest on the 3D comet shape model. Almost immediately, the application finds 2,602 images from the 44,520 images in the dataset that contain the painted region.](Fig1a.PNG) 
 
-![In this example, to find only those images with a high level of surface detail, the user sets the scale slider to a maximum of 1 meter per pixel. This results in 318 image matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
+![In this example, to find only those images with a high level of surface detail, the user sets the pixel scale slider to a maximum of 1 meter per pixel. This results in 318 image matches, one of which is displayed here in its original 2D form.](Fig1b.PNG)
 
 ![To examine the image from Figure 2 in context, the user projects it onto the 3D model.](Fig1c.PNG)
 
