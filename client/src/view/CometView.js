@@ -1,3 +1,7 @@
+// view/CometView.js
+//   CometView class - represents a single image's viewpoint and projection onto the comet
+//   NormalDepth class - tracks min/max depth along a normal vector for visibility calculations
+
 import * as THREE from 'three';
 import { renderProjectorDepth } from '../utils/ProjectedImages.js';
 

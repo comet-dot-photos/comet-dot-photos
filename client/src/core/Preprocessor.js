@@ -1,3 +1,8 @@
+// core/Preprocessor.js
+//    Preprocessor class: handles preprocessing operations such as computing
+//    visibility of comet vertices from each image, and communicating with
+//    the server during preprocessing mode.
+
 import * as THREE from 'three';
 import {NormalDepth} from "../view/CometView.js";
 

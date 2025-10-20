@@ -1,4 +1,5 @@
 // ui/schema.cometPhotos.js
+//  Schema description for building the Comet.Photos control panel.
 
 import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, LL_REGRESSION, LL_TERSE, LL_VERBOSE, SD_DAY, SD_MONTH, SD_YEAR} from '../core/constants.js';
 

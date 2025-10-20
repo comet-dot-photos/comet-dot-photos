@@ -1,4 +1,4 @@
-// serialize.js
+// serialize.js - utility to serialize async function calls
 export class CancelledError extends Error {
   constructor(message = "Call was cancelled before it started") {
     super(message);

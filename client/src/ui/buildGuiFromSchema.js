@@ -1,5 +1,6 @@
 // ui/buildGuiFromSchema.js
-// import GUI from 'three/examples/jsm/libs/lil-gui.module.min.js';
+//  builds a lil-gui interface from a schema description
+
 import GUI from 'lil-gui';
 import { makeDualSlider } from './makeDualSlider.js';
 import { makeMultiSelect } from './makeMultiSelect.js';

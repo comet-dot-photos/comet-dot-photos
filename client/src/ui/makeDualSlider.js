@@ -1,4 +1,5 @@
-// makeDualSlider.js
+// makeDualSlider.js -
+//  Creates a dual-handle slider control inside a lil-gui folder.
 // New API:
 // const ctrl = makeDualSlider(folder, {
 //   label: 'Meters per Pixel',

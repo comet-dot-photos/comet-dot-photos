@@ -1,8 +1,7 @@
 // filters/FilterEngine.js
-// Pure filter functions over photo records. No DOM, no three.js here.
+//   Implements the FilterEngine object, responsible for all filtering operations (spatial and photometric) for Comet.Photos.
 
 import * as THREE from 'three';
-import {CometView} from '../view/CometView.js';
 import {serialize} from '../utils/serialize.js';
 
 
@@ -14,27 +13,15 @@ const FAIL_BBOX = 8;
 const FAIL_INCIDENCE = 16;
 
 export class FilterEngine {
-  constructor({ bus, state, ROI, socket /*, dataset*/ } ) {
+  constructor({ bus, state, ROI, socket } ) {
     this.bus = bus;
     this.state = state;
     this.ROI = ROI;
-    //this.timer = timer;
     this.socket = socket;
-    
-    // this.initializeForDataset(dataset);
 
     this.applyGeoFilter = serialize(this.applyGeoFilter.bind(this), { mode: 'queue' });
     this.setPercentOverlap = serialize(this.setPercentOverlap.bind(this), { mode: 'latest' });
    }
-
-   /*
-    initializeForDataset(dataset) {
-        // used later for fast m2 calculations
-        this.defaultRes = dataset.defaultRes;   // cache this because it is used a lot in this module
-        const M2DIST = (.001*(this.defaultRes/2)) / Math.tan(Math.PI*(dataset.xFOV/2.0)/180.0);
-        this.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
-    }
-    */
 
     entryEmissionFilter(newVal) {
         this.state.emissionAngle = newVal;

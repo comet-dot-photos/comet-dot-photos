@@ -1,8 +1,9 @@
 // core/ROI.js
-// Responsible for keeping track of the Region of Interest (ROI)
+// Responsible for keeping track of the Region of Interest (ROI),
+//   extracting it from painted vertices, and putting it in a bit array that can be sent to the server.
 
 import * as THREE from 'three';   // Necessary in setFromPaint() 
-import {PAINT_RED, PAINT_GREEN, PAINT_BLUE} from '../core/constants.js';
+import {PAINT_RED} from '../core/constants.js';
 
 export class ROI {
     constructor() {

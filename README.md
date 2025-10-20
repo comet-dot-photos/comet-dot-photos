@@ -15,6 +15,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
   * [The Data Files](#the-data-files)
   * [An Architectural Walkthrough](#an-architectural-walkthrough)
   * [Software Engineering Notes](#software-engineering-notes)
+  * [Directory Structure] (#directory-structure)
 * [Performance](#performance)
 * [Acknowledgments](#acknowledgments)
 * [References](#references)
@@ -667,13 +668,17 @@ not break the system. The server is a small, modular node.js application with co
 browser when run locally, loading the platform-specific C library 
 for rapidly checking visibility tables, and distinct modules that separate preprocessing and run-time event handling.
 
+## Directory Structure
+
+The Comet.Photos project resides mainly in these directories: server, client, and data. Each of these has a README.md that points to the code or other important files. Since the data folder is large, it cannot be practically included in the github repository, but it can be installed via a tar file (see above). In addition, the extras directory has various utilities and tests that were useful along the way, but are not part of the runtime.
+
 
 ## Performance 
 
 When Comet.Photos is installed locally on a desktop or laptop computer,
 operations feel instantaneous. As measured on a Windows PC with an
 AMD Ryzen 7 3700X processor and an NVIDIA GeForce RTX 2080 GPU, 
-spatial searches across the entire image library (27,000+ images) run typically
+spatial searches across the entire image library (44,000+ images) run typically
 around 50 milliseconds, filters such as emission
 angle and incidence angle typically take around 4 milliseconds, and 
 painting or manipulating the comet model can be done at 100 frames per second. But the
@@ -689,6 +694,8 @@ the United States, limited to four cores
 of a Xeon CPU E5-2680 v4 running at 2.40GHz and 8GB of memory), searches typically
 complete in under a second during low load conditions, but browsing to a new image can take
 several seconds or longer due to internet transfer time. 
+
+To test the performance, run Comet.Photos in the Chrome browser, and open up the inspector. Messages are printed in the console showing the time taken to perform visibility operations and emission filters. To see more extensive performance stats, open up the debug menu (Ctrl-Shift-~), record a log, and play it back. The time taken for each operation is shown in the Chrome inspector's console.
 
 
 ## Acknowledgments

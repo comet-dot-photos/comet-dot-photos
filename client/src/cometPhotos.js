@@ -1,3 +1,8 @@
+// cometPhotos.js - main entry point for the Comet.Photos client application.
+//   	Processes URL parameters, connects to the server via socket.io to fetch
+//      the dataset catalog, and initializes the CometPhotosApp.
+
+
 import { CometPhotosApp } from './app/CometPhotosApp.js';
 import { io } from 'socket.io-client';
 

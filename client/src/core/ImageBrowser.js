@@ -1,3 +1,8 @@
+// core/ImageBrowser.js
+//    ImageBrowser class: manages the loading and display of search result sets,
+//       and handles navigation over result sets.
+
+
 import {CometView} from '../view/CometView.js';
 import {SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE} from './constants.js';
 

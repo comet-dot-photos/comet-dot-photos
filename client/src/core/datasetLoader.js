@@ -1,4 +1,6 @@
-// core/datasetLoader.js
+// core/datasetLoader.js -
+//    Functions to load comet model and metadata for a given dataset.
+
 import * as THREE from 'three';
 import { OBJLoader2 } from 'wwobjloader2';
 import { CometView } from '../view/CometView.js';
