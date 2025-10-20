@@ -15,7 +15,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
   * [The Data Files](#the-data-files)
   * [An Architectural Walkthrough](#an-architectural-walkthrough)
   * [Software Engineering Notes](#software-engineering-notes)
-  * [Directory Structure] (#directory-structure)
+  * [Directory Structure](#directory-structure)
 * [Performance](#performance)
 * [Acknowledgments](#acknowledgments)
 * [References](#references)
@@ -670,7 +670,7 @@ for rapidly checking visibility tables, and distinct modules that separate prepr
 
 ## Directory Structure
 
-The Comet.Photos project resides mainly in these directories: server, client, and data. Each of these has a README.md that points to the code or other important files. Since the data folder is large, it cannot be practically included in the github repository, but it can be installed via a tar file (see above). In addition, the extras directory has various utilities and tests that were useful along the way, but are not part of the runtime.
+The Comet.Photos project resides mainly in these directories: server, client, and data. Each of these has a README.md that points to the code or other important files. Since the data folder is large, it cannot be practically included in the github repository, but it can be installed via a tar file, see [Installation from GitHub](#option-2-installation-from-github-more-steps). In addition, the extras directory has various utilities and tests that were useful along the way, but are not part of the runtime.
 
 
 ## Performance 
