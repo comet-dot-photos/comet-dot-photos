@@ -26,6 +26,7 @@ const REDIRECT = !!process.env.REDIRECT;
 const LAUNCH_BROWSER = !!process.env.LAUNCHBROWSER;
 const PREPROCESSING = !!process.env.PREPROCESSING;
 const DATASETSFILE = process.env.DATASETSFILE || DEFAULTS.DATASETSFILE;
+const TEST = process.env.TEST || null;
 
 // Step 2 - Check for data directory
 const dataDir = path.resolve(__dirname, '../data');
@@ -98,7 +99,8 @@ server.listen(PORT, () => {
 
 // Step 5 - Open the browser if requested
 if (localServer) {
-    const url = PREPROCESSING ? `http://localhost:${PORT}?preprocess` : `http://localhost:${PORT}`;
+    const params = PREPROCESSING ? '?preprocess' : TEST ? `?test=${TEST}` : '';
+    const url = `http://localhost:${PORT}${params}`;
     openInBrowser(url);
     console.log(`Starting up browser. To open additional comet.photos windows, browse to ${url}`);
     console.log(`To exit the server, type Control-C.`)

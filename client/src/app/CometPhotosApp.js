@@ -53,6 +53,7 @@ export class CometPhotosApp {
     this.state['preprocessMode'] = defaults.preprocessMode;
     this.state['debugMode'] = defaults.debugMode;
     this.state['isLocal'] = defaults.isLocal;
+    this.state['runTest'] = defaults.runTest;
 
     this.gui = new GuiController({bus: this.bus, state: this.state,
       initial: { ...DEFAULT_UI_STATE },
@@ -174,7 +175,8 @@ export class CometPhotosApp {
         'setPainted':      v => this.testHarness.setPaintState(v),
         'setStateVars':    v => this.testHarness.setStateVars(v),
         'setAppState':     v => this.testHarness.setAppState(v),
-        'checkResult':     v => this.testHarness.checkResult(v)
+        'checkResult':     v => this.testHarness.checkResult(v),
+        'loadComplete':    () => this.testHarness.onLoadComplete(),
     };
 
     // wire up the handlers 
@@ -187,7 +189,7 @@ export class CometPhotosApp {
   // ---- Public API ----
 
   // nameArray is an array of dataset shortNames
-  loadDatasets(nameArray) {
+  async loadDatasets(nameArray) {
     this.state.datasets = nameArray;
     this.bus.emit('setVal', {key: 'datasets', val: this.state.datasets, silent: true});
 
@@ -200,32 +202,29 @@ export class CometPhotosApp {
     this.imageBrowser.resetForNewDataset();
 
     // Start model and metadata loads immediately / concurrently
-    loadCometModel(this.sceneMgr, this.ROI, this.dsArray[0]); // all loaded datasets must share the same comet model
+    const modelPromise = loadCometModel(this.sceneMgr, this.ROI, this.dsArray[0]);
 
-    // Load metadata for all selected datasets - but perhaps already loaded?
-    const allHavePhotoData = Object.values(this.dsDict).every(d => d.photoData);
-    if (allHavePhotoData) {  // already loaded?
-      this.installMetadata();
-      return;
-    }
+    const metaPromises = Object.values(this.dsDict)
+      .filter(d => !d.photoData) // skip if already loaded
+      .map(async (dataset) => {
+        const data = await loadMetadata(dataset);
+        data.forEach(e => (e.dataset = dataset)); // cache dataset ref in each photo entry
+        dataset.photoData = data;
+      });
 
-    // Still need to load at least one...
-    for (const dataset of Object.values(this.dsDict)) {
-      if (dataset.photoData) continue;  // don't load if already loaded!
-      const metaTask  = loadMetadata(dataset);
-      // Handle metadata as soon as it lands
-      metaTask.then((data) => {
-        data.forEach(d => d.dataset = dataset); // tag each entry with its dataset
-        dataset.photoData = data;     // cache it
-        this.installMetadata();       // installs if last to arrive
-      }).catch((e) => console.error('Metadata load error:', e));
-    }
+    // Phase 1: metadata ready ⇒ install once
+    await Promise.all(metaPromises);
+    this.installMetadata();
+
+    // Phase 2: everything ready ⇒ signal 'ready'
+    await modelPromise;
+    this.bus.emit('loadComplete');
   }
 
 
   installMetadata() {  // finalize metadata and share with only with the modules that need it
       const allHavePhotoData = Object.values(this.dsDict).every(d => d.photoData);
-      if (!allHavePhotoData) return; // wait for all to arrive
+      if (!allHavePhotoData) throw new Error('installMetadata called before all metadata loaded');
 
       // Merge all photoDatas into one big sorted array
       const metadata = mergeK(Object.values(this.dsDict).map(d => d.photoData), {key: "ti"});

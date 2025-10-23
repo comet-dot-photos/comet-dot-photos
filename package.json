@@ -7,7 +7,9 @@
     "server"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "start": "npm run -w server local",
+    "test" : "npm run -w server test"
   },
   "engines": {
     "node": ">=14"

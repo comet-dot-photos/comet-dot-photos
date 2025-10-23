@@ -19,24 +19,22 @@ var socket = io({
   });
 
 
-function processURL() {
+function processURL(preprocessMode) {
 	// Create a new URL object
 	const urlString = window.location.href;
 	const url = new URL(urlString);
 	const searchParams = url.searchParams;
-	const debugMode = searchParams.has('debug');
+	const debugMode = searchParams.has('debug') || preprocessMode; // debug mode if requested or in preprocess mode
 	const dsOnURL = searchParams.get('dataset'); // dataSet on url - null if not present
 	const host = window.location.hostname;
 	const isLocal = (host === "localhost" || host === "127.0.0.1" || host === "::1"); // close enough
-	return {debugMode, isLocal, dsOnURL};
+	const runTest = isLocal ? searchParams.get('test') : null; // test name - only if provided & local
+	return {debugMode, preprocessMode, isLocal, dsOnURL, runTest}
 }
 
 function init(dsArray, preprocessMode) {
-	let {debugMode, isLocal, dsOnURL } = processURL();
-	debugMode |= preprocessMode;  // always be verbose when preprocessing
-
-
-	window.app = new CometPhotosApp(dsArray, socket, { debugMode, preprocessMode, isLocal, dsOnURL });
+	const opts = processURL(preprocessMode);
+	window.app = new CometPhotosApp(dsArray, socket, opts);
 
 	// Let the server know on client shutdown, so it too can shut down if running locally
 	window.addEventListener('beforeunload', () => {  

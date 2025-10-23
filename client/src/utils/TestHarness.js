@@ -28,8 +28,8 @@ export class TestHarness {
     }
 
     initEmitterFilters() {
-        this.DONT_LOG_VERBOSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'setEnabled', 'setLimits', 'logCheck', 'logLevel']);
-        this.DONT_LOG_TERSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled',        'setLimits', 'logCheck', 'logLevel']);
+        this.DONT_LOG_VERBOSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'setEnabled', 'setLimits', 'logCheck', 'logLevel', 'loadComplete']);
+        this.DONT_LOG_TERSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled',        'setLimits', 'logCheck', 'logLevel', 'loadComplete']);
         this.CHECK_AFTER_SET = new Set(['percentOverlap', 'metersPerPixel', 'emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint', 'clearPaint']); // events that can change the result set
     }
 
@@ -209,10 +209,14 @@ export class TestHarness {
                 } else this.statusMessage('Failed to save log file.');
             });
         }
-  } 
+    } 
 
-    async runLog(timed, framed) {
-        const logName = prompt("Name of log or test:", this.lastLogUsed); // default will be set to previous save
+    // runLog - run a log of regression tests or user actions
+    // timed: honor recorded timings
+    // framed: yield to UI between events
+    // logName: name of log to load - if null, will prompt
+    async runLog(timed, framed, logName=null) {
+        logName ??= prompt("Name of log or test:", this.lastLogUsed);
         const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
         const log = await req('clientRequestsLogLoad', {logName});
         if (!log) {
@@ -222,9 +226,14 @@ export class TestHarness {
         this.statusMessage('Running the log...')
         this.lastLogUsed = logName;
         try {
+            const startTime = performance.now();
             await this.executeLogEvents(log, timed, framed);
-            if (log.some(obj => obj.event === "checkResult")) 
-                alert('Regression Test Succeeded.');
+            const seconds = ((performance.now() - startTime)/1000).toFixed(2);
+            let filterCount = 0;
+            for (const e of log)
+                if (e.event === "checkResult") filterCount++
+            if (filterCount > 0) 
+                alert(`Regression Test Succeeded.\n${filterCount} checks passed in ${seconds} seconds.`);
         } catch (err) {
             if (err.message.startsWith("checkResult:")) 
                 alert('Regression Test Failed.'); 
@@ -269,5 +278,12 @@ export class TestHarness {
 
         console.log(`Log / regression playback took ${(performance.now()-t0Play) / 1000} seconds.`);
         this.statusMessage('Log executed successfully.');
+    }
+
+    onLoadComplete() {
+        if (this.state.runTest) {
+            this.runLog(false, false, this.state.runTest);
+            this.state.runTest = null; // only once
+        }
     }
 }
