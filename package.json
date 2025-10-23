@@ -1,6 +1,6 @@
 {
   "name": "comet-dot-photos",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "workspaces": [
     "client",
@@ -12,7 +12,7 @@
     "test" : "npm run -w server test"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=22.12"
   },
   "license": "MIT",
   "author": "D. Kurlander"
