@@ -151,7 +151,7 @@ interested in exploring the surface of comet 67P.
 
 <a id="fig1"></a>
 <div align="center">
-  <img src="docs/article/Fig1.png" alt="Comet.Photos Initial Window">
+  <img src="docs/figs/Fig1.png" alt="Comet.Photos Initial Window">
 </div>
 <div>
   <em>Figure 1. Comet.Photos user-interface. On the left side is a 3D shape model of 67P that can be rotated and scaled with a mouse or touch, and on the right is a panel of controls that help set up an image search.</em>
@@ -279,7 +279,7 @@ checkbox, adjust the brush size, and paint the three boulders.
 
 <a id="fig2"></a>
 <div align="center">
-  <img src="docs/article/Fig2.png" alt="Comet.Photos After Paint">
+  <img src="docs/figs/Fig2.png" alt="Comet.Photos After Paint">
 </div>
 <div>
   <em>Figure 2. Painting an area of interest. With the <b>Enable Paint</b> checkbox set, we paint a region of the comet in which three large boulders are visible in the shape model.</em>
@@ -305,7 +305,7 @@ model. Each time, this increments **Image Index**. The match with an **Image Ind
 
 <a id="fig3"></a>
 <div align="center">
-  <img src="docs/article/Fig3.png" alt="Two image projections onto Comet 67P">
+  <img src="docs/figs/Fig3.png" alt="Two image projections onto Comet 67P">
 </div>
 <div>
   <em>Figure 3. Two different images projected onto the shape model, showing the region of interest circled in red. Looking at the <b>Time</b> field, we see these were taken in (a) late August and (b) early September of 2014.</em>
@@ -326,7 +326,7 @@ image presents the best view.
 
 <a id="fig4"></a>
 <div align="center">
-  <img src="docs/article/Fig4.png" alt="Views of the region of interest from Rosetta.">
+  <img src="docs/figs/Fig4.png" alt="Views of the region of interest from Rosetta.">
 </div>
 <div>
   <em>Figure 4. Views of the region of interest from the Rosetta camera's perspective (a) An image projected onto the 3D shape model. (b) The original 2D image. The two should appear similar, and in fact do.</em>
@@ -344,7 +344,7 @@ remains within our region of interest. We advance through the images, and examin
 
 <a id="fig5"></a>
 <div align="center">
-  <img src="docs/article/Fig5v2.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
+  <img src="docs/figs/Fig5v2.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
 </div>
 <div>
   <em>Figure 5. Two images of the region of interest with high angle of incidence, and hence heavily shadowed. (a) Image with an incidence angle of 83&deg, partially shadowed by a nearby ridge; (b) Image with incidence angle of 77&deg.</em>
@@ -361,7 +361,7 @@ are other boulders of similar sizes nearby. We advance to the next image, wich i
 
 <a id="fig6"></a>
 <div align="center">
-  <img src="docs/article/Fig6.png" alt="Two close-up images of the boulders in profile.">
+  <img src="docs/figs/Fig6.png" alt="Two close-up images of the boulders in profile.">
 </div>
 <div>
   <em>Figure 6. Two close-up images of the boulders in profile. (a) Image with a sample resolution of 0.16 meters/pixel and emission angle of 78&deg; (b) Image with a sample resolution
@@ -392,7 +392,7 @@ craters are actually part of a large cluster of similar features ([Figure 7b](#f
 
 <a id="fig7"></a>
 <div align="center">
-  <img src="docs/article/Fig7.png" alt="Specifying a new search by iterative refinement.">
+  <img src="docs/figs/Fig7.png" alt="Specifying a new search by iterative refinement.">
 </div>
 <div>
   <em>Figure 7. Specifying a new search by iterative refinement. (a) A boulder image from an earlier search (Figure 4a) with a crater detail painted as the new area of interest; (b) A close-up image match revealing additional craters.</em>
@@ -540,7 +540,7 @@ also supported.
 
 <a id="fig8"></a>
 <div align="center">
-  <img src="docs/article/Client-Server-Diagram-v3.svg" alt="Comet.photo's client-server model.">
+  <img src="docs/figs/Client-Server-Diagram-v3.svg" alt="Comet.photo's client-server model.">
 </div>
 <div>
   <em>Figure 8. The flow of information in Comet.photo's client-server model.
