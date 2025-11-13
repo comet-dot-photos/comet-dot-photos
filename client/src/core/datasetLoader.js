@@ -36,7 +36,8 @@ export async function loadCometModel(sceneMgr, ROI, dataset) {
   geom.setAttribute('color', colorAttr);
 
   // Hook up ROI paint buffer
-  ROI.allocatePaintBuffer(geom.attributes.position.count, colorArray);
+  // note in some rare cases, nVerts > geom.attributes.position.count, thanks to ObjLoader2 quirks or unused vertices in model or collapsed vertices.
+  ROI.allocatePaintBuffer(dataset.nVerts, colorArray); 
 
   // Material + mesh
   const mat = new THREE.MeshStandardMaterial({
