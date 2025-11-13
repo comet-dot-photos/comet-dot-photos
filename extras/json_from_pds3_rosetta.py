@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# json_from_imgs_directly4.py
+# json_from_pds3_rosetta.py
 # Phase-1 metadata builder:
 #   view = { 'nm', 'ti', 'rz', 'cv', 'up', 'su', 'sc' }
 # Cameras: NAC, WAC, NAVCAM
@@ -19,7 +19,7 @@ import numpy as np
 # ----------------------------- CLI -------------------------------------------
 
 if len(sys.argv) != 4 or sys.argv[1].upper() not in ("NAC", "WAC", "NAVCAM"):
-    print("Usage: json_from_imgs_directly3.py <WAC|NAC|NAVCAM> <imgDir> <jpgDir>")
+    print("Usage: json_from_pds3_rosetta.py <WAC|NAC|NAVCAM> <imgDir> <jpgDir>")
     sys.exit(1)
 
 CAMERA  = sys.argv[1].upper()
