@@ -17,6 +17,7 @@ There are two different usage options for Comet.Photos. People who expect to mak
   * [Software Engineering Notes](#software-engineering-notes)
   * [Directory Structure](#directory-structure)
 * [Performance](#performance)
+* [Adding a New Instrument or Solar System Body](#adding-a-new-instrument-or-solar-system-body)
 * [Acknowledgments](#acknowledgments)
 * [References](#references)
 * [How to Report Issues](#how-to-report-issues)
@@ -151,7 +152,7 @@ interested in exploring the surface of comet 67P.
 
 <a id="fig1"></a>
 <div align="center">
-  <img src="docs/figs/Fig1.png" alt="Comet.Photos Initial Window">
+  <img src="docs/article/Fig1.png" alt="Comet.Photos Initial Window">
 </div>
 <div>
   <em>Figure 1. Comet.Photos user-interface. On the left side is a 3D shape model of 67P that can be rotated and scaled with a mouse or touch, and on the right is a panel of controls that help set up an image search.</em>
@@ -279,7 +280,7 @@ checkbox, adjust the brush size, and paint the three boulders.
 
 <a id="fig2"></a>
 <div align="center">
-  <img src="docs/figs/Fig2.png" alt="Comet.Photos After Paint">
+  <img src="docs/article/Fig2.png" alt="Comet.Photos After Paint">
 </div>
 <div>
   <em>Figure 2. Painting an area of interest. With the <b>Enable Paint</b> checkbox set, we paint a region of the comet in which three large boulders are visible in the shape model.</em>
@@ -305,7 +306,7 @@ model. Each time, this increments **Image Index**. The match with an **Image Ind
 
 <a id="fig3"></a>
 <div align="center">
-  <img src="docs/figs/Fig3.png" alt="Two image projections onto Comet 67P">
+  <img src="docs/article/Fig3.png" alt="Two image projections onto Comet 67P">
 </div>
 <div>
   <em>Figure 3. Two different images projected onto the shape model, showing the region of interest circled in red. Looking at the <b>Time</b> field, we see these were taken in (a) late August and (b) early September of 2014.</em>
@@ -326,7 +327,7 @@ image presents the best view.
 
 <a id="fig4"></a>
 <div align="center">
-  <img src="docs/figs/Fig4.png" alt="Views of the region of interest from Rosetta.">
+  <img src="docs/article/Fig4.png" alt="Views of the region of interest from Rosetta.">
 </div>
 <div>
   <em>Figure 4. Views of the region of interest from the Rosetta camera's perspective (a) An image projected onto the 3D shape model. (b) The original 2D image. The two should appear similar, and in fact do.</em>
@@ -344,7 +345,7 @@ remains within our region of interest. We advance through the images, and examin
 
 <a id="fig5"></a>
 <div align="center">
-  <img src="docs/figs/Fig5v2.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
+  <img src="docs/article/Fig5v2.png" alt="Two images of the region of interest with high angle of incidence, and hence heavily shadowed.">
 </div>
 <div>
   <em>Figure 5. Two images of the region of interest with high angle of incidence, and hence heavily shadowed. (a) Image with an incidence angle of 83&deg, partially shadowed by a nearby ridge; (b) Image with incidence angle of 77&deg.</em>
@@ -361,7 +362,7 @@ are other boulders of similar sizes nearby. We advance to the next image, wich i
 
 <a id="fig6"></a>
 <div align="center">
-  <img src="docs/figs/Fig6.png" alt="Two close-up images of the boulders in profile.">
+  <img src="docs/article/Fig6.png" alt="Two close-up images of the boulders in profile.">
 </div>
 <div>
   <em>Figure 6. Two close-up images of the boulders in profile. (a) Image with a sample resolution of 0.16 meters/pixel and emission angle of 78&deg; (b) Image with a sample resolution
@@ -392,7 +393,7 @@ craters are actually part of a large cluster of similar features ([Figure 7b](#f
 
 <a id="fig7"></a>
 <div align="center">
-  <img src="docs/figs/Fig7.png" alt="Specifying a new search by iterative refinement.">
+  <img src="docs/article/Fig7.png" alt="Specifying a new search by iterative refinement.">
 </div>
 <div>
   <em>Figure 7. Specifying a new search by iterative refinement. (a) A boulder image from an earlier search (Figure 4a) with a crater detail painted as the new area of interest; (b) A close-up image match revealing additional craters.</em>
@@ -540,7 +541,7 @@ also supported.
 
 <a id="fig8"></a>
 <div align="center">
-  <img src="docs/figs/Client-Server-Diagram-v3.svg" alt="Comet.photo's client-server model.">
+  <img src="docs/article/Client-Server-Diagram-v3.svg" alt="Comet.photo's client-server model.">
 </div>
 <div>
   <em>Figure 8. The flow of information in Comet.photo's client-server model.
@@ -696,6 +697,65 @@ complete in under a second during low load conditions, but browsing to a new ima
 several seconds or longer due to internet transfer time. 
 
 To test the performance, run Comet.Photos in the Chrome browser, and open up the inspector. Messages are printed in the console showing the time taken to perform visibility operations and emission filters. To see more extensive performance stats, open up the debug menu (Ctrl-Shift-~), record a log, and play it back. The time taken for each operation is shown in the Chrome inspector's console.
+
+
+## Adding a New Instrument or Solar System Body
+
+Comet.Photos was designed to be readily extensible to new instruments or even other solar system small body missions. To add support for a new dataset, follow these steps.
+
+Step 1: Fetch a 3D shape model for the solar system body. Comet.Photos uses the standard Wavefront .obj models that commonly available for solar system objects.
+
+Step 2: Generate a JSON file, containing an array of dictionaries, one for each image, that has the following dictionary fields:
+
+  * "nm": The name of the image file (a string)
+  * "ti": The time of the exposure (a string in UTC format)
+  * "cv": The camera sight vector (an array of x, y, and z)
+  * "up": The camera up vector (an array of x, y, and z)
+  * "su": The sun location (an array of x, y, and z)
+  * "sc": The spacecraft location (an array of x, y, and z)
+
+The "nm" and "ti" values can be extracted directly from the metadata in the mission's PDS files. The vector and position fields are computed using the mission's SPICE kernels, and are relative to the object's fixed coordinate system. The dictionaries should be sorted ascendingly according to the "ti" (time) field.
+
+As an example, the python program extras/json_from_pds3_rosetta.py generated this JSON files for all three Rosetta cameras.
+
+Step 3: Extract .jpg files from the mission PDS files. Place them in a folder, with the .jpg files in subfolders by YYYYMM date strings. The python program extras/pds_to_jpgs_parallel.py built the .jpg tree for Rosetta's NAC and WAC datasets, and extras/quick_pds_to_jpgs_parallel.py did the same for NAVCAM.
+
+Step 4: Organize and describe these files to Comet.Photos. We recommend the following folder and file structure relative to the Comet.Photos root.
+
+```
+data (folder)
+   |
+   Shape File (Step 1)
+   |
+   instrument_name (folder)
+   |               |
+   |               JSON Metadata File (Step 2)
+   |               Mission JPG Image Tree (Step 3)
+   preprocessing
+               |
+               preprocess.json (described below)              
+```
+
+The preprocess.json file contains a single array holding a dictionary with the following fields:
+
+1. model - the name of the 3D model file (relative to "modelFolder", which is another key).
+2. nVerts - the number of vertices in model.
+3. metaData - the name of the JSON file created in Step 2 (relative to "dataFolder", which is another key).
+4. visTable - the name of the visibility table for the dataset. Since this will be created subsequently, provide the name that you would like. (It will be created relative to "dataFolder", which is another key, and have a ".new" extension).
+5. xFOV and yFOV - the x and y field of view of the camera.
+6. defaultRes - the default resolution for the camera (exceptions are specified in the metadata for given images).
+7. initialEye - the default initial viewpoint for 3D model upon start up.
+8. longName - a long, descriptive name for the dataset.
+9. shortName - a shorter name for the dataset, to be used in menus.
+10. dataFolder - location of the metadata file, visTable, and images for the dataset.
+11. modelFolder - location for the 3D model.
+12. imgFolder - name of folder (relative to dataFolder) where the images are located.
+
+Step 5: Run Comet.Photos in preprocessing mode. This will generate the visibility table (visTable) and an amended metadata file. To do this, cd to the server directory, and type "npm run preprocess". Open up a browser to localhost:8082, and you will be running the app in preprocessing mode. In the Debug Options folder of the Control Panel is a "Pre-process" button. Press that, and Comet.Photos will compute which vertices in the model are visible in each image. This may take several hours. Do not try to operate the Comet.Photos window until the image index of the control panel shows all images have been processed, and a message is displayed in the server window that the process has completed.
+
+Step 6: Copy the dictionary in preprocess.json to Comet.Photos' dataset catalog: data/datasets.json. Update the visTable and metaData dictionary entries to the names of the newly created files in Step 5. Note that a single instance of Comet.Photos can serve any number of instrument datasets off of a single 3D model. If you are generating a dataset for a new mission, and but want to continue to use the Rosetta 67P datasets, create a new dataset catalog, such as data/mydataset.json, and add a new package.json script entry that runs your new dataset, setting the environmental variable DATASETSFILE=../data/mydataset.json.
+
+CONGRATS, you have Comet.Photos working for your own instrument or planetary body mission!
 
 
 ## Acknowledgments
