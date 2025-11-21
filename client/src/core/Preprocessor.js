@@ -92,56 +92,83 @@ export class Preprocessor {
 				}
 			} 
 		}
-}
+	}
 
 	computeVisibleVertices () {
 		const startTime = window.performance.now();
-		let cometView = this.getCometView(), cometGeometry = this.getCometGeometry();
-		let colorArray = this.getColorArray(), targetMesh = this.getTargetMesh();
-		let colorAttr = this.getColorAttr();
+		let cometView    = this.getCometView();
+		let cometGeometry = this.getCometGeometry();
+		let colorArray   = this.getColorArray();
+		let targetMesh   = this.getTargetMesh();
+		let colorAttr    = this.getColorAttr();
+		if (!cometView) return;
+
 		const sc = cometView.sc_position.clone();
-		const v = new THREE.Vector3();
+		const v  = new THREE.Vector3();
 		const raycaster = new THREE.Raycaster();
-		let res = [];
+		let   res = [];
 		raycaster.firstHitOnly = true;
-		const r=0, g=0, b=VISIBLE_BLUE;   // bright blue for now (really) - and a unique byte for visibility in the blue channel
+
+		const r = 0, g = 0, b = VISIBLE_BLUE;   // unique blue for visibility
 		const bbox = new THREE.Box3();
-		const normDepth = cometView ? new NormalDepth() : null;
+		const normDepth = new NormalDepth();
 
-		if (cometView) cometView.createViewRect();
+		cometView.createViewRect();
+		const viewRect = cometView.viewRect;
 
-		for (let i = 0; i < cometGeometry.attributes.position.array.length; i+=3) {
+		const pos = cometGeometry.attributes.position.array;
+
+		// Reused vectors to avoid per-vertex allocations
+		const vertToSC = new THREE.Vector3();   // v - sc
+		const dir      = new THREE.Vector3();   // ray direction
+
+		let anyVisible = false;
+
+		for (let i = 0; i < pos.length; i += 3) {
 			let isVisible = false;
-			const vertToSC = v.clone().sub(sc);
-			v.x = cometGeometry.attributes.position.array[i] + MILLIMETER; // perturb by a millimeter so it doesn't go through the vertex
-			v.y = cometGeometry.attributes.position.array[i+1] + MILLIMETER;
-			v.z = cometGeometry.attributes.position.array[i+2] + MILLIMETER;
-			const theoreticalDistance = v.distanceTo(sc);
-			// console.log("Theoretical distance is %f", theoreticalDistance);
-			raycaster.set(sc, v.clone().sub(sc));
-			// console.log("v is %O, sc is %O, sc, dir = %O", v, sc, v.clone().sub(sc));
-			res.length = 0;
-			if (cometView && cometView.viewRect) {
-				res = raycaster.intersectObject(cometView.viewRect, false, res);
-				if (res.length == 0) continue;    // does not intersect viewRect, which is set
+
+			// Perturb vertex slightly so ray doesn't go exactly through shared vertex
+			v.set(pos[i] + MILLIMETER, pos[i+1] + MILLIMETER, pos[i+2] + MILLIMETER);
+
+			// vertToSC = v - sc
+			vertToSC.subVectors(v, sc);
+			const theoreticalDistance = vertToSC.length();
+
+			// dir = normalized(v - sc)
+			dir.copy(vertToSC).normalize();
+			raycaster.set(sc, dir);
+
+			// view-rect clip
+			if (viewRect) {
+				res.length = 0;
+				raycaster.intersectObject(viewRect, false, res);
+				if (res.length === 0) continue;
 			}
+
+			// Intersect comet mesh
 			res.length = 0;
-			res = raycaster.intersectObject(targetMesh, true, res);
+			raycaster.intersectObject(targetMesh, true, res);
+
 			if (res.length > 0) {
-				// console.log("res[0].distance = %f", res[0].distance);
-				if (Math.abs(res[0].distance - theoreticalDistance) < METER) // less than a meter
+				if (Math.abs(res[0].distance - theoreticalDistance) < METER) {
 					isVisible = true;
+				}
 			}
+
 			if (isVisible) {
-				bbox.expandByPoint(v);		// include point in our axis-aligned bounding box
+				bbox.expandByPoint(v);  // include point in AABB
 				if (normDepth) normDepth.expandByVector(vertToSC, cometView.normal);
-				colorArray[i] = r;
+
+				colorArray[i]   = r;
 				colorArray[i+1] = g;
 				colorArray[i+2] = b;
-				colorAttr.needsUpdate = true;
+				anyVisible = true;
 			}
 		}
-		if (cometView) cometView.saveExtentInfo(bbox, normDepth);
+
+		if (anyVisible) colorAttr.needsUpdate = true;
+		cometView.saveExtentInfo(bbox, normDepth);
+
 		console.log("ComputeVisible time = %f milliseconds", window.performance.now() - startTime);
 		console.log(`Visible vertex count = ${this.countVertices(VISIBLE_BLUE)}`);
 		this.expandPaint(1);
