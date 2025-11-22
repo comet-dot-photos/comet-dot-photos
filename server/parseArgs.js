@@ -18,10 +18,23 @@ function parseArgs(defaults = {}, argv = process.argv.slice(2)) {
       continue;
     }
 
-    // Long flags (ignore for mission)
+    // Long flags (--key=value or --key value or boolean --key)
     if (a.startsWith('--')) {
       const [key, val] = a.slice(2).split('=');
-      out[key] = val !== undefined ? val : true;
+
+      if (val !== undefined) {
+        // Case: --key=value
+        out[key] = val;
+      } else {
+        // Case: --key value OR boolean --key
+        const next = argv[i + 1];
+        if (next && !next.startsWith('-')) {
+          out[key] = next;
+          i++;           // <-- skip the consumed value
+        } else {
+          out[key] = true;
+        }
+      }
       continue;
     }
 
