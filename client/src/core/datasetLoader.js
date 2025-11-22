@@ -22,8 +22,8 @@ function loadOBJ(url) {
 export async function loadCometModel(sceneMgr, ROI, dataset) {
   if (sceneMgr.targetMesh) return; // already attached
   const filename = dataset.modelFolder + dataset.model;
-
-  const object3d = await loadOBJ(filename);
+  const filenameAbs = new URL(filename, window.location.href).href;
+  const object3d = await loadOBJ(filenameAbs);
 
   // Build geometry + color buffer
   const geom = object3d.children[0].geometry;
