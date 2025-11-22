@@ -2,18 +2,17 @@
     "name": "cometserver",
     "version": "3.0.1",
     "scripts": {
-        "deployment": "cross-env REDIRECT=TRUE PORT=443 HTTP_PORT=80 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem node cometserver.js",
-        "preprocess": "cross-env PORT=8082 PREPROCESSING=TRUE DATASETSFILE=../data/preprocessing/preprocess.json node cometserver.js",
-        "server": "cross-env PORT=8082 CERTFILE=/etc/letsencrypt/live/comet.photos/fullchain.pem KEYFILE=/etc/letsencrypt/live/comet.photos/privkey.pem node cometserver.js",
-        "local": "cross-env LAUNCHBROWSER=TRUE PORT=8082 node cometserver.js",
-        "test": "cross-env TEST=regression1 LAUNCHBROWSER=TRUE PORT=8082 node cometserver.js"
+        "deployment": "node cometserver.js --redirect --port 443 --http_port 80 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem",
+        "preprocess": "node cometserver.js --port 8082 --preprocess --open --catalog ../data/preprocessing/preprocess.json",
+        "server": "node cometserver.js --port 8082 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem",
+        "local": "node cometserver.js --open -port 8082",
+        "test": "node cometserver.js -test regression1 --open --port 8082"
     },
     "engines": {
         "node": ">=22.12"
     },
     "dependencies": {
         "compression": "^1.7.4",
-        "cross-env": "^7.0.3",
         "express": "^4.21.1",
         "httpolyglot": "^0.1.2",
         "koffi": "^2.9.1",
