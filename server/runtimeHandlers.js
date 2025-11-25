@@ -12,19 +12,24 @@ function runtimeHandlers(io, datasets) {
     //   one by one, load the VISFILES in the datasets
     const { c_load_vbuff2, c_check_vis2 } = load_c();
     
-    datasets.forEach((ds, i) => {
-        const visFile = path.join(__dirname, '..', 'data', ds.dataFolder, ds.visTable);
-        const stats = fs.statSync(visFile);
-        ds.rowSize = Math.ceil(ds.nVerts/64)*8;
-        ds.nRows = stats.size / ds.rowSize;  // cache it for buffer size safety check
-        // each row is ds.rowSize bytes, file size is ds.nRows*ds.rowSize;
-        // console.log(`calling c_load_vbuff2 for ${visFile}, i is ${i}, ds.nRows is ${ds.nRows}, ds.rowSize is ${ds.rowSize}`);
-        if (c_load_vbuff2(i, visFile, ds.nRows, ds.rowSize) == 0)
-            console.log(`Loaded ${visFile}. nRows = ${ds.nRows}, bytesPerRow = ${ds.rowSize}.`);
-        else {
-            console.log(`Loading of ${visFile} failed.`);   // no message back to client though...
-            exit();
-        }
+    let tableCount = 0;
+    let nRows = [], rowSize = [];
+    datasets.forEach(ms => {
+        ms.instruments.forEach((ds, i) => {
+            const visFile = path.join(__dirname, '..', 'data', ms.missionFolder, ds.dataFolder, ds.visTable);
+            const stats = fs.statSync(visFile);
+            rowSize.push(Math.ceil(ms.nVerts/64)*8);
+            nRows.push(stats.size / rowSize[tableCount]);  // cache it for buffer size safety check
+            // each row is rowSize bytes, file size is nRows*rowSize;
+            // console.log(`calling c_load_vbuff2 for ${visFile}, i is ${i}, nRows is ${nRows[tableCount]}, rowSize is ${rowSize[tableCount]}`);
+            if (c_load_vbuff2(tableCount, visFile, nRows[tableCount], rowSize[tableCount]) == 0) {
+                console.log(`Loaded ${visFile}. nRows = ${nRows[tableCount]}, bytesPerRow = ${rowSize[tableCount]}.`);
+                ds.tableIndex = tableCount++;
+            } else {
+                console.log(`Loading of ${visFile} failed.`);   // no message back to client though...
+                exit();
+            }
+        });
     });
         
     // Step 2 - When a socket connection occurs, register handlers for events
@@ -34,7 +39,7 @@ function runtimeHandlers(io, datasets) {
         //   particular candidate set of images (imgSel), the painted region (visAr),
         //   and a number of vertices that must match (mustMatch)
         //
-        //   Argument message is {imgSels: [[dsName, imgSel]...], visAr: visArray, mustMatch: int}
+        //   Argument message is {imgSels: [[tableIndex, imgSel]...], visAr: visArray, mustMatch: int}
         //   Replies with ack(imgSels), which are altered to indicate the matches.
         //
         socket.on('clientRequestsVis', function(message, ack) { 
@@ -42,18 +47,16 @@ function runtimeHandlers(io, datasets) {
                 if (!Number.isInteger(message.mustMatch)) {
                     throw new Error ('message.mustMatch must be an integer.');
                 }
-                for (const [shortName, imgSelBuff] of message.imgSels) {
-                    const tableIndex = datasets.findIndex(x => x.shortName == shortName);
-                    if (tableIndex < 0)
-                        throw new Error(`Bad tableInex: ${tableIndex}`);
+                for (const [tableIndex, imgSelBuff] of message.imgSels) {
+                    if (tableIndex < 0 || tableIndex >= tableCount)
+                        throw new Error(`Bad tableIndex: ${tableIndex}`);
 
                     // checks to make sure client cannot cause check_vis to exceed buffers
-                    const {nRows, rowSize} = datasets[tableIndex];
-                    if (!Buffer.isBuffer(imgSelBuff) || imgSelBuff.length != Math.ceil(nRows/8)) {
-                        throw new Error (`imgSelBuff must be a Buffer and ${Math.ceil(nRows/8)} long.`);
+                    if (!Buffer.isBuffer(imgSelBuff) || imgSelBuff.length != Math.ceil(nRows[tableIndex]/8)) {
+                        throw new Error (`imgSelBuff must be a Buffer and ${Math.ceil(nRows[tableIndex]/8)} long.`);
                     }
-                    if (!Buffer.isBuffer(message.visAr) || message.visAr.length != rowSize) {
-                        throw new Error (`message.visArray must be a Buffer and ${rowSize} long.`);
+                    if (!Buffer.isBuffer(message.visAr) || message.visAr.length != rowSize[tableIndex]) {
+                        throw new Error (`message.visArray must be a Buffer and ${rowSize[tableIndex]} long.`);
                     }
 
                     c_check_vis2(tableIndex, message.mustMatch, imgSelBuff, message.visAr);

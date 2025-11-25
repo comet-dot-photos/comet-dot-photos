@@ -75,7 +75,6 @@ export class ImageBrowser {
         if (this.state['spacecraftView']) {     // note spacecraftView will change FOV if necessary
             const {camera, controls} = this.sceneMgr;
             cometView.applyToCamera(camera, controls);
-            controls.dispatchEvent({ type: 'change' });
         }
         this.updateCPanel('fileName', cometView.fileName);
         this.updateCPanel('time', cometView.time);

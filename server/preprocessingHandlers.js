@@ -7,10 +7,11 @@ const { exit } = require('process');
 
 function preprocessingHandlers(io, datasets) {
     let fileText, viewArray;
-    // Will preprocess the first dataset in datasets
+    // Will preprocess the first dataset in datasets.instruments
 
     // Step 1 - Load the phase1 metaData file
-    const oldMetaFile = path.join(__dirname, '..', 'data', datasets[0].dataFolder, datasets[0].metaData);
+    const inst = datasets.instruments[0];
+    const oldMetaFile = path.join(__dirname, '..', 'data', datasets.missionFolder, inst.dataFolder, inst.metaData);
     try {
         fileText = fs.readFileSync(oldMetaFile, 'utf-8');
     }
@@ -48,7 +49,7 @@ function preprocessingHandlers(io, datasets) {
                 // Remove all elements that had no vertices visible (d1 > d2)
                 viewArray = viewArray.filter((val) => val.d1 <= val.d2)
                 // FINISH UP CODE HERE!! WRITE TO FILE!!!
-                const visFile = path.join(__dirname, '..', 'data', datasets[0].dataFolder, datasets[0].visTable + '.new');
+                const visFile = path.join(__dirname, '..', 'data', datasets.missionFolder, inst.dataFolder, inst.visTable + '.new');
                 fs.writeFileSync(visFile, '');                       // create a new empty file
                 for (let i = 0; i < viewArray.length; i++) {            // append the buffer to the file
                     console.log(`writing line ${i}...`)

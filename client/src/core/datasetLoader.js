@@ -17,11 +17,10 @@ function loadOBJ(url) {
 /**
  * Kick off the comet model load and attach it when ready.
  * Returns a Promise which can be ignored OR await later if needed.
- * Safe to call multiple times; it no-ops if already present or in-progress.
+ * Safe to call multiple times; can replace the current model.
  */
-export async function loadCometModel(sceneMgr, ROI, dataset) {
-  if (sceneMgr.targetMesh) return; // already attached
-  const filename = dataset.modelFolder + dataset.model;
+export async function loadCometModel(sceneMgr, ROI, missionDict) {
+  const filename = missionDict.missionFolder + missionDict.model;
   const filenameAbs = new URL(filename, window.location.href).href;
   const object3d = await loadOBJ(filenameAbs);
 
@@ -37,7 +36,7 @@ export async function loadCometModel(sceneMgr, ROI, dataset) {
 
   // Hook up ROI paint buffer
   // note in some rare cases, nVerts > geom.attributes.position.count, thanks to ObjLoader2 quirks or unused vertices in model or collapsed vertices.
-  ROI.allocatePaintBuffer(dataset.nVerts, colorArray); 
+  ROI.allocatePaintBuffer(missionDict.nVerts, colorArray); 
 
   // Material + mesh
   const mat = new THREE.MeshStandardMaterial({
@@ -64,17 +63,69 @@ export async function loadCometModel(sceneMgr, ROI, dataset) {
   const mesh = new THREE.Mesh(geom, mat);
   mesh.geometry.computeBoundsTree();
 
-  // Save references on sceneMgr
-  sceneMgr.installCometInfo({geom, colorArray, colorAttr, mat, mesh});
-
   // Save projector handle and mesh radius for later use
   mesh.geometry.computeBoundingSphere();
   CometView.installCometInfo(handle, mesh.geometry.boundingSphere.radius);
+
+  // Install into scene manager
+  sceneMgr.installCometInfo({geom, colorArray, colorAttr, mat, mesh, missionDict});
 }
+
+export function disposeCometMesh(mesh) {
+    if (!mesh) return;
+
+    const geom = mesh.geometry;
+    const mat  = mesh.material;
+
+    // --- 1: dispose projector handle (texture + depthRT + shader patch) ---
+    const handle = mat?.userData?._projectorHandle;
+    if (handle) {
+
+        // A) dispose projector texture
+        const projTex = handle.uniforms?.uProjectorMap?.value;
+        if (projTex) projTex.dispose();
+        handle.setTexture(null);
+
+        // B) dispose depth render target
+        const depthRT = handle.getDepthRenderTarget?.();
+        if (depthRT && depthRT.dispose) {
+            depthRT.dispose();  // disposes WebGLRenderTarget + depthMat
+        }
+        handle.setDepthRenderTarget(null);
+        handle.setDepthTexture(null);
+
+        // C) remove shader hook
+        handle.detach();
+        if (mat.userData) {
+            delete mat.userData._projectorHandle;
+        }
+    }
+
+    // --- 2: dispose BVH ---
+    if (geom && geom.disposeBoundsTree) {
+        geom.disposeBoundsTree();
+    }
+
+    // --- 3: dispose geometry VBOs ---
+    if (geom) {
+        geom.dispose();
+    }
+
+    // --- 4: dispose material ---
+    if (mat) {
+        mat.dispose();
+    }
+
+    // --- 5: remove mesh from scene graph ---
+    if (mesh.parent) {
+        mesh.parent.remove(mesh);
+    }
+}
+
 
 /** Fetch and return the parsed metadata JSON (startable immediately) */
 export async function loadMetadata(dataset) {
-  const url = dataset.dataFolder + dataset.metaData;
+  const url = dataset.missionFolder + dataset.dataFolder + dataset.metaData;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Failed to fetch ${url}: ${resp.status}`);
   return resp.json();

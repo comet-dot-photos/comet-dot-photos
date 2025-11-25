@@ -18,6 +18,7 @@ import { mergeK } from '../utils/mergeK.js';
 import { SI_NONE, SD_MONTH, LL_REGRESSION } from '../core/constants.js';
 
 const DEFAULT_UI_STATE = {
+  mission: '',
 	datasets: [],
   enablePaint: false,
 	brushSize: 100, // meters
@@ -67,7 +68,7 @@ export class CometPhotosApp {
         ROI: this.ROI
      });
 
-    this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay, this.dsArray[0]);
+    this.sceneMgr = new SceneManager(this.bus, this.state, this.overlay);
 
     this.paintEvents = new PaintEvents({
       bus: this.bus,
@@ -115,20 +116,21 @@ export class CometPhotosApp {
       uiState: DEFAULT_UI_STATE
     })
 
-    const dsNames = this.dsArray.map(x => x.shortName);
-    this.bus.emit('setSelectOpts', {key: 'datasets', opts: dsNames, val: dsNames, silent: true});
+    const missionNames = this.dsArray.map(x => x.mission);
+    this.bus.emit('setSelectOpts', {key: 'mission', opts: missionNames, val: missionNames[0], silent: true});
+    
+    this.loadMission(missionNames[0]); // Load the first mission by default (and all of its instruments)
 
-    this.loadDatasets(dsNames); // Load the comet model and metadata!
-
-    if (this.dsArray.length == 1)
-      this.bus.emit('setEnabled', {key: 'datasets', enabled: false});  // disable if only one choice!
+    if (missionNames.length == 1)
+      this.bus.emit('setEnabled', {key: 'mission', enabled: false});  // disable if only one choice!
 
     if (defaults.preprocessMode) this.bus.emit('preprocessMode');
 
-// one map to wire all semantic events
+    // one map to wire all semantic events
     const HANDLERS = {
         'quickstartHelp':  () => window.open("quickstart.html"),
-        'datasets':        v => this.loadDatasets(v),
+        'mission':         v => this.loadMission(v),
+        'instruments':     v => this.loadDatasets(v),
         'enablePaint':     v => this.sceneMgr.enablePaint(v),
         'percentOverlap':  v => this.filterEng.setPercentOverlap(v),
         'brushSize':       v => this.sceneMgr.adjustBrushSize(v),
@@ -187,24 +189,57 @@ export class CometPhotosApp {
   }
 
   // ---- Public API ----
+  async loadMission(missionName) {
+    const missionDict = this.dsArray.find(o => o.mission === missionName);
+    if (!missionDict) throw new Error(`loadMission: unknown mission: ${missionName}`);
 
-  // nameArray is an array of dataset shortNames
-  async loadDatasets(nameArray) {
-    this.state.datasets = nameArray;
-    this.bus.emit('setVal', {key: 'datasets', val: this.state.datasets, silent: true});
+    this.state.mission = missionName;
+    this.bus.emit('setVal', {key: 'mission', val: this.state.mission, silent: true});
 
-    // create a dictionary of selected datasets keyed by shortname
-    this.dsDict = Object.fromEntries(
-      this.dsArray
-        .filter(d => nameArray.includes(d.shortName))
-        .map(d => [d.shortName, d]));
+    const dsNames = missionDict.instruments.map(x => x.shortName);
+    this.bus.emit('setSelectOpts', {key: 'instruments', opts: dsNames, val: dsNames, silent: true});
+    this.bus.emit('setEnabled', {key: 'instruments', enabled: (dsNames.length > 1)});  // enabled iff more than one choice!
+
+    this.state['spacecraftView'] = false; // unset spacecraftView and showImage (defaults)
+    this.bus.emit('setVal', {key: 'spacecraftView', val: false, silent: true}); 
+    this.state['showImage'] = SI_NONE;
+    this.bus.emit('setVal', {key: 'showImage', val: SI_NONE, silent: true});
+
+    const modelPromise = loadCometModel(this.sceneMgr, this.ROI, missionDict);
+    const datasetsPromise = this.loadDatasets(dsNames, false);
+    await Promise.all([modelPromise, datasetsPromise]);   // … wait for BOTH to complete
+
+    this.filterEng.updateAllFilters();  // initial filter update - do after model+metadata loaded
+
+    document.title = `Comet.Photos: ${missionDict.mission}`; // add mission to window title
+
+    // Everything ready ⇒ signal 'ready'
+    this.bus.emit('loadComplete');
+  }
+
+  // nameArray is an array of instrument shortNames from the currently selected mission
+  async loadDatasets(nameArray, entryPoint = true) {
+    if (entryPoint) {         // only set state if called from UI event, otherwise already set
+      this.state.instruments = nameArray;
+      this.bus.emit('setVal', {key: 'instruments', val: this.state.instruments, silent: true});
+    }
+
+    const missionDict = this.dsArray.find(o => o.mission === this.state.mission);
+
+    // create a dictionary of selected datasets keyed by tableIndex
+    this.inDict = Object.fromEntries(
+      missionDict.instruments
+        .filter(d => nameArray.includes(d.shortName))  // only include instruments in nameArray
+        .map(d => [d.tableIndex, d]));
+
+    // Explicitly add missionFolder to each instrument dataset
+    Object.values(this.inDict).forEach(d => {
+      d.missionFolder = missionDict.missionFolder;
+    });
 
     this.imageBrowser.resetForNewDataset();
 
-    // Start model and metadata loads immediately / concurrently
-    const modelPromise = loadCometModel(this.sceneMgr, this.ROI, this.dsArray[0]);
-
-    const metaPromises = Object.values(this.dsDict)
+    const metaPromises = Object.values(this.inDict)
       .filter(d => !d.photoData) // skip if already loaded
       .map(async (dataset) => {
         const data = await loadMetadata(dataset);
@@ -212,29 +247,24 @@ export class CometPhotosApp {
         dataset.photoData = data;
       });
 
-    // Phase 1: metadata ready ⇒ install once
+    // Metadata ready ⇒ install once
     await Promise.all(metaPromises);
     this.installMetadata();
 
-    // Phase 2: everything ready ⇒ signal 'ready'
-    await modelPromise;
-    this.bus.emit('loadComplete');
+    // if just an instrument change, not a mission change, update filters here rather than in loadMission
+    if (entryPoint) this.filterEng.updateAllFilters();
   }
 
 
   installMetadata() {  // finalize metadata and share with only with the modules that need it
-      const allHavePhotoData = Object.values(this.dsDict).every(d => d.photoData);
+      const allHavePhotoData = Object.values(this.inDict).every(d => d.photoData);
       if (!allHavePhotoData) throw new Error('installMetadata called before all metadata loaded');
 
       // Merge all photoDatas into one big sorted array
-      const metadata = mergeK(Object.values(this.dsDict).map(d => d.photoData), {key: "ti"});
-      const dsString = this.state.datasets.join(' + ');
-      document.title = `Comet.Photos: ${dsString} (${metadata.length}) images`;
-
-      this.filterEng.installDatasetsAndMetadata(this.dsDict, metadata);
+      const metadata = mergeK(Object.values(this.inDict).map(d => d.photoData), {key: "ti"});;
+      this.filterEng.installDatasetsAndMetadata(this.inDict, metadata);
       this.imageBrowser.installMetadata(metadata);
       this.state.metadataLoaded = true;
-      this.filterEng.updateAllFilters();
   }
 
   dispose() {   // dispose of event bindingers

@@ -16,9 +16,11 @@ const parseArgs = require('./parseArgs.js');
 const DEFAULTS = {
   port: 8080,
   http_port: 8081,
-  catalog: "../data/datasets.json"
+  //catalog: "../data/datasets.json"
 };
 const args = parseArgs(DEFAULTS);
+
+console.log("Comet.Photos server starting with arguments:", args);
 
 // Step 2 - Check for data directory
 const dataDir = path.resolve(__dirname, '../data');
@@ -98,7 +100,7 @@ if (args.open) {
 
 // Step 6 - Load and run the relevant event handlers
 const { commonHandlers } = require ('./commonHandlers.js');
-let datasets = commonHandlers(io, args.open, args.preprocess, args.catalog);
+let datasets = commonHandlers(io, args);
 
 if (args.preprocess) {
     const { preprocessingHandlers } = require('./preprocessingHandlers.js');

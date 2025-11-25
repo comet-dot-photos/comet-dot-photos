@@ -9,7 +9,8 @@ export const cometPhotosSchema = [
         key: 'help',
         items: [
           { type: 'button', key: 'showQuickStart', label: 'Show Quickstart Help', event: 'quickstartHelp' },
-          { type: 'multiselect', key: 'datasets', label: 'Choose Datasets:', options: [] }
+          { type: 'select', key: 'mission',    label: 'Mission:', options: [] },
+          { type: 'multiselect', key: 'instruments', label: 'Instrument:', options: [] }
         ]
       },
 

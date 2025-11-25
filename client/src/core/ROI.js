@@ -16,12 +16,12 @@ export class ROI {
     }
 
     allocatePaintBuffer(nVerts, colorArray) { // colorArray must be provided the firsttime called
-        if (typeof this.paintBuffer === "undefined") {
-            const numBytes = Math.ceil(nVerts/64)*8;  // each on a 64 bit boundary for efficiency if we address outside of Javascript
-            this.paintBuffer = new ArrayBuffer(numBytes);
-            this.paintArray = new Uint8Array(this.paintBuffer);
-            this.colorArray = colorArray;
-        }
+        const numBytes = Math.ceil(nVerts/64)*8;  // each on a 64 bit boundary for efficiency if we address outside of Javascript
+        this.paintBuffer = new ArrayBuffer(numBytes);
+        this.paintArray = new Uint8Array(this.paintBuffer);
+        this.colorArray = colorArray;
+
+        this.numPainted = 0;    // in case reallocating
     }
 
     clearPaintBuffer() {

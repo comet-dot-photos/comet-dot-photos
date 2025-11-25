@@ -81,7 +81,7 @@ export class FilterEngine {
                 }
             } 
         } else {	// do m2 filtering based on painted region
-            for (const ds of Object.values(this.dsDict)) {   // cache some key values per dataset
+            for (const ds of Object.values(this.inDict)) {   // cache some key values per instrument
                 const maxDist = (high * (.001*(ds.defaultRes/2))) / Math.tan(Math.PI*(ds.xFOV/2.0)/180.0);
                 const minDist = (low * (.001*(ds.defaultRes/2))) / Math.tan(Math.PI*(ds.xFOV/2.0)/180.0);
                 ds.maxDistSquared = maxDist*maxDist;
@@ -137,19 +137,19 @@ export class FilterEngine {
     }
 
     prepareImageCandidates() {
-        let dsNameBitArrayPairs = [];
-        for (const dataset of Object.values(this.dsDict)) {
-            dataset.bboxBitArray.fill(0)
+        let disIndexBitArrayPairs = [];
+        for (const instr of Object.values(this.inDict)) {
+            instr.bboxBitArray.fill(0)
             if (typeof this.ROI.bbox !== "undefined") {
-                for (let i = 0; i < dataset.photoData.length; i++) {
-                    if (this.ROI.bbox.intersectsBox(dataset.photoData[i].bbox)) {
-                        this.ROI.setNthBit(i, dataset.bboxBitArray);
+                for (let i = 0; i < instr.photoData.length; i++) {
+                    if (this.ROI.bbox.intersectsBox(instr.photoData[i].bbox)) {
+                        this.ROI.setNthBit(i, instr.bboxBitArray);
                     }
                 }
-                dsNameBitArrayPairs.push([dataset.shortName, dataset.bboxBitArray]);
+                disIndexBitArrayPairs.push([instr.tableIndex, instr.bboxBitArray]);
             }
         }
-        return dsNameBitArrayPairs
+        return disIndexBitArrayPairs
     }
 
     async applyGeoFilter (doFilterCleanup = true) {
@@ -214,18 +214,18 @@ export class FilterEngine {
         return Math.round(m2 * 100) / 100;  // rounding to 2 digits after decimal
     }
 
-    installDatasetsAndMetadata(dsDict, metadata) {
-        this.dsDict = dsDict;
-        for (const dataset of Object.values(this.dsDict)) {  // for every dataset...
-            // cache away M2MULTIPLIER for this dataset
-            const M2DIST = (.001*(dataset.defaultRes/2)) / Math.tan(Math.PI*(dataset.xFOV/2.0)/180.0);
-            dataset.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
+    installDatasetsAndMetadata(inDict, metadata) {
+        this.inDict = inDict;
+        for (const instr of Object.values(this.inDict)) {  // for every instrument...
+            // cache away M2MULTIPLIER for this instrument
+            const M2DIST = (.001*(instr.defaultRes/2)) / Math.tan(Math.PI*(instr.xFOV/2.0)/180.0);
+            instr.M2MULTIPLIER = 1.0 / M2DIST; // for defaultRes, dist*M2MULTIPLIER == m2.
 
-            // allocate bboxbitBuffer for each dataset
-            const nPhotos = dataset.photoData.length;
+            // allocate bboxbitBuffer for each instrument
+            const nPhotos = instr.photoData.length;
             const numBytes = Math.ceil(nPhotos/8);
-            dataset.bboxBitBuffer = new ArrayBuffer(numBytes);
-            dataset.bboxBitArray = new Uint8Array(dataset.bboxBitBuffer);
+            instr.bboxBitBuffer = new ArrayBuffer(numBytes);
+            instr.bboxBitArray = new Uint8Array(instr.bboxBitBuffer);
         } 
         
         // add some extra info for filtering, and save it away
@@ -236,18 +236,18 @@ export class FilterEngine {
     processServerVisResult(message) {
         if (!message) return;
         // message is the altered imgSels: [[dsName, imgSel]...]
-        for (const [dsName, imgSel] of message) {
-            const dataset = this.dsDict[dsName];
+        for (const [tableIndex, imgSel] of message) {
+            const instrument = this.inDict[tableIndex];
             const bytes = imgSel instanceof Uint8Array 
                         ? imgSel                            // use as-is, no copy
                         : new Uint8Array(imgSel);           // ArrayBuffer → cheap view
 
-            for (let i = 0; i < dataset.photoData.length; i++){
+            for (let i = 0; i < instrument.photoData.length; i++){
                 if (this.ROI.getNthBit(i, bytes) === 1) {
-                    dataset.photoData[i].filter &= ~FAIL_BBOX;
+                    instrument.photoData[i].filter &= ~FAIL_BBOX;
                 }
                 else {
-                    dataset.photoData[i].filter |= FAIL_BBOX;
+                    instrument.photoData[i].filter |= FAIL_BBOX;
                 }
             }
         }

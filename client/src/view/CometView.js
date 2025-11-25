@@ -6,11 +6,11 @@ import * as THREE from 'three';
 import { renderProjectorDepth } from '../utils/ProjectedImages.js';
 
 export class CometView {
-    static xFOV;                    // set via setContstants
-    static yFOV;                    // set via setContstants
-    static aspect;                  // set via setContstants
-    static defaultRes;              // set via setContstants
-    static urlPrefix = "";          // set via setContstants
+    static xFOV;
+    static yFOV;
+    static aspect;
+    static defaultRes;
+    static urlPrefix = "";
     static EXTRA_CLIP_FAR = 400;      // this will mostly avoid clipping if we zoom out w/ trackball control, since far is not updated
     static map;     // We choose to make the map a class var because we keep the last view's map until the new one's loaded
     static lastRequestedImg;  // name of the last requested image, so previous requests don't get displayed!
@@ -29,7 +29,7 @@ export class CometView {
         CometView.xFOV = photoDict.dataset.xFOV;
         CometView.yFOV = photoDict.dataset.yFOV;
         CometView.defaultRes = photoDict.dataset.defaultRes;
-        CometView.urlPrefix = photoDict.dataset.dataFolder + photoDict.dataset.imgFolder;
+        CometView.urlPrefix = photoDict.dataset.missionFolder + photoDict.dataset.dataFolder + photoDict.dataset.imgFolder;
         // cache away aspect - use half-angles
         const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
         const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;
@@ -113,6 +113,27 @@ export class CometView {
 
     applyToCamera(camera, orbControls, aspect = 0, projCam = false) {
         camera.fov = CometView.yFOV;
+        camera.position.set(this.sc_position.x, this.sc_position.y, this.sc_position.z);
+        camera.up.set(this.up.x, this.up.y, this.up.z);
+        camera.lookAt(this.planeCenter.x, this.planeCenter.y, this.planeCenter.z);
+
+        // aspect = (aspect != 0) ? aspect : window.innerWidth / window.innerHeight; 
+        const padding = .001;   // 1 meter should be sufficient padding
+        camera.near = this.minDistAlongNormal - padding; 
+        camera.far = this.maxDistAlongNormal + padding;
+
+        camera.updateProjectionMatrix();
+        camera.updateWorldMatrix(true, false);
+        console.log(`applyToCamera: near=${camera.near.toFixed(2)}, far=${camera.far.toFixed(2)}`);
+
+        if (orbControls) {
+            orbControls.target = this.planeCenter.clone();
+            orbControls.update();  // // which may reset near/far, but ok 
+        }
+    }
+
+    applyToCameraOrig(camera, orbControls, aspect = 0, projCam = false) {
+        camera.fov = CometView.yFOV;
         aspect = (aspect != 0) ? aspect : window.innerWidth / window.innerHeight; 
         if (projCam) {            // need a tight near/far pair for proj depth buffer
             const padding = .1;   // .1 km should be sufficient padding
@@ -132,6 +153,8 @@ export class CometView {
         if (orbControls) {
             orbControls.target = this.planeCenter.clone();
             orbControls.update();
+            controls.update();
+            controls.dispatchEvent({ type: "change" })
         }
     }
 

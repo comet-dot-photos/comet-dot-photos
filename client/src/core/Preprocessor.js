@@ -172,6 +172,12 @@ export class Preprocessor {
 		console.log("ComputeVisible time = %f milliseconds", window.performance.now() - startTime);
 		console.log(`Visible vertex count = ${this.countVertices(VISIBLE_BLUE)}`);
 		this.expandPaint(1);
+
+		// TEMPORARY for debugging...
+		this.initializeCameraMeshClassifier();
+		this.classifyCameraRelativeToMesh(this.sceneMgr.camera, targetMesh, {});
+		console.log(`CometView minDistAlongNormal = ${cometView.minDistAlongNormal} and maxDistAlongNormal = ${cometView.maxDistAlongNormal}`);
+		console.log(`Camera near = ${this.sceneMgr.camera.near} and far = ${this.sceneMgr.camera.far}`);
 	}
 
 	beginPreprocessing () {
@@ -216,4 +222,262 @@ export class Preprocessor {
 			alert('Server must be running in Preprocessing Mode too.')
 		});
 	}
-} 
+
+	// ======================================================
+	//  Camera–Mesh Classification Methods for Preprocessor
+	// ======================================================
+	//
+	// Add these inside your Preprocessor object/class.
+	// Expects:
+	//   - this.THREE is three.js OR THREE globally available
+	//   - mesh is indexed (vertex-indexed triangle mesh)
+	//   - BVH optional (minDistance becomes exact if available)
+	initializeCameraMeshClassifier() {
+		this._cim_box          = new THREE.Box3();
+		this._cim_camWorldPos  = new THREE.Vector3();
+		this._cim_origin       = new THREE.Vector3();
+		this._cim_dir          = new THREE.Vector3();
+		this._cim_raycaster    = new THREE.Raycaster();
+
+		// These two we’ll use for BVH local/world transforms
+		this._cim_localPoint   = new THREE.Vector3();
+		this._cim_localClosest = new THREE.Vector3();
+		this._cim_closestPoint = new THREE.Vector3();
+		this._cim_tmpNormal    = new THREE.Vector3();
+
+		this._CIM_INSIDE_TEST_DIRS = [
+			new THREE.Vector3( 1.0,  0.37,  0.23).normalize(),
+			new THREE.Vector3(-0.5,  0.91,  0.10).normalize(),
+			new THREE.Vector3( 0.2, -0.80,  0.56).normalize(),
+			new THREE.Vector3(-0.3, -0.20,  0.93).normalize(),
+			new THREE.Vector3( 0.7,  0.15, -0.69).normalize()
+		];
+	}
+
+	// ======================================================
+	//   Single-ray helper (method form)
+	// ======================================================
+	_cim_rayParityForDirection(point, mesh, dir, epsilonRay, maxDistance) {
+
+		this._cim_origin.copy(point).addScaledVector(dir, epsilonRay);
+		this._cim_dir.copy(dir);
+
+		this._cim_raycaster.ray.origin.copy(this._cim_origin);
+		this._cim_raycaster.ray.direction.copy(this._cim_dir);
+		this._cim_raycaster.near = 0;
+		this._cim_raycaster.far = maxDistance;
+		this._cim_raycaster.firstHitOnly = false;
+
+		const hits = this._cim_raycaster.intersectObject(mesh, false);
+
+		let count   = 0;
+		let nearest = Infinity;
+
+		for (const h of hits) {
+			if (h.distance > epsilonRay && h.face != null) {
+				count++;
+				if (h.distance < nearest) nearest = h.distance;
+			}
+		}
+
+		return {
+			intersections: count,
+			isInsideAlongThisRay: (count % 2) === 1,
+			nearestDistanceAlongRay: nearest
+		};
+	}
+
+
+	// ======================================================
+	//   Min distance helper – BVH in local space, distance in world space
+	// ======================================================
+	_cim_minDistanceToSurface(pointWorld, mesh) {
+		const geom = mesh.geometry;
+		if (!geom) return Infinity;
+
+		// Ensure we have a bbox for fallback and bboxDistance
+		if (!geom.boundingBox) geom.computeBoundingBox();
+		this._cim_box.copy(geom.boundingBox).applyMatrix4(mesh.matrixWorld);
+
+		// One-time flags for logging (optional)
+		this._cim_usedBVH          = this._cim_usedBVH          ?? false;
+		this._cim_usedNoBVH        = this._cim_usedNoBVH        ?? false;
+		this._cim_usedRayFallback  = this._cim_usedRayFallback  ?? false;
+		this._cim_usedBBoxFallback = this._cim_usedBBoxFallback ?? false;
+
+		// ---------- Preferred path: BVH closestPointToPoint (in local space) ----------
+		if (geom.boundsTree && typeof geom.boundsTree.closestPointToPoint === "function") {
+			if (!this._cim_usedBVH) {
+				console.log(
+					"%c[CIM] Using BVH closestPointToPoint (meshBVH, local space).",
+					"color: lightgreen"
+				);
+				this._cim_usedBVH = true;
+			}
+
+			// Convert camera point from world → local (mesh space)
+			this._cim_localPoint.copy(pointWorld);
+			mesh.worldToLocal(this._cim_localPoint);
+
+			// Find closest point in local space
+			geom.boundsTree.closestPointToPoint(
+				this._cim_localPoint,
+				this._cim_localClosest,
+				this._cim_tmpNormal   // optional; you can keep or drop this
+			);
+
+			// Convert closest point back to world space
+			const closestWorld = this._cim_localClosest;
+			mesh.localToWorld(closestWorld);
+
+			// Distance in world space
+			let dist = pointWorld.distanceTo(closestWorld);
+
+			if (!Number.isFinite(dist)) {
+				console.warn(
+					"%c[CIM] Non-finite BVH distance; falling back to bbox distance.",
+					"color: #ff6666"
+				);
+				dist = this._cim_box.distanceToPoint(pointWorld);
+			}
+
+			return dist;
+		}
+
+		// ---------- No BVH: warn once ----------
+		if (!geom.boundsTree && !this._cim_usedNoBVH) {
+			console.warn(
+				"%c[CIM] Geometry has no boundsTree; minDistance will be approximate.",
+				"color: orange"
+			);
+			this._cim_usedNoBVH = true;
+		}
+
+		// ---------- Approximate path: raycasting ----------
+		if (!this._cim_usedRayFallback) {
+			console.warn(
+				"%c[CIM] Using ray-based fallback for minDistance.",
+				"color: #f0ad4e"
+			);
+			this._cim_usedRayFallback = true;
+		}
+
+		let minDist = Infinity;
+
+		for (const baseDir of this._CIM_INSIDE_TEST_DIRS) {
+			// forward
+			const resF = this._cim_rayParityForDirection(
+				pointWorld, mesh, baseDir, 1e-3, Infinity
+			);
+			if (resF.nearestDistanceAlongRay < minDist) {
+				minDist = resF.nearestDistanceAlongRay;
+			}
+
+			// backward
+			this._cim_tmpNormal.copy(baseDir).negate();
+			const resB = this._cim_rayParityForDirection(
+				pointWorld, mesh, this._cim_tmpNormal, 1e-3, Infinity
+			);
+			if (resB.nearestDistanceAlongRay < minDist) {
+				minDist = resB.nearestDistanceAlongRay;
+			}
+		}
+
+		// If rays still miss, use bbox distance (never leave Infinity)
+		if (!Number.isFinite(minDist)) {
+			if (!this._cim_usedBBoxFallback) {
+				console.warn(
+					"%c[CIM] Rays missed mesh; using bounding-box distance fallback.",
+					"color: #ff6666"
+				);
+				this._cim_usedBBoxFallback = true;
+			}
+			minDist = this._cim_box.distanceToPoint(pointWorld);
+		}
+
+		return minDist;
+	}
+
+	// ======================================================
+	//   MAIN API: classify camera vs mesh (method)
+	// ======================================================
+	classifyCameraRelativeToMesh(camera, mesh, options = {}) {
+		const epsilonRay     = options.epsilonRay     ?? 1e-3;
+		const epsilonSurface = options.epsilonSurface ?? 1e-3;
+		const maxDistance    = options.maxDistance    ?? Infinity;
+		const debugLog       = options.debugLog       ?? true;
+
+		const geom = mesh.geometry;
+		if (!geom) {
+			return {
+				inside: false,
+				onSurface: false,
+				minDistance: Infinity,
+				votesInside: 0,
+				votesOutside: 0,
+				bboxDistance: Infinity
+			};
+		}
+
+		if (!geom.boundingBox) geom.computeBoundingBox();
+		this._cim_box.copy(geom.boundingBox).applyMatrix4(mesh.matrixWorld);
+
+		camera.getWorldPosition(this._cim_camWorldPos);
+
+		const quickOutside = !this._cim_box.containsPoint(this._cim_camWorldPos);
+		const bboxDistance = this._cim_box.distanceToPoint(this._cim_camWorldPos);
+
+		let votesInside  = 0;
+		let votesOutside = 0;
+
+		if (!quickOutside) {
+			for (const dir of this._CIM_INSIDE_TEST_DIRS) {
+				const res = this._cim_rayParityForDirection(
+					this._cim_camWorldPos,
+					mesh,
+					dir,
+					epsilonRay,
+					maxDistance
+				);
+
+				if (res.isInsideAlongThisRay) votesInside++;
+				else                          votesOutside++;
+			}
+		} else {
+			votesInside  = 0;
+			votesOutside = this._CIM_INSIDE_TEST_DIRS.length;
+		}
+
+		const inside = !quickOutside && votesInside > votesOutside;
+
+		// Use BVH (or fallback) for min distance
+		const minDistance = this._cim_minDistanceToSurface(this._cim_camWorldPos, mesh);
+
+		// ⬅⬅⬅ IMPORTANT: only consider "onSurface" if we are NOT trivially outside the bbox
+		const onSurface =
+			!quickOutside &&
+			Number.isFinite(minDistance) &&
+			(minDistance <= epsilonSurface);
+
+		if (debugLog) {
+			console.log(
+				`[Camera vs Mesh] ` +
+				`inside=${inside}, onSurface=${onSurface}, ` +
+				`minDistance=${Number.isFinite(minDistance) ? minDistance.toExponential(6) : 'Infinity'}, ` +
+				`bboxDistance=${bboxDistance.toExponential(6)}, ` +
+				`votesInside=${votesInside}, votesOutside=${votesOutside}, ` +
+				`quickOutside=${quickOutside}`
+			);
+		}
+
+		return {
+			inside,
+			onSurface,
+			minDistance,
+			votesInside,
+			votesOutside,
+			bboxDistance
+		};
+	}
+}
+

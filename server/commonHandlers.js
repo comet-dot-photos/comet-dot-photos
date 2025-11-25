@@ -4,17 +4,16 @@
 const fs = require('fs');
 const { exit } = require('process');
 
-function commonHandlers(io, localServer, PREPROCESSING, DATASETSFILE) {
+function commonHandlers(io, args) {
     const clientSet = new Set();
     let fileText, datasets;
 
-    // Step 1 - Load the DATASETSFILE
-    try {
-        fileText = fs.readFileSync(DATASETSFILE, 'utf-8');
-        datasets = JSON.parse(fileText);
-    }
-    catch(err) {
-        console.error(err.message);
+    // Step 1 - Fetch the datasets
+    const fetchDatasets = require('./fetchDatasets.js');
+    datasets = fetchDatasets(args);
+    if (datasets.length === 0) {
+        console.error("No datasets found. Please check your data directory.");
+        exit(1);
     }
 
     // Step 2 - When a socket connection occurs, register handlers for events
@@ -22,13 +21,13 @@ function commonHandlers(io, localServer, PREPROCESSING, DATASETSFILE) {
         const clientIp = socket.handshake.address;      // print out the IP 
         const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
         console.log(`Client connection from: ${socket.handshake.query.clientID} at ${ipv4}`);
-        if (localServer)
+        if (args.open)
             clientSet.add(socket.handshake.query.clientID);
 
 
         socket.on('clientShutdown', () => {
             console.log(`Client shutting down: ${socket.handshake.query.clientID}`);
-            if (localServer) {
+            if (args.open) {
                 clientSet.delete(socket.handshake.query.clientID);
                 if (clientSet.size === 0) {
                     console.log('No more clients. Shutting down local server.');
@@ -39,7 +38,7 @@ function commonHandlers(io, localServer, PREPROCESSING, DATASETSFILE) {
 
         // message is not used. ack is {params, datasets}
         socket.on('clientRequestsDatasets', function(message, ack) { 
-            ack({preprocessMode: PREPROCESSING, datasets: datasets});
+            ack({preprocessMode: args.preprocess, datasets: datasets});
         });
 
     });

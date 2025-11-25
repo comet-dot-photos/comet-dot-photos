@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { CometView } from '../view/CometView.js';
+import { disposeCometMesh } from '../core/datasetLoader.js';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree, CONTAINED, INTERSECTED, NOT_INTERSECTED } from 'three-mesh-bvh';
 import { COMETGREYVAL, SI_NONE, SI_UNMAPPED, PAINT_RED, PAINT_GREEN, PAINT_BLUE } from '../core/constants.js';
 
@@ -17,10 +18,7 @@ const BRUSH_COLOR = 0xEC407A; // color of brush sphere
 const COR_COLOR = 0x007090; // color of center of rotation sphere
 
 export class SceneManager {
-  /**
-   * @param {{ xFOV?:number, yFOV?:number, initialEye?:[number,number,number] }} options
-   */
-  constructor(bus, state, overlay, dataset) {
+  constructor(bus, state, overlay) {
     this.bus = bus; // Event bus for cross-component communication
     this.state = state;
     this.overlay = overlay;  
@@ -90,10 +88,8 @@ export class SceneManager {
 	this.CORMesh.visible = false;
 	this.scene.add(this.CORMesh);
 
-	//camera setup
-    this.initializeCameraForDataset(dataset);
-
-    // trackball controls setup
+    // camera and trackball controls setup
+    this.camera = new THREE.PerspectiveCamera();
     this.controls = new TrackballControls(this.camera, this.renderer.domElement);
 	this.controls.rotateSpeed = 4;
 	this.controls.zoomSpeed = 4;
@@ -104,6 +100,8 @@ export class SceneManager {
 	this.controls.addEventListener('change', (event) => {
 		this.updateCameraClipping();
 		this.CORMesh.position.copy(this.controls.target);
+        console.log(`Camera position: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`)
+        console.log(`Camera up: ${this.camera.up.x}, ${this.camera.up.y}, ${this.camera.up.z}`);
 	});
 
     // show CORMesh during trackball interaction
@@ -141,25 +139,30 @@ export class SceneManager {
     this.renderLoop = this.renderLoop.bind(this); // So doesn't lose context when executed outside of its object
     }
 
-    initializeCameraForDataset({initialEye, yFOV}) { 
-        if (!this.camera) this.camera = new THREE.PerspectiveCamera();   
+    initializeCameraForDataset({camPos, camUp, yFOV}) {    
         this.camera.fov = yFOV;               // change vertical FOV
         this.camera.aspect = window.innerWidth / window.innerHeight; 
-        this.camera.near = 0.1;
-        this.camera.far = 500;
-        if (initialEye) this.camera.position.set(...initialEye);
+        this.camera.position.set(...camPos);
+        if (camUp) this.camera.up.set(...camUp);
+        else this.camera.up.set(0, 1, 0);
         this.shiftCamera(this.camera);         // shift camera to account for GUI panel
-        
         this.camera.updateProjectionMatrix();
+
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
     }
 
-    installCometInfo({geom, colorArray, colorAttr, mat, mesh}) {
+    installCometInfo({geom, colorArray, colorAttr, mat, mesh, missionDict}) {
+        disposeCometMesh(this.targetMesh); // dispose existing comet model resources
+ 
         this.cometGeometry = geom;
         this.colorArray = colorArray;
         this.colorAttr = colorAttr;
         this.cometMaterial = mat;
         this.targetMesh = mesh;
         this.scene.add(mesh);
+        const instrument = missionDict.instruments[0]; // first instrument
+        this.initializeCameraForDataset(instrument);
     }
 
     overlayNeedsUpdate() {
@@ -246,25 +249,34 @@ export class SceneManager {
 			canvasHeight             // Full height of the viewable area
 		);
 		cam.updateProjectionMatrix();
-		if (this.controls) this.controls.update();
 	}
 
     updateCameraClipping () {
+        // if distance beween camera and bound volume is > 1km, near will be 1km and far will be rear of bounding volume + 50%
+        // ov bounding volume distance. If distance between camera and bound volume is < 1km, near will be .001km (or .001km minimum) and far will be distance to back of bounding volume.
+        this.camera.updateMatrixWorld(true);
         // Transform origin (comet center) to the camera's local space
         const origin = new THREE.Vector3(0, 0, 0);
         const cameraLocalPosition = new THREE.Vector3();
         cameraLocalPosition.copy(origin).applyMatrix4(this.camera.matrixWorldInverse);
         const viewingZDistance = -cameraLocalPosition.z;  // will be negative distance to origin
 
-        // Set clipping planes (too close, even if correct, causes flicker!)
-        const COMETRADIUS = 50;	// much bigger than the radius of the comet bounding sphere. Making this too small causes flickering during rotate.
-        this.camera.near = Math.max(viewingZDistance - COMETRADIUS, .1);
-        this.camera.far = Math.max(viewingZDistance + COMETRADIUS, .1);
+        const bodyRadius = CometView.radiusUB;
+        if (viewingZDistance - bodyRadius > 1.0) {
+            this.camera.near = 1.0;
+            this.camera.far = viewingZDistance + (bodyRadius * 1.5);
+        } else {
+            // closeup mode - axes and viewport may be clipped
+            this.camera.near = 0.001;
+            this.camera.far = viewingZDistance + bodyRadius;
+        }
         this.camera.updateProjectionMatrix();
+        // console.log(`updateCameraClipping: near=${this.camera.near.toFixed(4)}, far=${this.camera.far.toFixed(4)}`);
     }
 
-    add(obj3d) { this.scene.add(obj3d);  }
-    remove(obj3d) { this.scene.remove(obj3d);  }
+
+    // add(obj3d) { this.scene.add(obj3d);  }
+    // remove(obj3d) { this.scene.remove(obj3d);  }
 
     enablePaint(enable) {
         this.state['enablePaint'] = enable;
@@ -301,7 +313,6 @@ export class SceneManager {
 			this.controls.target = new THREE.Vector3(0, 0, 0);
 			this.controls.update();
 		}
-		this.controls.dispatchEvent({ type: 'change' });
         this.overlayNeedsUpdate();
 	}
 
