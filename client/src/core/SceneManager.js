@@ -10,7 +10,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { CometView } from '../view/CometView.js';
 import { disposeCometMesh } from '../core/datasetLoader.js';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree, CONTAINED, INTERSECTED, NOT_INTERSECTED } from 'three-mesh-bvh';
-import { COMETGREYVAL, SI_NONE, SI_UNMAPPED, PAINT_RED, PAINT_GREEN, PAINT_BLUE } from '../core/constants.js';
+import { COMETGREYVAL, SI_NONE, SI_UNMAPPED, PAINT_RED, PAINT_GREEN, PAINT_BLUE, BR_MIN, BR_MAX } from '../core/constants.js';
 
 // CONSTANTS!
 // Specify Colors
@@ -139,9 +139,16 @@ export class SceneManager {
     this.renderLoop = this.renderLoop.bind(this); // So doesn't lose context when executed outside of its object
     }
 
-    initializeCameraForDataset({camPos, camUp, yFOV}) {    
+    initializeCameraForDataset({camPos, camUp, camDir}, {yFOV}) {    
         this.camera.fov = yFOV;               // change vertical FOV
-        this.camera.aspect = window.innerWidth / window.innerHeight; 
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        if (!camPos && !camDir) camDir = [0, 0, 1];   // +z 
+        if (!camPos && camDir) {
+            const COVERAGE = 1.0;
+            const dist = CometView.radiusUB * (1.0 / COVERAGE) / Math.sin(((yFOV / 2.) * Math.PI / 180.));
+            const camVec = new THREE.Vector3().fromArray(camDir);
+            camPos = camVec.setLength(dist).toArray();
+        }
         this.camera.position.set(...camPos);
         if (camUp) this.camera.up.set(...camUp);
         else this.camera.up.set(0, 1, 0);
@@ -150,6 +157,15 @@ export class SceneManager {
 
         this.controls.target.set(0, 0, 0);
         this.controls.update();
+    }
+
+    initializeBrushForDataset() {  // Scale initial brush according to 3D model size
+        const ideal_comet_to_brush_ratio = 100.0/2.6482;  // will result in a brush radius of 100 for 67P, others will be scaled
+        let brush_radius = (CometView.radiusUB * ideal_comet_to_brush_ratio);
+        brush_radius = Math.round(brush_radius);
+        brush_radius = Math.max(brush_radius, BR_MIN);
+        brush_radius = Math.min(brush_radius, BR_MAX);
+        this.adjustBrushSize(brush_radius);
     }
 
     installCometInfo({geom, colorArray, colorAttr, mat, mesh, missionDict}) {
@@ -162,7 +178,8 @@ export class SceneManager {
         this.targetMesh = mesh;
         this.scene.add(mesh);
         const instrument = missionDict.instruments[0]; // first instrument
-        this.initializeCameraForDataset(instrument);
+        this.initializeCameraForDataset(missionDict, instrument);
+        this.initializeBrushForDataset();
     }
 
     overlayNeedsUpdate() {

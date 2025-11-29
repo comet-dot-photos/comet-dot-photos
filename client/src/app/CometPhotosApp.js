@@ -191,6 +191,10 @@ export class CometPhotosApp {
 
   // ---- Public API ----
   async loadMission(missionName) {
+    if (this._previouslyLoaded)            // reset ui defaults on new mission load, if not 1st load
+      this.restoreNewMissionDefaults();
+    this._previouslyLoaded = true;      
+
     const missionDict = this.dsArray.find(o => o.mission === missionName);
     if (!missionDict) throw new Error(`loadMission: unknown mission: ${missionName}`);
 
@@ -200,12 +204,6 @@ export class CometPhotosApp {
     const inNames = missionDict.instruments.map(x => x.shortName);
     this.bus.emit('setSelectOpts', {key: 'instruments', opts: inNames, val: inNames, silent: true});
     this.bus.emit('setEnabled', {key: 'instruments', enabled: (inNames.length > 1)});  // enabled iff more than one choice!
-
-    this.state['spacecraftView'] = false; // unset spacecraftView and showImage (defaults)
-    this.bus.emit('setVal', {key: 'spacecraftView', val: false, silent: true}); 
-    this.state['showImage'] = SI_NONE;
-    this.bus.emit('setVal', {key: 'showImage', val: SI_NONE, silent: true});
-    this.imageBrowser.enableOverlayCanvas(false);
 
     const modelPromise = loadCometModel(this.sceneMgr, this.ROI, missionDict);
     const datasetsPromise = this.loadDatasets(inNames, false);
@@ -217,6 +215,17 @@ export class CometPhotosApp {
 
     // Everything ready ⇒ signal 'ready'
     this.bus.emit('loadComplete');
+  }
+
+  // restores new mission defaults for the control panel - only needs to be called when
+  //   another mission had previously been loaded.
+  restoreNewMissionDefaults() {
+    for (const [key, value] of Object.entries(DEFAULT_UI_STATE)) {
+      this.state[key] = value;
+      this.bus.emit('setVal', {key: key, val: value, silent: true});
+    }
+    this.imageBrowser.enableOverlayCanvas(false);             // silent does not call this
+    this.sceneMgr.enablePaint(DEFAULT_UI_STATE.enablePaint);  // silent does not call this
   }
 
   // nameArray is an array of instrument shortNames from the currently selected mission

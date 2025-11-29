@@ -3,6 +3,7 @@
 //  events are consumed by handlers wired up in CometPhotosApp.
 
 import * as THREE from 'three';
+import { BR_MIN, BR_MAX } from '../core/constants.js';
 
 export class PaintEvents {
   constructor({ bus, state, canvas, camera, controls, overlayNeedsUpdate, setHaltCircle}) {
@@ -84,7 +85,7 @@ export class PaintEvents {
       return
     } ; // wheel only adjusts brush size in paint mode
     const delta = Math.sign(e.deltaY) * 7; // adjust in increments of 7m. Slider allows for 1m precision
-    const newSize = Math.max(5, Math.min(200, this.state.brushSize - delta));
+    const newSize = Math.max(BR_MIN, Math.min(BR_MAX, this.state.brushSize - delta));
 
     if (newSize !== this.state.brushSize) {
       this.bus.emit('setVal', {key: 'brushSize', val: newSize, silent: false}); // have the slider generate the event

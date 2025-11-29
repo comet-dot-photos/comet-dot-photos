@@ -13,3 +13,6 @@ export const LL_REGRESSION = '1: Regression Test', LL_TERSE = '2: Terse', LL_VER
 export const PAINT_RED = 241, PAINT_GREEN = 178, PAINT_BLUE = 171;	  // color of painted region
 export const COMETGREYVAL = 255;
 export const COMETCOLOR = COMETGREYVAL<<16 | COMETGREYVAL<<8 | COMETGREYVAL;
+
+//  Brush Radius
+export const BR_MIN = 1, BR_MAX = 200;
