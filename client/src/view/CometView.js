@@ -111,50 +111,33 @@ export class CometView {
         CometView.lastRequestedImg = "";
     }
 
-    applyToCamera(camera, orbControls, aspect = 0, projCam = false) {
+    applyToCamera(camera, orbControls) {
         camera.fov = CometView.yFOV;
         camera.position.set(this.sc_position.x, this.sc_position.y, this.sc_position.z);
         camera.up.set(this.up.x, this.up.y, this.up.z);
         camera.lookAt(this.planeCenter.x, this.planeCenter.y, this.planeCenter.z);
 
-        // aspect = (aspect != 0) ? aspect : window.innerWidth / window.innerHeight; 
         const padding = .001;   // 1 meter should be sufficient padding
-        camera.near = this.minDistAlongNormal - padding; 
-        camera.far = this.maxDistAlongNormal + padding;
+        let near = this.minDistAlongNormal - padding; 
+        let far  = this.maxDistAlongNormal + padding;
+        if (near < padding)     // camera should not get closer than 1 meter
+            near = padding;
+       
+        if (far / near < 500) {  // got room to spare - aggressively avoid artifacts - 
+            near = near/2;
+            far = far*2;
+        }
+
+        camera.near = near;
+        camera.far = far;
 
         camera.updateProjectionMatrix();
         camera.updateWorldMatrix(true, false);
-        console.log(`applyToCamera: near=${camera.near.toFixed(2)}, far=${camera.far.toFixed(2)}`);
+        console.log(`applyToCamera: near=${camera.near}, far=${camera.far}`);
 
         if (orbControls) {
             orbControls.target = this.planeCenter.clone();
-            orbControls.update();  // // which may reset near/far, but ok 
-        }
-    }
-
-    applyToCameraOrig(camera, orbControls, aspect = 0, projCam = false) {
-        camera.fov = CometView.yFOV;
-        aspect = (aspect != 0) ? aspect : window.innerWidth / window.innerHeight; 
-        if (projCam) {            // need a tight near/far pair for proj depth buffer
-            const padding = .1;   // .1 km should be sufficient padding
-            camera.near = this.minDistAlongNormal - padding;
-            camera.far = this.minDistAlongNormal + (2 * CometView.radiusUB) + padding
-        } else {
-            camera.near = .1;
-            // EXTRA_CLIP_FAR allows us to zoom out 
-            camera.far = this.minDistAlongNormal + (2* CometView.radiusUB) + CometView.EXTRA_CLIP_FAR;
-        }
-        camera.position.set(this.sc_position.x, this.sc_position.y, this.sc_position.z);
-        camera.up.set(this.up.x, this.up.y, this.up.z);
-        camera.lookAt(this.planeCenter.x, this.planeCenter.y, this.planeCenter.z);
-        camera.updateProjectionMatrix();
-        camera.updateWorldMatrix(true, false);
-
-        if (orbControls) {
-            orbControls.target = this.planeCenter.clone();
-            orbControls.update();
-            controls.update();
-            controls.dispatchEvent({ type: "change" })
+            orbControls.update();  // susequent 'change' event which may reset near/far, but ok 
         }
     }
 
@@ -199,7 +182,7 @@ export class CometView {
             CometView.map = texture;
             view._projCam ||= new THREE.PerspectiveCamera();  // only allocate the first time
             const cam = view._projCam;
-            view.applyToCamera(cam, null, CometView.aspect, true); // clone the current camera, but set viewing properties for image
+            view.applyToCamera(cam, null); // clone the current camera, but set viewing properties for image projection
             view.applyProjection(cam, texture);
             view.imageFresh = true;
 
@@ -273,9 +256,23 @@ export class CometView {
         this.normDepth = normDepth;
     }
 
-    static installCometInfo (handle, radius) {    // called when loading model
+    static installCometInfo (handle, geom) {    // called when loading model
         CometView.projectorHandle = handle;
-        CometView.radiusUB = radius;
+        CometView.radiusUB = this.getBoundingRadius(geom);
+    }
+
+    static getBoundingRadius(geom) {    // compute bounding radius (about origin) from geometry
+        const pos = geom.attributes.position;
+        const arr = pos.array;
+        let maxR2 = 0;
+        for (let i = 0, n = arr.length; i < n; i += 3) {
+            const x = arr[i];
+            const y = arr[i+1];
+            const z = arr[i+2];
+            const r2 = x*x + y*y + z*z;
+            if (r2 > maxR2) maxR2 = r2;
+        }
+        return Math.sqrt(maxR2);
     }
 }
 

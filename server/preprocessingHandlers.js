@@ -7,11 +7,12 @@ const { exit } = require('process');
 
 function preprocessingHandlers(io, datasets) {
     let fileText, viewArray;
-    // Will preprocess the first dataset in datasets.instruments
 
     // Step 1 - Load the phase1 metaData file
-    const inst = datasets.instruments[0];
-    const oldMetaFile = path.join(__dirname, '..', 'data', datasets.missionFolder, inst.dataFolder, inst.metaData);
+    //   We will be preprocessing just the first mission and first instrument in datasets.
+    const mission = datasets[0];
+    const inst = mission.instruments[0];
+    const oldMetaFile = path.join(__dirname, '..', 'data', mission.missionFolder, inst.dataFolder, inst.metaData);
     try {
         fileText = fs.readFileSync(oldMetaFile, 'utf-8');
     }
@@ -49,7 +50,7 @@ function preprocessingHandlers(io, datasets) {
                 // Remove all elements that had no vertices visible (d1 > d2)
                 viewArray = viewArray.filter((val) => val.d1 <= val.d2)
                 // FINISH UP CODE HERE!! WRITE TO FILE!!!
-                const visFile = path.join(__dirname, '..', 'data', datasets.missionFolder, inst.dataFolder, inst.visTable + '.new');
+                const visFile = path.join(__dirname, '..', 'data', mission.missionFolder, inst.dataFolder, inst.visTable + '.new');
                 fs.writeFileSync(visFile, '');                       // create a new empty file
                 for (let i = 0; i < viewArray.length; i++) {            // append the buffer to the file
                     console.log(`writing line ${i}...`)
@@ -59,7 +60,7 @@ function preprocessingHandlers(io, datasets) {
                 console.log('Getting ready to write JSON');
                 const jsonString = JSON.stringify(viewArray);           // write out a new json file including new bbox info
                 console.log('After stringify');
-                const newMetaFile = path.join(__dirname, '..', 'data', datasets[0].dataFolder, datasets[0].metaData + '.new');
+                const newMetaFile = path.join(__dirname, '..', 'data', mission.missionFolder, inst.dataFolder, inst.metaData + '.new');
                 fs.writeFileSync(newMetaFile, jsonString);
                 console.log('Done. Files written. Preprocessing complete!')
             } else {

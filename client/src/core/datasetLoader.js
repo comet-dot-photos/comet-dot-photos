@@ -61,11 +61,10 @@ export async function loadCometModel(sceneMgr, ROI, missionDict) {
   handle.setDepthRenderTarget(depthRT);
 
   const mesh = new THREE.Mesh(geom, mat);
-  mesh.geometry.computeBoundsTree();
+  mesh.geometry.computeBoundsTree();   // necessary for three-mesh-bvh
 
   // Save projector handle and mesh radius for later use
-  mesh.geometry.computeBoundingSphere();
-  CometView.installCometInfo(handle, mesh.geometry.boundingSphere.radius);
+  CometView.installCometInfo(handle, mesh.geometry);
 
   // Install into scene manager
   sceneMgr.installCometInfo({geom, colorArray, colorAttr, mat, mesh, missionDict});

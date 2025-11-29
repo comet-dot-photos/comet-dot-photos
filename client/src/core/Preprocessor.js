@@ -11,20 +11,22 @@ const MILLIMETER = .000001;  // in km
 const METER = .001; 		 // in km
 
 export class Preprocessor {
-	constructor({ bus, state, socket, imageBrowser, sceneMgr }) {
-	this.socket = socket;
-	this.imageBrowser = imageBrowser;
-	this.sceneMgr = sceneMgr;
+	constructor({ bus, state, socket, imageBrowser, sceneMgr, dsArray }) {
+		this.socket = socket;
+		this.imageBrowser = imageBrowser;
+		this.sceneMgr = sceneMgr;
 
-	this.filterEng = imageBrowser.filterEng;
-	this.ROI = this.filterEng.ROI;
-	this.getM2FromDistance = imageBrowser.filterEng.getM2FromDistance.bind(imageBrowser.filterEng);
-	this.preprocessing = false;		// This is true when preprocessing is actually in progress
+		this.filterEng = imageBrowser.filterEng;
+		this.ROI = this.filterEng.ROI;
+		this.getM2FromDistance = imageBrowser.filterEng.getM2FromDistance.bind(imageBrowser.filterEng);
+		this.preprocessing = false;		// This is true when preprocessing is actually in progress
 
-	// disable preprocess button if client not in preprocess mode
-	if (!state.preprocessMode) bus.emit('setEnabled', {key: 'preprocess', enabled: false}); 
+		// disable preprocess button if client not in preprocess mode
+		if (!state.preprocessMode) bus.emit('setEnabled', {key: 'preprocess', enabled: false}); 
 
-	this.initSocketListeners();
+		this.pixScaleCutoff = this.getPixScaleCutoff(dsArray);  // cache for efficiency, checking instrument first, then mission
+
+		this.initSocketListeners();
 	}
 
 	getCometView() {
@@ -49,6 +51,11 @@ export class Preprocessor {
 
 	getCometGeometry() {
 		return this.sceneMgr.cometGeometry;
+	}
+
+	getPixScaleCutoff(dsArray) {
+		const DEFAULT_PIX_SCALE_CUTOFF = 10.0; // default if not specified anywhere
+		return (dsArray[0].instruments[0].pixScaleCutoff || dsArray[0].pixScaleCutoff || DEFAULT_PIX_SCALE_CUTOFF);
 	}
 
 
@@ -173,11 +180,13 @@ export class Preprocessor {
 		console.log(`Visible vertex count = ${this.countVertices(VISIBLE_BLUE)}`);
 		this.expandPaint(1);
 
+		/*
 		// TEMPORARY for debugging...
 		this.initializeCameraMeshClassifier();
 		this.classifyCameraRelativeToMesh(this.sceneMgr.camera, targetMesh, {});
 		console.log(`CometView minDistAlongNormal = ${cometView.minDistAlongNormal} and maxDistAlongNormal = ${cometView.maxDistAlongNormal}`);
 		console.log(`Camera near = ${this.sceneMgr.camera.near} and far = ${this.sceneMgr.camera.far}`);
+		*/
 	}
 
 	beginPreprocessing () {
@@ -202,8 +211,8 @@ export class Preprocessor {
 				const bbox = cometView.bbox;
 				message.bbox = {min: bbox.min.toArray(), max: bbox.max.toArray()};
 				const depth = cometView.normDepth;
-				if (this.getM2FromDistance(ogPhotoArray[message.index], depth.depthMin) > 10)
-					depth.depthMax = depth.depthMin-1;	// Tell server not to save if m2 > 10
+				if (this.getM2FromDistance(ogPhotoArray[message.index], depth.depthMin) > this.pixScaleCutoff)
+					depth.depthMax = depth.depthMin-1;	// Tell server not to save if m2 > pixScaleCutoff
 				message.depth = {min: depth.depthMin, max: depth.depthMax};
 				this.ROI.updatePaintBuffer(VISIBLE_BLUE);
 				message.visBuffer = this.ROI.paintArray;

@@ -47,7 +47,7 @@ const DEFAULT_UI_STATE = {
 export class CometPhotosApp {
   constructor(dsArray, socket, defaults = {}) {
     this.bus = new Emitter(); // Event bus for cross-component communication
-    this.dsArray = dsArray;   // array of dataset descriptors
+    this.dsArray = dsArray;   // array of mission dataset descriptors
     this.socket = socket;     // To be shared with modules that interact with server
 
     this.state = { ...DEFAULT_UI_STATE };
@@ -103,7 +103,8 @@ export class CometPhotosApp {
       state: this.state,
       socket: this.socket,
       imageBrowser: this.imageBrowser,
-      sceneMgr: this.sceneMgr
+      sceneMgr: this.sceneMgr,
+      dsArray: this.dsArray
     })
 
     this.testHarness = new TestHarness ({
@@ -196,17 +197,18 @@ export class CometPhotosApp {
     this.state.mission = missionName;
     this.bus.emit('setVal', {key: 'mission', val: this.state.mission, silent: true});
 
-    const dsNames = missionDict.instruments.map(x => x.shortName);
-    this.bus.emit('setSelectOpts', {key: 'instruments', opts: dsNames, val: dsNames, silent: true});
-    this.bus.emit('setEnabled', {key: 'instruments', enabled: (dsNames.length > 1)});  // enabled iff more than one choice!
+    const inNames = missionDict.instruments.map(x => x.shortName);
+    this.bus.emit('setSelectOpts', {key: 'instruments', opts: inNames, val: inNames, silent: true});
+    this.bus.emit('setEnabled', {key: 'instruments', enabled: (inNames.length > 1)});  // enabled iff more than one choice!
 
     this.state['spacecraftView'] = false; // unset spacecraftView and showImage (defaults)
     this.bus.emit('setVal', {key: 'spacecraftView', val: false, silent: true}); 
     this.state['showImage'] = SI_NONE;
     this.bus.emit('setVal', {key: 'showImage', val: SI_NONE, silent: true});
+    this.imageBrowser.enableOverlayCanvas(false);
 
     const modelPromise = loadCometModel(this.sceneMgr, this.ROI, missionDict);
-    const datasetsPromise = this.loadDatasets(dsNames, false);
+    const datasetsPromise = this.loadDatasets(inNames, false);
     await Promise.all([modelPromise, datasetsPromise]);   // … wait for BOTH to complete
 
     this.filterEng.updateAllFilters();  // initial filter update - do after model+metadata loaded
