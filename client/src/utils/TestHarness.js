@@ -115,7 +115,7 @@ export class TestHarness {
             if (val != dynamicArray[key].nm) {
                 // need to paint this on the screen too!
                 console.error(`Mismatch of image in result set at position ${key}, expecting val ${val}.`);
-                throw new Error("checkResult: Image mistmatch");
+                throw new Error("checkResult: Image mismatch");
             }
         }
         console.log('CHECKRESULT: PASSED A TEST.');
