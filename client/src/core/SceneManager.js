@@ -47,13 +47,21 @@ export class SceneManager {
     
     // scene setup
     this.scene = new THREE.Scene();
-    const light1 = new THREE.DirectionalLight(0xffffff, 0.5);
-    light1.position.set(1, 1, 1);
-    const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    light2.position.set(-1, -1, -1);
-    this.scene.add(light1);
-    this.scene.add(light2);
-    this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+    // Create a directional light, always coming from the left
+    this.camera = new THREE.PerspectiveCamera();
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.7); 
+    dirLight.position.set(0, 0, 0);        // place the light at the camera
+    dirLight.target.position.set(1, 0, 0); // make its target (1, 0, 0) in camera coords
+    dirLight.target.position.set(0, -1, 0); // make its target (1, 0, 0) in camera coords
+    this.camera.add(dirLight);
+    this.camera.add(dirLight.target);
+
+    // Place a headlamp on the camera
+    const headlamp = new THREE.PointLight(0xffffff, 0.5);
+    headlamp.position.set(0, 0, 0); // coincident with camera...
+    this.camera.add(headlamp);
+    this.scene.add(this.camera);
     
 	this.createAxes(); 	//ADD AXES
 
@@ -88,8 +96,7 @@ export class SceneManager {
 	this.CORMesh.visible = false;
 	this.scene.add(this.CORMesh);
 
-    // camera and trackball controls setup
-    this.camera = new THREE.PerspectiveCamera();
+    // trackball controls setup
     this.controls = new TrackballControls(this.camera, this.renderer.domElement);
 	this.controls.rotateSpeed = 4;
 	this.controls.zoomSpeed = 4;
