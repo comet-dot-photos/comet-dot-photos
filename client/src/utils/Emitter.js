@@ -10,7 +10,7 @@ export class Emitter {
     this.m = new Map(); // eventName → [listeners]
     this._dontLogSet = null;      // events we don't want to log
     this._checkAfterSet = null;   // events after which to log checkStates
-    this._asyncEvents = new Set(['endPaint', 'percentOverlap', 'clearPaint'])
+    this._asyncEvents = new Set(['endPaint', 'percentOverlap', 'clearPaint', 'mission', 'instrument'])
   }
 
   on(event, fn) {

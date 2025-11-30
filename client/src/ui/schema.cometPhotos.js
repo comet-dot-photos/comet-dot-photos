@@ -1,7 +1,7 @@
 // ui/schema.cometPhotos.js
 //  Schema description for building the Comet.Photos control panel.
 
-import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, LL_REGRESSION, LL_TERSE, LL_VERBOSE, SD_DAY, SD_MONTH, SD_YEAR} from '../core/constants.js';
+import { SI_NONE, SI_UNMAPPED, SI_PERSPECTIVE, LL_REGRESSION, LL_TERSE, LL_VERBOSE, SD_DAY, SD_MONTH, SD_YEAR, BR_MIN, BR_MAX} from '../core/constants.js';
 
 export const cometPhotosSchema = [
       {
@@ -10,7 +10,7 @@ export const cometPhotosSchema = [
         items: [
           { type: 'button', key: 'showQuickStart', label: 'Show Quickstart Help', event: 'quickstartHelp' },
           { type: 'select', key: 'mission',    label: 'Mission:', options: [] },
-          { type: 'multiselect', key: 'instruments', label: 'Instrument:', options: [] }
+          { type: 'multiselect', key: 'instruments', label: 'Instruments:', options: [] }
         ]
       },
 
@@ -22,8 +22,8 @@ export const cometPhotosSchema = [
             { type: 'bool',   key: 'enablePaint',   label: 'Enable Paint:' },
             { type: 'button', key: 'clearPaint',    label: 'Clear Paint',     event: 'clearPaint' }
           ]},
-          { type: 'range',  key: 'brushSize',     label: 'Brush Size:',     min: 5,  max: 200, step: 1 },
-          { type: 'range',  key: 'percentOverlap',label: 'Percent Overlap:',min: 1,  max: 100, step: 1 },
+          { type: 'range',  key: 'brushSize',     label: 'Brush Size:',     min: BR_MIN,  max: BR_MAX, step: 1 },
+          { type: 'range',  key: 'percentOverlap',label: 'Percent Overlap:',min: 1,       max: 100,    step: 1 },
         ]
       },
 

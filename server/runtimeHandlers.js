@@ -74,14 +74,19 @@ function runtimeHandlers(io, datasets) {
         }
 
         // 'clientRequestsLogSave' - Sent by the client to have the server save a log.
-        //      message.log is the json log to save, message.logName is the name.
-        //      replies with ack(bool), where bool is success.
+        //      message is of the form {log, logName, missionFolder }.
+        //      Replies with ack(bool), where bool is success.
         //
-        socket.on('clientRequestsLogSave', function(message, ack) { 
+        socket.on('clientRequestsLogSave', function({log, logName, missionFolder}, ack) { 
             try {
-                const jsonString = JSON.stringify(message.log);           // write out a new json file
-                const filename = './logs/' + getLegalFilename(message.logName);
-                fs.writeFileSync(filename, jsonString);
+                const filename = getLegalFilename(logName);
+                const logFolder = path.join(__dirname, '..', 'data', missionFolder, 'logs');
+                const filepath = path.join(logFolder, filename);
+
+                if (!fs.existsSync(logFolder)) // create logs under missionFolder if it doesn't exist
+                    fs.mkdirSync(logFolder);
+
+                fs.writeFileSync(filepath, JSON.stringify(log));
                 ack(true);
             }
             catch(err) {
@@ -89,18 +94,18 @@ function runtimeHandlers(io, datasets) {
                 console.error(err.message);
                 ack(false);
             }
-
         });
 
         // 'clientRequestsLogLoad' - Sent by the client to retrieve a log.
-        //      message.logName specifies which log. 
+        //      message is of the form {logName, missionFolder }. 
         //      Replies with ack(log), where log is null if failed.
         //
-        socket.on('clientRequestsLogLoad', function(message, ack) { 
+        socket.on('clientRequestsLogLoad', function({logName, missionFolder}, ack) { 
             let log;
             try {
-                const filename = './logs/' + getLegalFilename(message.logName);
-                fileText = fs.readFileSync(filename, 'utf-8');
+                const filename = getLegalFilename(logName);
+                const filepath = path.join(__dirname, '..', 'data', missionFolder, 'logs', filename);
+                const fileText = fs.readFileSync(filepath, 'utf-8');
                 log = JSON.parse(fileText);
             }
             catch(err) {

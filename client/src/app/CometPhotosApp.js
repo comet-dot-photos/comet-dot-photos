@@ -19,7 +19,7 @@ import { SI_NONE, SD_MONTH, LL_REGRESSION } from '../core/constants.js';
 
 const DEFAULT_UI_STATE = {
   mission: '',
-	datasets: [],
+	instruments: [],
   enablePaint: false,
 	brushSize: 100, // meters
 	percentOverlap: 75,
@@ -131,7 +131,7 @@ export class CometPhotosApp {
     const HANDLERS = {
         'quickstartHelp':  () => window.open("quickstart.html"),
         'mission':         v => this.loadMission(v),
-        'instruments':     v => this.loadDatasets(v),
+        'instruments':     v => this.loadInstruments(v),
         'enablePaint':     v => this.sceneMgr.enablePaint(v),
         'percentOverlap':  v => this.filterEng.setPercentOverlap(v),
         'brushSize':       v => this.sceneMgr.adjustBrushSize(v),
@@ -191,6 +191,9 @@ export class CometPhotosApp {
 
   // ---- Public API ----
   async loadMission(missionName) {
+    if (missionName == this.state.mission) return; 
+    this.state.metadataLoaded = false;     // will need to load new metadata 
+
     if (this._previouslyLoaded)            // reset ui defaults on new mission load, if not 1st load
       this.restoreNewMissionDefaults();
     this._previouslyLoaded = true;      
@@ -200,18 +203,19 @@ export class CometPhotosApp {
 
     this.state.mission = missionName;
     this.bus.emit('setVal', {key: 'mission', val: this.state.mission, silent: true});
-
+ 
     const inNames = missionDict.instruments.map(x => x.shortName);
     this.bus.emit('setSelectOpts', {key: 'instruments', opts: inNames, val: inNames, silent: true});
     this.bus.emit('setEnabled', {key: 'instruments', enabled: (inNames.length > 1)});  // enabled iff more than one choice!
 
     const modelPromise = loadCometModel(this.sceneMgr, this.ROI, missionDict);
-    const datasetsPromise = this.loadDatasets(inNames, false);
-    await Promise.all([modelPromise, datasetsPromise]);   // … wait for BOTH to complete
+    const instrumentsPromise = this.loadInstruments(inNames, false);
+    await Promise.all([modelPromise, instrumentsPromise]);   // … wait for BOTH to complete
 
     this.filterEng.updateAllFilters();  // initial filter update - do after model+metadata loaded
 
     document.title = `Comet.Photos: ${missionDict.mission}`; // add mission to window title
+    this.state.missionFolder = missionDict.missionFolder;    // so we know where to fetch/save logs
 
     // Everything ready ⇒ signal 'ready'
     this.bus.emit('loadComplete');
@@ -229,11 +233,9 @@ export class CometPhotosApp {
   }
 
   // nameArray is an array of instrument shortNames from the currently selected mission
-  async loadDatasets(nameArray, entryPoint = true) {
-    if (entryPoint) {         // only set state if called from UI event, otherwise already set
+  async loadInstruments(nameArray, entryPoint = true) {
       this.state.instruments = nameArray;
       this.bus.emit('setVal', {key: 'instruments', val: this.state.instruments, silent: true});
-    }
 
     const missionDict = this.dsArray.find(o => o.mission === this.state.mission);
 

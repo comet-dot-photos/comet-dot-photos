@@ -28,8 +28,8 @@ export class TestHarness {
     }
 
     initEmitterFilters() {
-        this.DONT_LOG_VERBOSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'setEnabled', 'setLimits', 'logCheck', 'logLevel', 'loadComplete']);
-        this.DONT_LOG_TERSE_SET = new Set(['setVal', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled',        'setLimits', 'logCheck', 'logLevel', 'loadComplete']);
+        this.DONT_LOG_VERBOSE_SET = new Set(['setVal', 'setSelectOpts', 'startLog', 'endLog', 'filter.results', 'setEnabled', 'setLimits', 'logCheck', 'logLevel', 'loadComplete']);
+        this.DONT_LOG_TERSE_SET = new Set(['setVal', 'setSelectOpts', 'startLog', 'endLog', 'filter.results', 'startPaint', 'drawBrush', 'endPaint', 'setEnabled',        'setLimits', 'logCheck', 'logLevel', 'loadComplete']);
         this.CHECK_AFTER_SET = new Set(['percentOverlap', 'metersPerPixel', 'emissionAngle', 'incidenceAngle', 'phaseAngle', 'endPaint', 'clearPaint']); // events that can change the result set
     }
 
@@ -201,8 +201,9 @@ export class TestHarness {
             const json = JSON.stringify(log);
             const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
             console.log(`SaveLog - size: ${sizeBytes} bytes: (~${(sizeBytes/1024).toFixed(1)} KB)`);
+            const missionFolder = this.state.missionFolder;
 
-            this.socket.emit('clientRequestsLogSave', {log, logName}, v => {
+            this.socket.emit('clientRequestsLogSave', {log, logName, missionFolder}, v => {
                 if (v) {
                     this.statusMessage('Log file saved.');
                     this.lastLogUsed = logName;
@@ -217,8 +218,9 @@ export class TestHarness {
     // logName: name of log to load - if null, will prompt
     async runLog(timed, framed, logName=null) {
         logName ??= prompt("Name of log or test:", this.lastLogUsed);
+        const missionFolder = this.state.missionFolder;
         const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
-        const log = await req('clientRequestsLogLoad', {logName});
+        const log = await req('clientRequestsLogLoad', {logName, missionFolder});
         if (!log) {
             this.statusMessage(`${logName} was not found.`);
             return;
