@@ -215,7 +215,6 @@ export class CometPhotosApp {
     this.filterEng.updateAllFilters();  // initial filter update - do after model+metadata loaded
 
     document.title = `Comet.Photos: ${missionDict.mission}`; // add mission to window title
-    this.state.missionFolder = missionDict.missionFolder;    // so we know where to fetch/save logs
 
     // Everything ready ⇒ signal 'ready'
     this.bus.emit('loadComplete');

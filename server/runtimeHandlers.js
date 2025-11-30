@@ -70,20 +70,20 @@ function runtimeHandlers(io, datasets) {
         });
 
         function getLegalFilename(str) {
-            return str.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            return str.replace(/[^a-z0-9-]/gi, '_').toLowerCase();
         }
 
         // 'clientRequestsLogSave' - Sent by the client to have the server save a log.
         //      message is of the form {log, logName, missionFolder }.
         //      Replies with ack(bool), where bool is success.
         //
-        socket.on('clientRequestsLogSave', function({log, logName, missionFolder}, ack) { 
+        socket.on('clientRequestsLogSave', function({log, logName}, ack) { 
             try {
                 const filename = getLegalFilename(logName);
-                const logFolder = path.join(__dirname, '..', 'data', missionFolder, 'logs');
+                const logFolder = path.join(__dirname, '..', 'data', '_logs');
                 const filepath = path.join(logFolder, filename);
 
-                if (!fs.existsSync(logFolder)) // create logs under missionFolder if it doesn't exist
+                if (!fs.existsSync(logFolder)) // create _logs under data if it doesn't exist
                     fs.mkdirSync(logFolder);
 
                 fs.writeFileSync(filepath, JSON.stringify(log));
@@ -100,11 +100,11 @@ function runtimeHandlers(io, datasets) {
         //      message is of the form {logName, missionFolder }. 
         //      Replies with ack(log), where log is null if failed.
         //
-        socket.on('clientRequestsLogLoad', function({logName, missionFolder}, ack) { 
+        socket.on('clientRequestsLogLoad', function({logName}, ack) { 
             let log;
             try {
                 const filename = getLegalFilename(logName);
-                const filepath = path.join(__dirname, '..', 'data', missionFolder, 'logs', filename);
+                const filepath = path.join(__dirname, '..', 'data', '_logs', filename);
                 const fileText = fs.readFileSync(filepath, 'utf-8');
                 log = JSON.parse(fileText);
             }

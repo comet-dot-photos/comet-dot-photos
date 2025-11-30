@@ -201,9 +201,8 @@ export class TestHarness {
             const json = JSON.stringify(log);
             const sizeBytes = new TextEncoder().encode(json).length; // UTF-8 size
             console.log(`SaveLog - size: ${sizeBytes} bytes: (~${(sizeBytes/1024).toFixed(1)} KB)`);
-            const missionFolder = this.state.missionFolder;
 
-            this.socket.emit('clientRequestsLogSave', {log, logName, missionFolder}, v => {
+            this.socket.emit('clientRequestsLogSave', {log, logName}, v => {
                 if (v) {
                     this.statusMessage('Log file saved.');
                     this.lastLogUsed = logName;
@@ -218,9 +217,8 @@ export class TestHarness {
     // logName: name of log to load - if null, will prompt
     async runLog(timed, framed, logName=null) {
         logName ??= prompt("Name of log or test:", this.lastLogUsed);
-        const missionFolder = this.state.missionFolder;
         const req = (ev, data) => new Promise(res => this.socket.emit(ev, data, res));
-        const log = await req('clientRequestsLogLoad', {logName, missionFolder});
+        const log = await req('clientRequestsLogLoad', {logName});
         if (!log) {
             this.statusMessage(`${logName} was not found.`);
             return;
