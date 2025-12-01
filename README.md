@@ -745,14 +745,15 @@ The preprocess.json file contains a single array holding a dictionary with the f
 3. model - the name of the 3D model file (relative to "modelFolder", which is another key).
 4. nVerts - the number of vertices in model.
 5. instruments - an array whose first element is a dictionary of instrument data that we are preprocessing. It contains:
-  a. instrumentFolder - the name of the instrument folder (relative to the missionFolder)
-  b. metaData - the name of the JSON file created in Step 2 (relative to instrumentFolder).
-  c. visTable - the name of the visibility table for the dataset. Since this will be created subsequently, provide the name that you would like. (It will be created relative to instrumentFolder, which is another key, and have a ".new" extension).
-  d. xFOV and yFOV - the x and y field of view of the camera.
-  e. defaultRes - the default resolution for the camera (exceptions are specified in the metadata for given images).
-  f. longName - a long, descriptive name for the dataset.
-  g. shortName - a shorter name for the dataset, to be used in menus.
-  h. imgFolder - name of folder (relative to instrumentFolder) where the images are located.
+
+    a. instrumentFolder - the name of the instrument folder (relative to the missionFolder)
+    b. metaData - the name of the JSON file created in Step 2 (relative to instrumentFolder).
+    c. visTable - the name of the visibility table for the dataset. Since this will be created subsequently, provide the name that you would like. (It will be created relative to instrumentFolder, which is another key, and have a ".new" extension).
+    d. xFOV and yFOV - the x and y field of view of the camera.
+    e. defaultRes - the default resolution for the camera (exceptions are specified in the metadata for given images).
+    f. longName - a long, descriptive name for the dataset.
+    g. shortName - a shorter name for the dataset, to be used in menus.
+    h. imgFolder - name of folder (relative to instrumentFolder) where the images are located.
 
 Step 5: Run Comet.Photos in preprocessing mode. This will generate the visibility table (visTable) and an amended metadata file. To do this, cd to the server directory, and type "npm run preprocess -- --catalog /path/to/preprocess.json". This will open up a browser to Comet.Photos in preprocess mode. In the Debug Options folder of the Control Panel is a "Pre-process" button. Press that, and Comet.Photos will compute which vertices in the model are visible in each image. This may take several hours. Do not try to operate the Comet.Photos window until the image index of the control panel shows all images have been processed, and a message is displayed in the server window that the process has completed.
 
