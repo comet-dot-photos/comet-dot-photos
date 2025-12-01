@@ -733,22 +733,22 @@ data (folder)
                 |               |
                 |               JSON metadata file (Step 2)
                 |               JPG image tree (Step 3)
-                preprocessing
-                            |
-                            preprocess.json (described below)              
+                |
+                preprocess.json (described below)
+                dataset.json (Step 6)              
 ```
 
 The preprocess.json file contains a single array holding a dictionary with the following fields:
 
 1. **mission** - the name of the mission
 2. **missionFolder** - the name of the mission folder under the data folder.
-3. **model** - the name of the 3D model file (relative to "modelFolder", which is another key).
-4. **nVerts** - the number of vertices in model.
+3. **model** - the name of the 3D shape file
+4. **nVerts** - the number of vertices in model
 5. **instruments** – an array whose first element is a dictionary of instrument data that we are preprocessing. It contains:
 
     - **instrumentFolder** – the name of the instrument folder (relative to the missionFolder)
-    - **metaData** – the name of the JSON file created in Step 2 (relative to instrumentFolder).
-    - **visTable** – the name of the visibility table for the dataset. Since this will be created subsequently, provide the name that you would like. (It will be created relative to instrumentFolder, which is another key, and have a ".new" extension).
+    - **metaData** – the name of the JSON file created in Step 2 (relative to instrumentFolder)
+    - **visTable** – the name of the visibility table for the dataset. Since this will be created subsequently, provide the name that you would like. (It will be created relative to instrumentFolder, and have a ".new" extension).
     - **xFOV** and **yFOV** – the x and y field of view of the camera.
     - **defaultRes** – the default resolution for the camera (exceptions are specified in the metadata for given images).
     - **longName** – a long, descriptive name for the dataset.
