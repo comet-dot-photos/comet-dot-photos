@@ -3,7 +3,7 @@
     "version": "3.0.1",
     "scripts": {
         "deployment": "node cometserver.js --redirect --port 443 --http_port 80 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem",
-        "preprocess": "node cometserver.js --port 8082 --preprocess --open --catalog ../data/preprocessing/preprocess.json",
+        "preprocess": "node cometserver.js --port 8082 --preprocess --open",
         "server": "node cometserver.js --port 8082 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem",
         "local": "node cometserver.js --open --port 8082",
         "orex": "node cometserver.js orex --open --port 8082",
