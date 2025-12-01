@@ -124,7 +124,7 @@ export function disposeCometMesh(mesh) {
 
 /** Fetch and return the parsed metadata JSON (startable immediately) */
 export async function loadMetadata(dataset) {
-  const url = dataset.missionFolder + dataset.dataFolder + dataset.metaData;
+  const url = dataset.missionFolder + dataset.instrumentFolder + dataset.metaData;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Failed to fetch ${url}: ${resp.status}`);
   return resp.json();

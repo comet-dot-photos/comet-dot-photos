@@ -16,7 +16,7 @@ function runtimeHandlers(io, datasets) {
     let nRows = [], rowSize = [];
     datasets.forEach(ms => {
         ms.instruments.forEach((ds, i) => {
-            const visFile = path.join(__dirname, '..', 'data', ms.missionFolder, ds.dataFolder, ds.visTable);
+            const visFile = path.join(__dirname, '..', 'data', ms.missionFolder, ds.instrumentFolder, ds.visTable);
             const stats = fs.statSync(visFile);
             rowSize.push(Math.ceil(ms.nVerts/64)*8);
             nRows.push(stats.size / rowSize[tableCount]);  // cache it for buffer size safety check
