@@ -755,6 +755,7 @@ The preprocess.json file contains a single array holding a dictionary with the f
     g. shortName - a shorter name for the dataset, to be used in menus.
     h. imgFolder - name of folder (relative to instrumentFolder) where the images are located.
 
+
 Step 5: Run Comet.Photos in preprocessing mode. This will generate the visibility table (visTable) and an amended metadata file. To do this, cd to the server directory, and type "npm run preprocess -- --catalog /path/to/preprocess.json". This will open up a browser to Comet.Photos in preprocess mode. In the Debug Options folder of the Control Panel is a "Pre-process" button. Press that, and Comet.Photos will compute which vertices in the model are visible in each image. This may take several hours. Do not try to operate the Comet.Photos window until the image index of the control panel shows all images have been processed, and a message is displayed in the server window that the process has completed.
 
 Step 6: Copy the dictionary in preprocess.json to the mission's dataset catalog: missionFolder/dataset.json. Update the visTable and metaData dictionary entries to the names of the newly created files in Step 5. If you have preprocessed multiple instruments for a mission, they should each have a dictionary in the instruments array of dataset.json, and they share the same mission dictionary.
