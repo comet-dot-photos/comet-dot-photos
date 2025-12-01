@@ -71,7 +71,7 @@ This may take up to 10 minutes as there are plenty of files to unpack. After the
 
 ### Starting Comet.Photos
 
-After you have installed Comet.Photos locally, simply run one of these scripts from the Comet.Photos directory:
+After you have installed Comet.Photos locally, you can start up the app by simply cd'ing to the main Comet.Photos directory and typing: **npm start**. Alternatively, you can run one of these scripts from the Comet.Photos directory:
 
  * On Windows: **RUN_ME_ON_WINDOWS.cmd**
  * On macOS: **RUN_ME_ON_MAC.command**

@@ -2,7 +2,7 @@
 # fits_to_jpgs_parallel.py
 # Usage: fits_to_jpgs_parallel.py <fromDir> <toDir>
 #
-# Recursively convert all .fits files under <fromDir> to .jpg under <toDir>,
+# Recursively convert all .fits/.fit files under <fromDir> to .jpg under <toDir>,
 # preserving directory structure. Uses ImageMagick directly (one step).
 # JPG quality is controlled by the JPG_QUALITY env var (default 80).
 #
@@ -39,7 +39,8 @@ def _workers_default():
 WORKERS = int(os.environ.get("FITS2JPGS_WORKERS", _workers_default()))
 JPG_QUALITY = os.environ.get("JPG_QUALITY", "80")
 
-NEEDED_EXT = ".fits"  # case-insensitive
+# Support both .fits and .fit (case-insensitive)
+NEEDED_EXTS = (".fits", ".fit")  # case-insensitive
 
 # ---- Helpers -----------------------------------------------------------
 def mirror_root(root: str) -> str:
@@ -47,7 +48,9 @@ def mirror_root(root: str) -> str:
     return os.path.join(todir, rel)
 
 def is_fits(fname: str) -> bool:
-    return fname.lower().endswith(NEEDED_EXT)
+    """Return True if filename has a .fits or .fit extension (case-insensitive)."""
+    lower = fname.lower()
+    return any(lower.endswith(ext) for ext in NEEDED_EXTS)
 
 def build_convert_command(src_file: str, dst_file: str):
     """
@@ -93,10 +96,14 @@ def main():
                 tasks.append((root, f))
 
     if not tasks:
-        print(f"No {NEEDED_EXT} files found under {fromdir}.")
+        exts_str = ", ".join(NEEDED_EXTS)
+        print(f"No {exts_str} files found under {fromdir}.")
         return
 
-    print(f"FITS->JPG | Workers={WORKERS} | Tasks={len(tasks)} | JPG_QUALITY={JPG_QUALITY}", flush=True)
+    print(
+        f"FITS->JPG | Workers={WORKERS} | Tasks={len(tasks)} | JPG_QUALITY={JPG_QUALITY}",
+        flush=True,
+    )
 
     done = 0
     try:

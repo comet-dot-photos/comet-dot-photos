@@ -97,16 +97,18 @@ def parse_pds4_for_view(xml_path: str) -> dict:
         except ValueError:
             pass
 
-    # NEW: camera_id fallback (0 = MAPCAM, 1 = SAMCAM, 2 = POLYCAM)
-    cam_id_str = text_or_none(
-        root, ".//orex:ocm_instrument_attributes/orex:camera_id", OREX_NS
-    )
+    # camera_id fallback (0 = MAPCAM, 1 = SAMCAM, 2 = POLYCAM)
+    # Only needed when instrument_id is missing, for maximal backward compatibility.
     camera_id = None
-    if cam_id_str is not None:
-        try:
-            camera_id = int(cam_id_str)
-        except ValueError:
-            camera_id = None
+    if instrument_id is None:
+        cam_id_str = text_or_none(
+            root, ".//orex:OCAMS_Instrument_Attributes/orex:camera_id", OREX_NS
+        )
+        if cam_id_str is not None:
+            try:
+                camera_id = int(cam_id_str)
+            except ValueError:
+                camera_id = None
 
     return {
         "xml_path": os.path.abspath(xml_path),
@@ -168,8 +170,8 @@ def load_meta_kernel(meta_kernel: str):
 def camera_frame_and_id(record: dict):
     """
     Prefer the NAIF instrument ID from orex:secondary_ik_num.
-    Second: use orex:camera_id (0=MAPCAM,1=SAMCAM,2=POLYCAM).
-    Fallback: use a string instrument_id mapped to a frame name.
+    Second: use instrument_id string mapped to a frame name.
+    Fallback: use orex:camera_id (0=MAPCAM,1=SAMCAM,2=POLYCAM) when instrument_id is missing.
     """
     # 1) Best: explicit NAIF instrument code from secondary_ik_num
     inst_code = record.get("instrument_naif_id")
@@ -181,7 +183,20 @@ def camera_frame_and_id(record: dict):
             cam_name = ""
         return cam_name, inst_code
 
-    # 2) Next: camera_id
+    # 2) Next: instrument_id string (if present)
+    instr_id = record.get("instrument_id")
+    if instr_id:
+        instr_id = instr_id.upper()
+        frame = CAMERA_FRAME_BY_ID.get(instr_id)
+        if not frame:
+            raise ValueError(
+                f"Unknown instrument_id '{instr_id}'. "
+                f"Expected one of {list(CAMERA_FRAME_BY_ID)}."
+            )
+        code = spice.bods2c(frame)
+        return frame, code
+
+    # 3) Fallback: camera_id (only used when instrument_id is missing)
     cam_id = record.get("camera_id")
     if cam_id is not None:
         cam_id = int(cam_id)
@@ -196,19 +211,8 @@ def camera_frame_and_id(record: dict):
         code = spice.bods2c(frame)
         return frame, code
 
-    # 3) Fallback: instrument_id string (if present)
-    instr_id = record.get("instrument_id")
-    if not instr_id:
-        raise ValueError("instrument id not found in label or record.")
-    instr_id = instr_id.upper()
-    frame = CAMERA_FRAME_BY_ID.get(instr_id)
-    if not frame:
-        raise ValueError(
-            f"Unknown instrument_id '{instr_id}'. "
-            f"Expected one of {list(CAMERA_FRAME_BY_ID)}."
-        )
-    code = spice.bods2c(frame)
-    return frame, code
+    # If we get here, there is truly no usable instrument identification
+    raise ValueError("instrument id not found in label or record.")
 
 def fov_info(inst_code: int):
     """
