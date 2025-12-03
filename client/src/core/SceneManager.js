@@ -107,8 +107,8 @@ export class SceneManager {
 	this.controls.addEventListener('change', (event) => {
 		this.updateCameraClipping();
 		this.CORMesh.position.copy(this.controls.target);
-        console.log(`Camera position: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`)
-        console.log(`Camera up: ${this.camera.up.x}, ${this.camera.up.y}, ${this.camera.up.z}`);
+        //console.log(`Camera position: ${this.camera.position.x}, ${this.camera.position.y}, ${this.camera.position.z}`)
+        //console.log(`Camera up: ${this.camera.up.x}, ${this.camera.up.y}, ${this.camera.up.z}`);
 	});
 
     // show CORMesh during trackball interaction

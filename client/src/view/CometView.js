@@ -23,6 +23,8 @@ export class CometView {
     }
     static projectorHandle; // handle for projector material, set in loadCometModel
     static radiusUB;        // upperbound for the object radius (used for setting near/far)
+    static imageLoadCount = 0;  // for timing stats
+    static imageLoadTime = 0;   // for timing stats
 
     constructor(photoDict, sceneMgr) {
         // set statics that are now in the photoDict's dataset
@@ -102,8 +104,10 @@ export class CometView {
         loader.load(this.jpgPath, onLoadFunc);
 
         CometView.mgr.onLoad = function () {
-            const endTime = performance.now();
-            console.log('Texture loading time: %f ms', endTime-startTime);
+            const deltaT = performance.now() - startTime;
+            CometView.imageLoadTime += deltaT;
+            CometView.imageLoadCount++;
+            console.log(`Texture loading time: ${deltaT} ms, Average: ${CometView.imageLoadTime/++CometView.imageLoadCount}`);
         }
     }
 
@@ -133,7 +137,7 @@ export class CometView {
 
         camera.updateProjectionMatrix();
         camera.updateWorldMatrix(true, false);
-        console.log(`applyToCamera: near=${camera.near}, far=${camera.far}`);
+        //console.log(`applyToCamera: near=${camera.near}, far=${camera.far}`);
 
         if (orbControls) {
             orbControls.target = this.planeCenter.clone();

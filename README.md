@@ -163,7 +163,7 @@ Upon starting up Comet.Photos, the window in [Figure 1](#fig1) appears, with a 3
 
 ### Step 1: Selecting the Datasets
 
-Comet.Photos can search for images taken by any of the three conventional cameras onboard Rosetta. By default, searches include the Narrow Angle Camera (NAC), Wide Angle Camera (WAC), and Navigation Camera (NAVCAM). Using the **Choose Datasets** menu in the control panel, users can restrict the search to one or more datasets.
+Comet.Photos was originally developed for fast spatial searches of Rosetta's images of Comet 67P, but it has been extended to work on Osiris-Rex's images of Asteroid Bennu and Hayabusa 2's images of Asteroid Ryugu. The **Mission** menu selects the mission, and the **Instruments** menu chooses which camera's images to include in the search. For example, for the Rosetta mission, users can search for images taken by the Narrow Angle Camera (NAC), Wide Angle Camera (WAC), and/or Navigation Camera (NAVCAM). 
 
 ### Step 2: Finding the Region of Interest
 
