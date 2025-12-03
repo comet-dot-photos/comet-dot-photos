@@ -106,7 +106,6 @@ export class CometView {
         CometView.mgr.onLoad = function () {
             const deltaT = performance.now() - startTime;
             CometView.imageLoadTime += deltaT;
-            CometView.imageLoadCount++;
             console.log(`Texture loading time: ${deltaT} ms, Average: ${CometView.imageLoadTime/++CometView.imageLoadCount}`);
         }
     }
