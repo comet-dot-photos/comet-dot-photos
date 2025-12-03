@@ -78,9 +78,9 @@ if (!args.open) {
     app.use(compressionMiddleware); // Files compressed as set by default filter + .obj files
 }
 
-
-app.use(express.static('../client/dist'));
-app.use(express.static('../data'));
+const clientDistDir = path.resolve(__dirname, '../client/dist');
+app.use(express.static(clientDistDir, {etag: true, lastModified: true, maxAge: args.open ? 0 : "1h"}));
+app.use(express.static(dataDir, {etag: true, lastModified: true, maxAge: args.open ? 0 : "7d"}));
 
 
 server.listen(args.port, () => {
