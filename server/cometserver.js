@@ -65,17 +65,23 @@ if (args.redirect) {  // Redirect all http traffic to https if args.redirect is 
 }
 
 // Step 4 - set up compression only if not running locally
-if (!args.open) {   
+if (!args.open) {
     const compression = require('compression');
-    const shouldCompress = (req, res) => {
-        if (req.url.endsWith('.obj'))    // explictly compress .obj files
-            return true;
+    const skipExt = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'gz'];
+    const forceExt = ['obj'];
 
-        return compression.filter(req, res); // Default filter for other cases (e.g., .js, .json, .html)
+    const shouldCompress = (req, res) => {
+        const url = req.url.toLowerCase();
+        const ext = url.split('.').pop();   // no dot, e.g. "jpg"
+
+        if (skipExt.includes(ext)) return false;
+        if (forceExt.includes(ext)) return true;
+
+        // Default for JSON, JS, HTML, CSS, etc.
+        return compression.filter(req, res);
     };
 
-    const compressionMiddleware = compression({ filter: shouldCompress }); // Initialize once
-    app.use(compressionMiddleware); // Files compressed as set by default filter + .obj files
+    app.use(compression({ filter: shouldCompress }));
 }
 
 const clientDistDir = path.resolve(__dirname, '../client/dist');
