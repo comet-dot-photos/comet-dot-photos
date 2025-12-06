@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NAC4I.1 Image Download Speed Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 1.5rem;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.25rem;
+    }
+    label, button {
+      font-size: 0.95rem;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      max-width: 540px;
+      padding: 0.35rem 0.5rem;
+      margin-bottom: 0.75rem;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      white-space: pre-line;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      max-width: 100%;
+      overflow-x: auto;
+      display: block;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.2rem 0.4rem;
+      text-align: right;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      text-align: left;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>NAC4I.1 Image Download Speed Test</h1>
+  <p>
+    This test downloads N NAC4I.1 images sequentially and reports approximate throughput.
+    Each request tries to bypass browser/CDN caching via <code>cache: 'no-store'</code>
+    and a cache-busting query string.
+  </p>
+
+  <label>
+    Dataset JSON URL:
+    <input id="datasetUrl" type="text"
+           value="rosetta/NAC4I.1/imageMetadataNAC4I.1.json">
+  </label>
+  <br>
+
+  <label>
+    NAC4I.1 image root (relative or absolute, ends with <code>/NAC4I.1/J80/</code>):
+    <input id="imageRoot" type="text"
+           value="/rosetta/NAC4I.1/J80/">
+  </label>
+  <br>
+
+  <label>
+    Number of images to fetch:
+    <input id="imageCount" type="number" min="1" max="1000" value="100">
+  </label>
+  <br>
+
+  <button id="runBtn">Run test</button>
+
+  <div id="status"></div>
+  <div id="results"></div>
+
+  <script>
+    const runBtn = document.getElementById('runBtn');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+
+    runBtn.addEventListener('click', () => {
+      runTest().catch(err => {
+        console.error(err);
+        statusEl.textContent = 'Error: ' + err.message;
+        runBtn.disabled = false;
+      });
+    });
+
+    async function runTest() {
+      runBtn.disabled = true;
+      resultsEl.innerHTML = '';
+      statusEl.textContent = 'Fetching dataset JSON...';
+
+      const datasetUrl = document.getElementById('datasetUrl').value.trim();
+      const imageRootInput = document.getElementById('imageRoot').value.trim();
+      const imageCount = parseInt(document.getElementById('imageCount').value, 10) || 100;
+
+      // Normalize root to end with a slash
+      const IMAGE_ROOT = imageRootInput.endsWith('/') ? imageRootInput : imageRootInput + '/';
+
+      // 1. Fetch dataset JSON (no-cache if possible)
+      const dsResp = await fetch(datasetUrl, { cache: 'no-store' });
+      if (!dsResp.ok) {
+        throw new Error(`Failed to fetch dataset: HTTP ${dsResp.status}`);
+      }
+      const dataset = await dsResp.json();
+
+      if (!Array.isArray(dataset) || dataset.length === 0) {
+        throw new Error('Dataset JSON is not a non-empty array.');
+      }
+
+      // 2. Build NAC4I.1 URLs from entries
+      //
+      // Given: nm like "N20140802T232114591ID4EF82"
+      // Want: NAC4I.1/J80/YYYYMM/<nm>.jpg
+      // where YYYYMM = nm[1..6] = "201408"
+      function buildNac4iUrl(entry) {
+        const nm = entry.nm;
+        if (!nm || typeof nm !== 'string' || nm.length < 7) {
+          throw new Error('Invalid nm in entry: ' + JSON.stringify(entry));
+        }
+        const yyyymm = nm.substring(1, 7); // chars 1-6 (0-based), e.g. "201408"
+        const filename = nm + '.jpg';
+        return IMAGE_ROOT + yyyymm + '/' + filename;
+      }
+
+      // Optional: randomize order so you’re not always hitting the same times/blocks
+      const shuffled = dataset.slice();
+      shuffleInPlace(shuffled);
+
+      const selectedEntries = shuffled.slice(0, Math.min(imageCount, shuffled.length));
+      const urls = selectedEntries.map(buildNac4iUrl);
+
+      statusEl.textContent = `Starting sequential download of ${urls.length} NAC4I.1 images...`;
+
+      let totalBytes = 0;
+      const perImage = [];
+      const testStart = performance.now();
+
+      for (let i = 0; i < urls.length; i++) {
+        const baseUrl = urls[i];
+
+        // 3. Cache-buster + no-store to try to avoid cached hits
+        const cacheBuster =
+          'cb=' + Date.now() + '-' + i + '-' + Math.random().toString(36).slice(2);
+        const url = baseUrl + (baseUrl.includes('?') ? '&' : '?') + cacheBuster;
+
+        const imgStart = performance.now();
+        let bytes = 0;
+        let ok = true;
+        let errMsg = '';
+
+        try {
+          const resp = await fetch(url, { cache: 'no-store' });
+          if (!resp.ok) {
+            ok = false;
+            errMsg = `HTTP ${resp.status}`;
+          } else {
+            const buf = await resp.arrayBuffer();
+            bytes = buf.byteLength;
+            totalBytes += bytes;
+          }
+        } catch (e) {
+          ok = false;
+          errMsg = e.message || 'network error';
+        }
+
+        const imgEnd = performance.now();
+        const ms = imgEnd - imgStart;
+        const mbits = bytes * 8 / 1e6;
+        const mbps = ms > 0 ? mbits / (ms / 1000) : 0;
+
+        perImage.push({
+          index: i + 1,
+          url: baseUrl,
+          bytes,
+          ms,
+          mbps,
+          ok,
+          errMsg
+        });
+
+        const runningTime = (imgEnd - testStart) / 1000;
+        const totalMbits = totalBytes * 8 / 1e6;
+        const avgMbps = runningTime > 0 ? totalMbits / runningTime : 0;
+
+        statusEl.textContent =
+          `Fetched ${i + 1} / ${urls.length} images\n` +
+          `Last image: ${ok ? 'OK' : 'ERROR'} (${bytes} bytes in ${ms.toFixed(1)} ms, ${mbps.toFixed(2)} Mbps)\n` +
+          `Total downloaded: ${(totalBytes / (1024 * 1024)).toFixed(3)} MiB\n` +
+          `Elapsed: ${runningTime.toFixed(2)} s\n` +
+          `Average throughput: ${avgMbps.toFixed(2)} Mbps`;
+      }
+      const times = perImage.map(r => r.ms);
+      const avgTimeMs = times.reduce((a,b) => a+b, 0) / times.length;
+      const maxTimeMs = Math.max(...times);
+      const testEnd = performance.now();
+      const totalSeconds = (testEnd - testStart) / 1000;
+      const totalMbits = totalBytes * 8 / 1e6;
+      const overallMbps = totalSeconds > 0 ? totalMbits / totalSeconds : 0;
+
+      statusEl.textContent +=
+        `\n\n=== FINAL RESULT ===\n` +
+        `Images: ${urls.length}\n` +
+        `Total bytes: ${totalBytes} (${(totalBytes / (1024 * 1024)).toFixed(3)} MiB)\n` +
+        `Total time: ${totalSeconds.toFixed(2)} s\n` +
+        `Overall throughput: ${overallMbps.toFixed(2)} Mbps\n` +
+        `Average time per image: ${avgTimeMs.toFixed(1)} ms\n` +
+        `Max time for a single image: ${maxTimeMs.toFixed(1)} ms\n`;
+
+      renderTable(perImage);
+      runBtn.disabled = false;
+    }
+
+    function renderTable(perImage) {
+      let html = '<table><thead><tr>' +
+        '<th>#</th><th>URL</th><th>Bytes</th><th>Time (ms)</th><th>Mbps</th><th>Status</th>' +
+        '</tr></thead><tbody>';
+
+      for (const row of perImage) {
+        html += '<tr>' +
+          `<td>${row.index}</td>` +
+          `<td title="${row.url}">${row.url}</td>` +
+          `<td>${row.bytes}</td>` +
+          `<td>${row.ms.toFixed(1)}</td>` +
+          `<td>${row.mbps.toFixed(2)}</td>` +
+          `<td>${row.ok ? 'OK' : ('ERR: ' + row.errMsg)}</td>` +
+          '</tr>';
+      }
+
+      html += '</tbody></table>';
+      resultsEl.innerHTML = html;
+    }
+
+    function shuffleInPlace(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+  </script>
+</body>
+</html>
