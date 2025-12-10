@@ -309,7 +309,7 @@ export class CometPhotosApp {
         const hosts = ["nj1.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la1.comet.photos"];
         const t0 = performance.now();
         const ctrls = hosts.map(() => new AbortController());
-        const imgPath = "cometIcon.png"
+        const imgPath = "cometIcon.png?v=" + Date.now();  // add a cache busting param
 
         const winner = await Promise.any(
           hosts.map((h, i) =>
