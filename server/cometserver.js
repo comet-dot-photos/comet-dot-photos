@@ -6,6 +6,7 @@
 const express = require('express');
 const socketIO = require('socket.io');
 const httpolyglot = require('httpolyglot');
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { openInBrowser } = require('./openInBrowser.js');
@@ -84,9 +85,16 @@ if (!args.open) {
     app.use(compression({ filter: shouldCompress }));
 }
 
+app.use(cors());  // in case comet.photos gets images from another server
+
 const clientDistDir = path.resolve(__dirname, '../client/dist');
 app.use(express.static(clientDistDir, {etag: true, lastModified: true, maxAge: args.open ? 0 : "1h"}));
-app.use(express.static(dataDir, {etag: true, lastModified: true, maxAge: args.open ? 0 : "7d"}));
+app.use(express.static(dataDir, {etag: true, lastModified: true, maxAge: args.open ? 0 : "7d",
+    setHeaders(res, filePath) { // cache jpgs to 365 days
+    if (filePath.toLowerCase().endsWith('.jpg')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }  
+}}));
 
 
 server.listen(args.port, () => {
