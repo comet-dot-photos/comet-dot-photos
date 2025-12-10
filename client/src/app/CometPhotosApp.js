@@ -311,13 +311,19 @@ export class CometPhotosApp {
         const ctrls = hosts.map(() => new AbortController());
         const imgPath = "cometIcon.png?v=" + Date.now();  // add a cache busting param
 
-        const winner = await Promise.any(
-          hosts.map((h, i) =>
-            fetch(`https://${h}/${imgPath}`, { signal: ctrls[i].signal })
-              .then(r => r.ok ? r.blob() : Promise.reject())
-              .then(() => i)   // only index carried
-          )
-        );
+        let winner;
+        try {
+          winner = await Promise.any(
+            hosts.map((h, i) =>
+              fetch(`https://${h}/${imgPath}`, { signal: ctrls[i].signal, cache: "no-store" })
+                .then(r => r.ok ? r.blob() : Promise.reject())
+                .then(() => i)
+            )
+          );
+        } catch (err) {
+          console.log("No CDN hosts responded", err);
+          return;
+        }
 
         ctrls.forEach((c, i) => i !== winner && c.abort());
         console.log(`Winner: ${hosts[winner]} in ${(performance.now()-t0).toFixed(1)}ms`);
