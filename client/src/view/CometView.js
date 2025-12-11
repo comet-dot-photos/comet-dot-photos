@@ -31,7 +31,7 @@ export class CometView {
         CometView.xFOV = photoDict.dataset.xFOV;
         CometView.yFOV = photoDict.dataset.yFOV;
         CometView.defaultRes = photoDict.dataset.defaultRes;
-        CometView.urlPrefix = photoDict.dataset.missionFolder + photoDict.dataset.instrumentFolder + photoDict.dataset.imgFolder;
+        CometView.urlPrefix = sceneMgr.state.origin + photoDict.dataset.missionFolder + photoDict.dataset.instrumentFolder + photoDict.dataset.imgFolder;
         // cache away aspect - use half-angles
         const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
         const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;

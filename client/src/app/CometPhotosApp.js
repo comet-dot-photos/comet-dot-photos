@@ -55,6 +55,7 @@ export class CometPhotosApp {
     this.state['debugMode'] = defaults.debugMode;
     this.state['isLocal'] = defaults.isLocal;
     this.state['runTest'] = defaults.runTest;
+    this.state['origin'] = "";
 
     this.gui = new GuiController({bus: this.bus, state: this.state,
       initial: { ...DEFAULT_UI_STATE },
@@ -305,7 +306,7 @@ export class CometPhotosApp {
   }
 
   async #installCDN() {
-    //if (windows.location.hostname === 'comet.photos') {  // only look for a cdn if they connect to the main site
+    if (window.location.hostname === 'comet.photos') {  // only look for a cdn if they connect to the main site
         const hosts = ["nj1.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la1.comet.photos"];
         const t0 = performance.now();
         const ctrls = hosts.map(() => new AbortController());
@@ -327,7 +328,8 @@ export class CometPhotosApp {
 
         ctrls.forEach((c, i) => i !== winner && c.abort());
         console.log(`Winner: ${hosts[winner]} in ${(performance.now()-t0).toFixed(1)}ms`);
-    //}
+        this.state.origin = `https://${origin}/`;
+    }
   }
 
 }
