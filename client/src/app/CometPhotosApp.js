@@ -328,7 +328,7 @@ export class CometPhotosApp {
 
         ctrls.forEach((c, i) => i !== winner && c.abort());
         console.log(`Winner: ${hosts[winner]} in ${(performance.now()-t0).toFixed(1)}ms`);
-        this.state.origin = `https://${origin}/`;
+        this.state.origin = `https://${hosts[winner]}/`;
     }
   }
 
