@@ -330,7 +330,7 @@ export class CometPhotosApp {
         }
 
         ctrls.forEach((c, i) => i !== winner && c.abort());
-        console.log(`Images will be served by: ${hosts[winner]}, which responded in ${(performance.now()-t0).toFixed(1)}ms`);
+        console.log(`Winner: ${hosts[winner]} will be serving images (${(performance.now()-t0).toFixed(1)}ms)`);
         this.state.origin = `https://${hosts[winner]}/`;
     }
   }
