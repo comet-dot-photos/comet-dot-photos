@@ -46,7 +46,6 @@ function init(dsArray, preprocessMode) {
 socket.emit('clientRequestsDatasets', null, resp => {
 	const {datasets, preprocessMode} = resp;
 	if (datasets && datasets.length > 0) {
-		console.log('Client received datasets.');
 		init(datasets, preprocessMode);
 	} else console.log('Client failed to receive datasets.');
 	});

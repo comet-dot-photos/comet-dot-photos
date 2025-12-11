@@ -514,7 +514,7 @@ export class SceneManager {
         if (!skipRender) {
             this.renderer.render(this.scene, this.camera);
             this.overlay.refreshOverlay(cometView, CometView);
-        } else console.log("Skipping render");
+        } // else console.log("Skipping render");
         
         this.stats.end();
     }

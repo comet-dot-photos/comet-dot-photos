@@ -16,11 +16,11 @@ export class CometView {
     static lastRequestedImg;  // name of the last requested image, so previous requests don't get displayed!
     static blankTexture = new THREE.Texture();
     static mgr = new THREE.LoadingManager();
-    static {
+    /* static {
         this.mgr.onProgress = (str, num, total) => {
             console.log("In LoadingManager.onProgress: Loading %s: %i/%i", str, num, total);
         }
-    }
+    } */
     static projectorHandle; // handle for projector material, set in loadCometModel
     static radiusUB;        // upperbound for the object radius (used for setting near/far)
     static imageLoadCount = 0;  // for timing stats
@@ -106,7 +106,7 @@ export class CometView {
         CometView.mgr.onLoad = function () {
             const deltaT = performance.now() - startTime;
             CometView.imageLoadTime += deltaT;
-            console.log(`Texture loading time: ${deltaT} ms, Average: ${CometView.imageLoadTime/++CometView.imageLoadCount}`);
+            console.log(`Texture loading time: ${deltaT.toFixed(1)} ms, Average: ${(CometView.imageLoadTime/++CometView.imageLoadCount).toFixed(1)}`);
         }
     }
 

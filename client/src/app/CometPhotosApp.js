@@ -217,9 +217,8 @@ export class CometPhotosApp {
 
     document.title = `Comet.Photos: ${missionDict.mission}`; // add mission to window title
 
-    // Everything ready ⇒ start up install cdn and signal 'ready'
-    this.#installCDN();  // do this after everything is loaded
-    this.bus.emit('loadComplete');
+    this.#installCDN();  // Everything ready - start "image race" after dataset is loaded
+    this.bus.emit('loadComplete');  // Signal that loading is complete
   }
 
   // restores new mission defaults for the control panel - only needs to be called when
@@ -305,6 +304,10 @@ export class CometPhotosApp {
     }
   }
 
+  // #installCDN - queries multiple comet.photo servers that must host all of the datasets, to determine
+  //     which will likely serve the images faster. Not used if running locally. Running this routine is
+  //     just an optimization. It sets the origin for image downloads based on a "race" across candidate
+  //     servers.
   async #installCDN() {
     if (window.location.hostname === 'comet.photos') {  // only look for a cdn if they connect to the main site
         const hosts = ["nj1.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la1.comet.photos"];
@@ -327,7 +330,7 @@ export class CometPhotosApp {
         }
 
         ctrls.forEach((c, i) => i !== winner && c.abort());
-        console.log(`Winner: ${hosts[winner]} in ${(performance.now()-t0).toFixed(1)}ms`);
+        console.log(`Images will be served by: ${hosts[winner]}, which responded in ${(performance.now()-t0).toFixed(1)}ms`);
         this.state.origin = `https://${hosts[winner]}/`;
     }
   }

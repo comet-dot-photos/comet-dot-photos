@@ -72,7 +72,7 @@ export class ROI {
                     this.numPainted++;
             }
         }
-        console.log('numPainted', this.numPainted)
+        console.log(`Vertices painted: ${this.numPainted}`)
         if (this.numPainted > 0) {
             this.avgPosition = loc.divideScalar(this.numPainted);
             this.avgNormal = norm.divideScalar(this.numPainted).normalize();

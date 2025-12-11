@@ -65,7 +65,7 @@ export class FilterEngine {
         }
         if (doFilterCleanup) this.filterCleanUp();
         const timer1 = this.state['clock'].getElapsedTime();
-        console.log(`Emission filter: ${(timer1 - timer0)*1000} milliseconds`);
+        console.log(`Emission filter: ${((timer1 - timer0)*1000).toFixed(1)} milliseconds`);
     }
 
     applyMpPFilter(doFilterCleanup = true) {
@@ -253,7 +253,7 @@ export class FilterEngine {
         }
         // this.filterCleanUp(); - now done elsewhere.
         let delta = this.state['clock'].getElapsedTime() - this.state['startTimer'];
-        console.log(`Visibility check: ${(delta)*1000} milliseconds`);
+        console.log(`Visibility check: ${((delta)*1000).toFixed(1)} milliseconds`);
     }
 
     async setPercentOverlap(percent) {
