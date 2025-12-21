@@ -32,6 +32,15 @@ if (!fs.existsSync(dataDir)) {
 
 // STEP 3 - Set up the Web Server
 var app = express();
+
+// Redirect any .gz request to download.comet.photos/releases (for the app or datasets)
+app.use((req, res, next) => {
+    if (req.path.endsWith('.gz')) {
+        return res.redirect(302, `https://download.comet.photos/releases${req.path}`);
+    }
+    next();
+});
+
 let key = null, cert = null;
 try {
     if (args.keyfile) key = fs.readFileSync(args.keyfile);
