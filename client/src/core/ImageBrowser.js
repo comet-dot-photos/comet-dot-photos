@@ -285,8 +285,6 @@ export class ImageBrowser {
     }
 
     getRepresentativeImagePath() {
-        console.log(CometView, Object.getOwnPropertyNames(CometView));
-
         // let's just pick the middle image for now
         if (this.ogPhotoArray.length == 0) return null;
         const midIndex = Math.floor(this.ogPhotoArray.length / 2);
