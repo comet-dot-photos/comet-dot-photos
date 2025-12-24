@@ -310,12 +310,12 @@ export class CometPhotosApp {
   //     servers.
   async #installCDN() {
     if (window.location.hostname === 'comet.photos') {  // only look for a cdn if they connect to the main site
-        const hosts = ["download.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la2.comet.photos"];
+        const hosts = ["images.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la1.comet.photos"];
         const t0 = performance.now();
         const ctrls = hosts.map(() => new AbortController());
         let imgPath = this.imageBrowser.getRepresentativeImagePath();
         if (!imgPath) return;  // if no images, skip CDN check
-        imgPath = `${imgPath}v=${Date.now()}`;  // add a cache busting param
+        imgPath = `${imgPath}?v=${Date.now()}`;  // add a cache busting param
 
         let winner;
         try {
