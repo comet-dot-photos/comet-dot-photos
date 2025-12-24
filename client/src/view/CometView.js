@@ -27,11 +27,11 @@ export class CometView {
     static imageLoadTime = 0;   // for timing stats
 
     constructor(photoDict, sceneMgr) {
+        this.sceneMgr = sceneMgr;
         // set statics that are now in the photoDict's dataset
         CometView.xFOV = photoDict.dataset.xFOV;
         CometView.yFOV = photoDict.dataset.yFOV;
         CometView.defaultRes = photoDict.dataset.defaultRes;
-        CometView.urlPrefix = sceneMgr.state.origin + photoDict.dataset.missionFolder + photoDict.dataset.instrumentFolder + photoDict.dataset.imgFolder;
         // cache away aspect - use half-angles
         const xr = THREE.MathUtils.degToRad(CometView.xFOV) * 0.5;
         const yr = THREE.MathUtils.degToRad(CometView.yFOV) * 0.5;
@@ -50,16 +50,20 @@ export class CometView {
         this.up = new THREE.Vector3(...photoDict.up);
         this.computeViewRect();
  
-        const YYYYMM = photoDict.ti.slice(0, 4) + photoDict.ti.slice(5, 7); // extract YYYYMM
-        this.jpgPath = CometView.urlPrefix + YYYYMM + '/' + photoDict.nm + '.jpg'
+        this.jpgPath = CometView.getJpgPath(sceneMgr.state.origin, photoDict);
  
         this.fileName = photoDict.nm;
         this.time = photoDict.ti;
         //set random image plane it will change soon!
         this.image_plane = new THREE.Plane()
         this.image_plane.setFromNormalAndCoplanarPoint(this.normal, (this.sc_position.clone().add(this.normal.clone().multiplyScalar(30))));
+    }
 
-        this.sceneMgr = sceneMgr;
+    static getJpgPath(origin, photoDict) {
+        const YYYYMM = photoDict.ti.slice(0, 4) + photoDict.ti.slice(5, 7); // extract YYYYMM
+        const imgPath = origin + photoDict.dataset.missionFolder + photoDict.dataset.instrumentFolder + photoDict.dataset.imgFolder
+                           + YYYYMM + '/' + photoDict.nm + '.jpg'
+        return imgPath;
     }
 
 

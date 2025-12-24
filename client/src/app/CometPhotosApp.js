@@ -313,7 +313,9 @@ export class CometPhotosApp {
         const hosts = ["download.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la2.comet.photos"];
         const t0 = performance.now();
         const ctrls = hosts.map(() => new AbortController());
-        const imgPath = "cometIcon.png?v=" + Date.now();  // add a cache busting param
+        let imgPath = this.imageBrowser.getRepresentativeImagePath();
+        if (!imgPath) return;  // if no images, skip CDN check
+        imgPath = `${imgPath}v=${Date.now()}`;  // add a cache busting param
 
         let winner;
         try {

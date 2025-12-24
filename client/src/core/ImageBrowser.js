@@ -284,4 +284,11 @@ export class ImageBrowser {
         this.lastSI = val;
     }
 
+    getRepresentativeImagePath() {
+        // let's just pick the middle image for now
+        if (this.ogPhotoArray.length == 0) return null;
+        const midIndex = Math.floor(this.ogPhotoArray.length / 2);
+        return CometView.getImagePath(this.state.origin, this.ogPhotoArray[midIndex]);
+    }
+
 }
