@@ -50,7 +50,7 @@ export class CometView {
         this.up = new THREE.Vector3(...photoDict.up);
         this.computeViewRect();
  
-        this.jpgPath = CometView.getJpgPath(sceneMgr.state.origin, photoDict);
+        this.jpgPath = CometView.getImagePath(sceneMgr.state.origin, photoDict);
  
         this.fileName = photoDict.nm;
         this.time = photoDict.ti;
@@ -59,7 +59,7 @@ export class CometView {
         this.image_plane.setFromNormalAndCoplanarPoint(this.normal, (this.sc_position.clone().add(this.normal.clone().multiplyScalar(30))));
     }
 
-    static getJpgPath(origin, photoDict) {
+    static getImagePath(origin, photoDict) {
         const YYYYMM = photoDict.ti.slice(0, 4) + photoDict.ti.slice(5, 7); // extract YYYYMM
         const imgPath = origin + photoDict.dataset.missionFolder + photoDict.dataset.instrumentFolder + photoDict.dataset.imgFolder
                            + YYYYMM + '/' + photoDict.nm + '.jpg'
