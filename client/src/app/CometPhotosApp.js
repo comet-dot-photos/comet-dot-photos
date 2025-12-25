@@ -310,7 +310,15 @@ export class CometPhotosApp {
   //     servers.
   async #installCDN() {
     if (window.location.hostname === 'comet.photos') {  // only look for a cdn if they connect to the main site
-        const hosts = ["images.comet.photos", "nj2.comet.photos", "sea1.comet.photos", "la1.comet.photos"];
+        let hosts;
+        try {  // dynamic fetch of cdn_hosts.json to allow updating without code changes
+          const r = await fetch("https://comet.photos/cdn_hosts.json", { cache: "no-store" });
+          if (!r.ok) return; // file not found / forbidden / etc => just exit
+          hosts = await r.json();
+          if (!Array.isArray(hosts) || hosts.length === 0) return;
+        } catch (e) {
+          return; // network error / bad JSON => just exit
+        }
         const t0 = performance.now();
         const ctrls = hosts.map(() => new AbortController());
         let imgPath = this.imageBrowser.getRepresentativeImagePath();
