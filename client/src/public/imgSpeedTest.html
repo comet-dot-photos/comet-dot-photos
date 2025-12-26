@@ -21,12 +21,9 @@
     .hint { font-size: 0.85rem; color: #444; margin-top: -0.35rem; margin-bottom: 0.75rem; max-width: 720px; }
     .hostline { font-family: ui-monospace, Menlo, Consolas, monospace; margin: 0.2rem 0; }
     .hostline button { font-family: inherit; font-size: 0.9rem; padding: 0.15rem 0.45rem; margin-right: 0.5rem; }
-
     table { border-collapse: collapse; margin-top: 0.75rem; font-size: 0.8rem; max-width: 100%; overflow-x: auto; display: block; }
     th, td { border: 1px solid #ccc; padding: 0.2rem 0.4rem; text-align: right; }
     th:nth-child(2), td:nth-child(2) { text-align: left; max-width: 520px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    th.small, td.small { min-width: 68px; }
-    .subtle { color: #555; font-size: 0.85rem; max-width: 900px; }
   </style>
 </head>
 
@@ -35,10 +32,6 @@
   <p>
     Downloads N NAC4I.1 images sequentially and reports approximate throughput.
     Attempts to bypass caching via <code>cache: 'no-store'</code> and a cache-busting query string.
-  </p>
-  <p class="subtle">
-    Note: detailed DNS/TCP/TLS/TTFB timing (PerformanceResourceTiming) often requires the server to send
-    <code>Timing-Allow-Origin</code>. If not present, timing columns may show “n/a”.
   </p>
 
   <label>
@@ -272,46 +265,6 @@
       return a.reduce((s, n) => s + n, 0) / a.length;
     }
 
-    function getResourceTimingForUrl(url) {
-      // We want the timing for THIS exact URL (includes cachebuster).
-      // Many browsers won’t expose cross-origin details unless Timing-Allow-Origin is present.
-      const entries = performance.getEntriesByName(url);
-      if (!entries || entries.length === 0) return null;
-
-      // Use the last entry in case duplicates exist.
-      const e = entries[entries.length - 1];
-      if (!e || typeof e !== 'object') return null;
-
-      // In some cases, this will be a PerformanceResourceTiming; otherwise limited data.
-      const t = {
-        // These may be 0 if not available.
-        dns: safeDelta(e.domainLookupStart, e.domainLookupEnd),
-        connect: safeDelta(e.connectStart, e.connectEnd),
-        tls: (Number.isFinite(e.secureConnectionStart) && e.secureConnectionStart > 0)
-              ? safeDelta(e.secureConnectionStart, e.connectEnd)
-              : NaN,
-        ttfb: safeDelta(e.requestStart, e.responseStart),
-        transfer: safeDelta(e.responseStart, e.responseEnd),
-        total: Number.isFinite(e.duration) ? e.duration : NaN
-      };
-
-      // If everything is 0/NaN, treat as not useful.
-      const anyUseful =
-        [t.dns, t.connect, t.tls, t.ttfb, t.transfer, t.total].some(v => Number.isFinite(v) && v > 0.001);
-
-      return anyUseful ? t : null;
-    }
-
-    function safeDelta(a, b) {
-      if (!Number.isFinite(a) || !Number.isFinite(b)) return NaN;
-      const d = b - a;
-      return (d >= 0) ? d : NaN;
-    }
-
-    function fmtMs(v) {
-      return Number.isFinite(v) ? v.toFixed(1) : 'n/a';
-    }
-
     async function runTest() {
       runBtn.disabled = true;
       findFastestBtn.disabled = true;
@@ -342,9 +295,6 @@
       const perImage = [];
       const testStart = performance.now();
 
-      // Clear old resource timing to reduce memory noise.
-      if (performance.clearResourceTimings) performance.clearResourceTimings();
-
       for (let i = 0; i < urls.length; i++) {
         const baseUrl = urls[i];
         const cacheBuster = 'cb=' + Date.now() + '-' + i + '-' + Math.random().toString(36).slice(2);
@@ -370,19 +320,7 @@
         const mbits = bytes * 8 / 1e6;
         const mbps = ms > 0 ? mbits / (ms / 1000) : 0;
 
-        // Best-effort detailed breakdown (may be null / n/a).
-        const timing = getResourceTimingForUrl(url);
-
-        perImage.push({
-          index: i + 1,
-          url: baseUrl,
-          bytes,
-          ms,
-          mbps,
-          ok,
-          errMsg,
-          timing
-        });
+        perImage.push({ index: i + 1, url: baseUrl, bytes, ms, mbps, ok, errMsg });
 
         const runningTime = (performance.now() - testStart) / 1000;
         const totalMbits = totalBytes * 8 / 1e6;
@@ -411,13 +349,6 @@
       const msOk = okRows.map(r => r.ms);
       const failCount = perImage.length - okRows.length;
 
-      // Aggregate timing breakdown averages (OK-only), when available
-      const timingOk = okRows.map(r => r.timing).filter(Boolean);
-      const avgTiming = (key) => {
-        const vals = timingOk.map(t => t[key]).filter(v => Number.isFinite(v));
-        return vals.length ? mean(vals) : NaN;
-      };
-
       statusEl.textContent +=
         `\n\n=== FINAL ===\n` +
         `Images: ${perImage.length} (OK: ${okRows.length}, ERR: ${failCount})\n` +
@@ -425,10 +356,7 @@
         `Time: ${totalSeconds.toFixed(2)} s\n` +
         `Throughput: ${overallMbps.toFixed(2)} Mbps\n` +
         `Avg ms/image (all): ${mean(msAll).toFixed(1)} | median: ${median(msAll).toFixed(1)}\n` +
-        `Avg ms/image (OK):  ${msOk.length ? mean(msOk).toFixed(1) : 'n/a'} | median: ${msOk.length ? median(msOk).toFixed(1) : 'n/a'}\n` +
-        `\nTiming breakdown averages (OK-only; requires Timing-Allow-Origin):\n` +
-        `DNS: ${fmtMs(avgTiming('dns'))} ms | Connect: ${fmtMs(avgTiming('connect'))} ms | TLS: ${fmtMs(avgTiming('tls'))} ms\n` +
-        `TTFB: ${fmtMs(avgTiming('ttfb'))} ms | Transfer: ${fmtMs(avgTiming('transfer'))} ms | Total: ${fmtMs(avgTiming('total'))} ms\n`;
+        `Avg ms/image (OK):  ${msOk.length ? mean(msOk).toFixed(1) : 'n/a'} | median: ${msOk.length ? median(msOk).toFixed(1) : 'n/a'}\n`;
 
       renderImageTable(perImage);
 
@@ -438,25 +366,16 @@
 
     function renderImageTable(perImage) {
       let html = '<table><thead><tr>' +
-        '<th>#</th><th>URL</th><th>Bytes</th><th class="small">Time (ms)</th><th class="small">Mbps</th>' +
-        '<th class="small">DNS</th><th class="small">Conn</th><th class="small">TLS</th><th class="small">TTFB</th><th class="small">Xfer</th><th class="small">RT total</th>' +
-        '<th>Status</th>' +
+        '<th>#</th><th>URL</th><th>Bytes</th><th>Time (ms)</th><th>Mbps</th><th>Status</th>' +
         '</tr></thead><tbody>';
 
       for (const row of perImage) {
-        const t = row.timing || null;
         html += '<tr>' +
           `<td>${row.index}</td>` +
           `<td title="${row.url}">${row.url}</td>` +
           `<td>${row.bytes}</td>` +
           `<td>${row.ms.toFixed(1)}</td>` +
           `<td>${row.mbps.toFixed(2)}</td>` +
-          `<td>${t ? fmtMs(t.dns) : 'n/a'}</td>` +
-          `<td>${t ? fmtMs(t.connect) : 'n/a'}</td>` +
-          `<td>${t ? fmtMs(t.tls) : 'n/a'}</td>` +
-          `<td>${t ? fmtMs(t.ttfb) : 'n/a'}</td>` +
-          `<td>${t ? fmtMs(t.transfer) : 'n/a'}</td>` +
-          `<td>${t ? fmtMs(t.total) : 'n/a'}</td>` +
           `<td>${row.ok ? 'OK' : ('ERR: ' + row.errMsg)}</td>` +
           '</tr>';
       }
