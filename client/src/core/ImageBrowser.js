@@ -292,8 +292,9 @@ export class ImageBrowser {
     }
     getImagePaths(n) {   // gets n random image paths (can include duplicates)
         const paths = [];
+        if (this.ogPhotoArray.length == 0) return paths;
         for (let i = 0; i < n; i++) {
-            const ogIndex = Math.randomInt(0, this.ogPhotoArray.length - 1);
+            const ogIndex = Math.floor(Math.random() * this.ogPhotoArray.length);
             paths.push(CometView.getImagePath(this.state.origin, this.ogPhotoArray[ogIndex]));
         }
         return paths;
