@@ -290,5 +290,13 @@ export class ImageBrowser {
         const midIndex = Math.floor(this.ogPhotoArray.length / 2);
         return CometView.getImagePath(this.state.origin, this.ogPhotoArray[midIndex]);
     }
+    getImagePaths(n) {   // gets n random image paths (can include duplicates)
+        const paths = [];
+        for (let i = 0; i < n; i++) {
+            const ogIndex = Math.randomInt(0, this.ogPhotoArray.length - 1);
+            paths.push(CometView.getImagePath(this.state.origin, this.ogPhotoArray[ogIndex]));
+        }
+        return paths;
+    }
 
 }
