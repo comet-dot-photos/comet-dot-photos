@@ -224,7 +224,7 @@
       const dataset = await fetchDatasetJson(datasetUrl);
 
       const raceCountRaw = parseInt(raceCountEl?.value, 10);
-      const raceCount = Math.max(1, Math.min(50, Number.isFinite(raceCountRaw) ? raceCountRaw : 1));
+      const raceCount = Math.max(1, Math.min(1000, Number.isFinite(raceCountRaw) ? raceCountRaw : 1));
 
       // Randomly select ONCE per click (so all hosts fetch the same set).
       const shuffled = dataset.slice();
