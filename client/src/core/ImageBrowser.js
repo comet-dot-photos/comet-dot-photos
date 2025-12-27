@@ -284,18 +284,13 @@ export class ImageBrowser {
         this.lastSI = val;
     }
 
-    getRepresentativeImagePath() {
-        // let's just pick the middle image for now
-        if (this.ogPhotoArray.length == 0) return null;
-        const midIndex = Math.floor(this.ogPhotoArray.length / 2);
-        return CometView.getImagePath(this.state.origin, this.ogPhotoArray[midIndex]);
-    }
+    // gets n random image paths (can include duplicates), without origin specified
     getImagePaths(n) {   // gets n random image paths (can include duplicates)
         const paths = [];
         if (this.ogPhotoArray.length == 0) return paths;
         for (let i = 0; i < n; i++) {
             const ogIndex = Math.floor(Math.random() * this.ogPhotoArray.length);
-            paths.push(CometView.getImagePath(this.state.origin, this.ogPhotoArray[ogIndex]));
+            paths.push(CometView.getImagePath("", this.ogPhotoArray[ogIndex]));
         }
         return paths;
     }

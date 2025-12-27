@@ -304,93 +304,50 @@ export class CometPhotosApp {
     }
   }
 
-  // #installCDN - queries multiple comet.photo servers that must host all of the datasets, to determine
-  //     which will likely serve the images faster. Not used if running locally. Running this routine is
-  //     just an optimization. It sets the origin for image downloads based on a "race" across candidate
-  //     servers.
-  /*
-  async #installCDN() {
-    if (window.location.hostname === 'comet.photos') {  // only look for a cdn if they connect to the main site
-        let hosts;
-        try {  // dynamic fetch of cdn_hosts.json to allow updating without code changes
-          const r = await fetch("https://comet.photos/cdn_hosts.json", { cache: "no-store" });
-          if (!r.ok) return; // file not found / forbidden / etc => just exit
-          hosts = await r.json();
-          if (!Array.isArray(hosts) || hosts.length === 0) return;
-        } catch (e) {
-          return; // network error / bad JSON => just exit
-        }
-        const t0 = performance.now();
-        const ctrls = hosts.map(() => new AbortController());
-        let imgPath = this.imageBrowser.getRepresentativeImagePath();
-        if (!imgPath) return;  // if no images, skip CDN check
-        imgPath = `${imgPath}?v=${Date.now()}`;  // add a cache busting param
-
-        let winner;
-        try {
-          winner = await Promise.any(
-            hosts.map((h, i) =>
-              fetch(`https://${h}/${imgPath}`, { signal: ctrls[i].signal, cache: "no-store" })
-                .then(r => r.ok ? r.blob() : Promise.reject())
-                .then(() => i)
-            )
-          );
-        } catch (err) {
-          console.log("No CDN hosts responded", err);
-          return;
-        }
-
-        ctrls.forEach((c, i) => i !== winner && c.abort());
-        console.log(`Winner: ${hosts[winner]} will be serving images (${(performance.now()-t0).toFixed(1)}ms)`);
-        this.state.origin = `https://${hosts[winner]}/`;
-    }
-  }
-    */
 
   async #installCDN() {
-  if (window.location.hostname === 'comet.photos') {
-    let hosts;
-    try {
-      const r = await fetch("https://comet.photos/cdn_hosts.json", { cache: "no-store" });
-      if (!r.ok) return;
-      hosts = await r.json();
-      if (!Array.isArray(hosts) || hosts.length === 0) return;
-    } catch (e) {
-      return;
-    }
-
-    const t0 = performance.now();
-    const ctrls = hosts.map(() => new AbortController());
-
-    let imgPaths = this.imageBrowser.getImagePaths(2); 
-    if (imgPaths.length === 0) return;
-
-    const cacheBust = `v=${Date.now()}`;
-
-    const testHost = async (h, i) => {
-      // sequentially fetch ALL representative images from this host
-      for (const p of imgPaths) {
-        const url = `https://${h}/${p}?v=${cacheBust}`;
-        const r = await fetch(url, { signal: ctrls[i].signal, cache: "no-store" });
-        if (!r.ok) throw new Error(`bad status ${r.status}`);
-        await r.blob(); // or: await r.arrayBuffer()
+    if (window.location.hostname === 'comet.photos') {
+      let hosts;
+      try {
+        const r = await fetch("https://comet.photos/cdn_hosts.json", { cache: "no-store" });
+        if (!r.ok) return;
+        hosts = await r.json();
+        if (!Array.isArray(hosts) || hosts.length === 0) return;
+      } catch (e) {
+        return;
       }
-      return i; // host only "wins" if it got through the full sequence
-    };
 
-    let winner;
-    try {
-      winner = await Promise.any(hosts.map((h, i) => testHost(h, i)));
-    } catch (err) {
-      console.log("No CDN hosts responded", err);
-      return;
+      const t0 = performance.now();
+      const ctrls = hosts.map(() => new AbortController());
+
+      let imgPaths = this.imageBrowser.getImagePaths(2); 
+      if (imgPaths.length === 0) return;
+
+      const cacheBust = `v=${Date.now()}`;
+
+      const testHost = async (h, i) => {
+        // sequentially fetch ALL representative images from this host
+        for (const p of imgPaths) {
+          const url = `https://${h}/${p}?v=${cacheBust}`;
+          const r = await fetch(url, { signal: ctrls[i].signal, cache: "no-store" });
+          if (!r.ok) throw new Error(`bad status ${r.status}`);
+          await r.blob(); // or: await r.arrayBuffer()
+        }
+        return i; // host only "wins" if it got through the full sequence
+      };
+
+      let winner;
+      try {
+        winner = await Promise.any(hosts.map((h, i) => testHost(h, i)));
+      } catch (err) {
+        console.log("No CDN hosts responded", err);
+        return;
+      }
+
+      ctrls.forEach((c, i) => i !== winner && c.abort());
+      console.log(`Winner: ${hosts[winner]} will be serving images (${(performance.now()-t0).toFixed(1)}ms)`);
+      this.state.origin = `https://${hosts[winner]}/`;
     }
-
-    ctrls.forEach((c, i) => i !== winner && c.abort());
-    console.log(`Winner: ${hosts[winner]} will be serving images (${(performance.now()-t0).toFixed(1)}ms)`);
-    this.state.origin = `https://${hosts[winner]}/`;
   }
-}
-
 
 }
