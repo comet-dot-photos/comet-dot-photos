@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,13 +61,21 @@
     Origin is ignored and “Find Fastest” is skipped.
   </div>
 
+  <div class="row" style="align-items: center;">
+    <label>
+      Number of images to race:
+      <input id="raceCount" type="number" min="1" max="50" value="5">
+    </label>
+    <button id="findFastestBtn" style="margin-left: 0.75rem;">Find Fastest</button>
+  </div>
+
+
   <label>
     Number of images to fetch:
     <input id="imageCount" type="number" min="1" max="1000" value="100">
   </label>
 
   <button id="runBtn">Run test</button>
-  <button id="findFastestBtn">Find Fastest</button>
 
   <div id="status"></div>
   <div id="hostResults"></div>
@@ -81,6 +90,7 @@
 
     const originEl = document.getElementById('origin');
     const fastestOriginEl = document.getElementById('fastestOrigin');
+    const raceCountEl = document.getElementById('raceCount');
 
     originEl.value = normalizeOrigin(window.location.origin);
 
@@ -215,17 +225,43 @@
       statusEl.textContent = 'Fetching dataset JSON...';
       const dataset = await fetchDatasetJson(datasetUrl);
 
-      const midEntry = dataset[Math.floor(dataset.length / 2)];
-      const imgPath = buildNac4iPath(imageRoot, midEntry);
+      const raceCountRaw = parseInt(raceCountEl?.value, 10);
+      const raceCount = Math.max(1, Math.min(50, Number.isFinite(raceCountRaw) ? raceCountRaw : 1));
+
+      // Randomly select ONCE per click (so all hosts fetch the same set).
+      const shuffled = dataset.slice();
+      shuffleInPlace(shuffled);
+      const selected = shuffled.slice(0, Math.min(raceCount, shuffled.length));
+
+      const imgPaths = selected.map(entry => buildNac4iPath(imageRoot, entry));
 
       const stamp = Date.now();
-      statusEl.textContent = `Testing ${hosts.length} hosts...\nSample: ${imgPath}`;
+      statusEl.textContent =
+        `Testing ${hosts.length} hosts with ${imgPaths.length} sequential images...\n` +
+        `First sample: ${imgPaths[0]}`;
 
       const timeoutMs = 15000;
-      const rows = await Promise.all(hosts.map((h, i) => {
-        const cb = `cb=${stamp}-${i}-${Math.random().toString(36).slice(2)}`;
-        const url = `https://${h}${imgPath}${imgPath.includes('?') ? '&' : '?'}${cb}`;
-        return timedDownload(url, timeoutMs).then(r => ({ host: h, url, ...r }));
+
+      // For each host, sequentially download all selected images. Host is OK only if all succeed.
+      const rows = await Promise.all(hosts.map(async (h, i) => {
+        let totalMs = 0;
+        let totalBytes = 0;
+
+        for (let k = 0; k < imgPaths.length; k++) {
+          const p = imgPaths[k];
+          const cb = `cb=${stamp}-${i}-${k}-${Math.random().toString(36).slice(2)}`;
+          const url = `https://${h}${p}?${cb}`;
+
+          const r = await timedDownload(url, timeoutMs);
+          totalMs += r.ms || 0;
+          totalBytes += r.bytes || 0;
+
+          if (!r.ok) {
+            return { host: h, url: `(failed on #${k + 1}) ${p}`, ok: false, ms: totalMs, bytes: totalBytes, err: r.err || 'error' };
+          }
+        }
+
+        return { host: h, url: `(all ${imgPaths.length} OK)`, ok: true, ms: totalMs, bytes: totalBytes, err: '' };
       }));
 
       // Sort: OK first by time, then errors
@@ -243,7 +279,7 @@
         originEl.value = winnerOrigin;
         statusEl.textContent =
           `Fastest: ${winnerOrigin}\n` +
-          `Time: ${winner.ms.toFixed(1)} ms (${winner.bytes} bytes)\n` +
+          `Total time: ${winner.ms.toFixed(1)} ms (${winner.bytes} bytes)\n` +
           `Click “Test” next to any OK host to run the full image test against it.`;
       } else {
         statusEl.textContent = 'No hosts succeeded.';
