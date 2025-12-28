@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,6 +60,13 @@
     Origin is ignored and “Find Fastest” is skipped.
   </div>
 
+  <div class="row" style="align-items: center;">
+    <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+      <input id="warmHosts" type="checkbox" checked>
+      Warm hosts (default on)
+    </label>
+  </div>
+
   <label>
     Number of images to race:
     <input id="raceCount" type="number" min="1" max="1000" value="2">
@@ -89,6 +95,7 @@
     const originEl = document.getElementById('origin');
     const fastestOriginEl = document.getElementById('fastestOrigin');
     const raceCountEl = document.getElementById('raceCount');
+    const warmHostsEl = document.getElementById('warmHosts');
 
     originEl.value = normalizeOrigin(window.location.origin);
 
@@ -148,6 +155,32 @@
       if (!Array.isArray(j) || j.length === 0) return null;
       cachedHosts = j;
       return cachedHosts;
+    }
+
+    // --- NEW: warm-up helpers ---
+    const WARM_COUNT = 2; // number of HEAD requests per host
+
+    async function warmHostHttps(host) {
+      await Promise.all(
+        Array.from({ length: WARM_COUNT }, () =>
+          fetch(`https://${host}/`, { method: 'HEAD', cache: 'no-store' }).catch(() => {})
+        )
+      );
+    }
+
+    async function warmOrigin(origin) {
+      try {
+        const u = new URL(normalizeOrigin(origin));
+        const host = u.hostname;
+        if (!host) return;
+        await warmHostHttps(host);
+      } catch (_) {
+        // ignore bad origin strings
+      }
+    }
+
+    async function warmAllHosts(hosts) {
+      await Promise.all(hosts.map(h => warmHostHttps(h)));
     }
 
     async function timedDownload(url, timeoutMs) {
@@ -218,6 +251,11 @@
         runBtn.disabled = false;
         findFastestBtn.disabled = false;
         return;
+      }
+
+      if (warmHostsEl.checked) {
+        statusEl.textContent = `Warming ${hosts.length} hosts (${WARM_COUNT} HEAD each)...`;
+        await warmAllHosts(hosts);
       }
 
       statusEl.textContent = 'Fetching dataset JSON...';
@@ -310,6 +348,13 @@
       const origin = normalizeOrigin(originEl.value);
       const imageCount = parseInt(document.getElementById('imageCount').value, 10) || 100;
 
+      // Warm the *selected origin* (only meaningful when imageRoot is relative)
+      if (warmHostsEl.checked && !isAbsoluteHttpUrl(imageRoot) && origin) {
+        statusEl.textContent = `Warming origin (${WARM_COUNT} HEAD)...`;
+        await warmOrigin(origin);
+      }
+
+      statusEl.textContent = 'Fetching dataset JSON...';
       const dataset = await fetchDatasetJson(datasetUrl);
 
       // Shuffle so you don't always hit same months/blocks

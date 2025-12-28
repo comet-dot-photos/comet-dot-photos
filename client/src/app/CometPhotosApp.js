@@ -305,10 +305,14 @@ export class CometPhotosApp {
   }
 
 
+  // #installCDN - private method - totally optional! Tries to find the fastest CDN host for
+  //   image delivery, by racing a set of hosts against each other using representative images.
+  //   This is only invoked when running on comet.photos, not on localhost or other servers.
+  //
   async #installCDN() {
     if (window.location.hostname === 'comet.photos') {
       let hosts;
-      try {
+      try {               // fetch the list of CDN hosts
         const r = await fetch("https://comet.photos/cdn_hosts.json", { cache: "no-store" });
         if (!r.ok) return;
         hosts = await r.json();
@@ -316,6 +320,14 @@ export class CometPhotosApp {
       } catch (e) {
         return;
       }
+
+      await Promise.all(   // NEW: warm up all hosts
+        hosts.flatMap(h =>
+          Array.from({ length: 2 }, () =>
+            fetch(`https://${h}/`, { method: "HEAD", cache: "no-store" }).catch(() => {})
+          )
+        )
+      );
 
       const t0 = performance.now();
       const ctrls = hosts.map(() => new AbortController());
