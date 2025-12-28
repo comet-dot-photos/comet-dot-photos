@@ -5,7 +5,8 @@
 
 const express = require('express');
 const socketIO = require('socket.io');
-const httpolyglot = require('httpolyglot');
+const http = require('http');
+const https = require('https');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -46,33 +47,37 @@ try {
     if (args.keyfile) key = fs.readFileSync(args.keyfile);
     if (args.certfile) cert = fs.readFileSync(args.certfile);
 } catch (error) {
-    console.warn("Warning: Key or certificate file not found or could not be read.");
-    console.warn("Defaulting to HTTP mode.");
-    key = cert = null;  // Clear both to ensure fallback to http mode
+    console.warn("SSL files not found, defaulting to HTTP.");
 }
-const options = (key && cert) ? {key, cert} : {};
-var server = httpolyglot.createServer(options, app);
 
+let server;
+if (key && cert) {
+    // 3A. Primary Secure Server (Port 443/args.port)
+    server = https.createServer({ key, cert }, app); //
+    
+    // 3B. Dedicated Redirect Server (Port 80/args.http_port)
+    http.createServer((req, res) => { //
+        const host = req.headers.host.split(':')[0]; // Strip existing port
+        const targetPort = args.port === 443 ? '' : `:${args.port}`;
+        res.writeHead(301, { "Location": `https://${host}${targetPort}${req.url}` });
+        res.end();
+    }).listen(args.http_port || 80);
+    
+    console.log(`HTTPS server ready. Redirecting port ${args.http_port || 80} to ${args.port}`);
+} else {
+    // Fallback to plain HTTP if no certs are found
+    server = http.createServer(app);
+}
+
+// Set long keep-alive for the primary server
+server.keepAliveTimeout = 900000;   // 15 mins
+server.headersTimeout = 901000;
+
+// Attach Socket.io to the primary server
 const io = socketIO(server, {
-  maxHttpBufferSize: 100 * 1024 * 1024  // to accomodate log files
+  maxHttpBufferSize: 100 * 1024 * 1024  // to accomodate large logs
 });
 
-if (args.redirect) {  // Redirect all http traffic to https if args.redirect is set
-    const httpApp = express();
-    const httpServer = httpolyglot.createServer({}, httpApp);
-
-    // Redirect all HTTP traffic to HTTPS
-    httpApp.use((req, res) => {
-        console.log(`Not https: redirecting: ${req.url}   IP= ${req.ip || req.socket.remoteAddress}`);
-        const host = req.headers.host.replace(/:\d+$/, ':' + args.port); // Replace port if necessary
-        res.redirect(`https://${host}${req.url}`);
-    });
-
-    // Start the HTTP server
-    httpServer.listen(args.http_port, () => {
-        console.log(`HTTP server running and redirecting to HTTPS on port ${args.http_port}`);
-    });
-}
 
 // Step 4 - set up compression only if not running locally
 if (!args.open) {
@@ -105,11 +110,8 @@ app.use(express.static(dataDir, {etag: true, lastModified: true, maxAge: args.op
     }  
 }}));
 
-
 server.listen(args.port, () => {
     console.log(`Server running on port ${args.port}`);
-}).on('error', (err) => {
-    console.log(`Failed to start server: ${err.message}. Already running?`);
 });
 
 // Step 5 - Open the browser if requested

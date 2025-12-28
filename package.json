@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "dev":   "npm run -w client dev",
+    "dev": "npm run -w client dev",
     "start": "npm run -w server local",
-    "test" : "npm run -w server test"
+    "test": "npm run -w server test"
   },
   "engines": {
     "node": ">=22.12"
