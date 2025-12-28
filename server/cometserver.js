@@ -18,7 +18,7 @@ const parseArgs = require('./parseArgs.js');
 const DEFAULTS = {
   port: 8080,
   http_port: 8081,
-  //catalog: "../data/datasets.json"
+  protocol: 'auto'
 };
 const args = parseArgs(DEFAULTS);
 
@@ -43,11 +43,17 @@ app.use((req, res, next) => {
 });
 
 let key = null, cert = null;
-try {
-    if (args.keyfile) key = fs.readFileSync(args.keyfile);
-    if (args.certfile) cert = fs.readFileSync(args.certfile);
-} catch (error) {
-    console.warn("SSL files not found, defaulting to HTTP.");
+if (args.protocol !== 'http') {
+    try {
+        if (args.keyfile) key = fs.readFileSync(args.keyfile);
+        if (args.certfile) cert = fs.readFileSync(args.certfile);
+    } catch (error) {
+        if (args.protocol === 'https') {
+            console.error("ERROR: --protocol=https requested but key/cert could not be read:", error.message);
+            process.exit(1);
+        }
+        console.warn("Defaulting to HTTP (no SSL files).");
+    }
 }
 
 let server;
@@ -56,16 +62,16 @@ if (key && cert) {
     server = https.createServer({ key, cert }, app); //
     
     // 3B. Dedicated Redirect Server (Port 80/args.http_port)
-    http.createServer((req, res) => { //
-        const host = req.headers.host.split(':')[0]; // Strip existing port
-        const targetPort = args.port === 443 ? '' : `:${args.port}`;
-        res.writeHead(301, { "Location": `https://${host}${targetPort}${req.url}` });
-        res.end();
-    }).listen(args.http_port || 80);
-    
-    console.log(`HTTPS server ready. Redirecting port ${args.http_port || 80} to ${args.port}`);
-} else {
-    // Fallback to plain HTTP if no certs are found
+    if (args.redirect_http) {
+        http.createServer((req, res) => { //
+            const host = req.headers.host.split(':')[0]; // Strip existing port
+            const targetPort = args.port === 443 ? '' : `:${args.port}`;
+            res.writeHead(301, { "Location": `https://${host}${targetPort}${req.url}` });
+            res.end();
+        }).listen(args.http_port || 80);
+        console.log(`HTTPS server ready. Redirecting port ${args.http_port || 80} to ${args.port}`);
+    } else console.log(`HTTPS server ready on port ${args.port} (no HTTP redirect listener)`);
+} else { // Fallback to plain HTTP if no certs are found
     server = http.createServer(app);
 }
 
