@@ -1,7 +1,11 @@
+// This is the PM2 ecosystem configuration file for Comet.Photos server.
+//   It is only needed if you are using PM2 to manage a persistent server.
+//   It is not used when running cometserver locally as an app.
+//
 module.exports = {
   apps: [
     {
-      // Existing public HTTPS setup
+      // Public HTTPS setup - works without Cloudflare Dns
       name: 'cometserver3',
       script: 'cometserver.js',
       args: [
@@ -15,9 +19,22 @@ module.exports = {
       max_restarts: 10,
       restart_delay: 30000
     },
-
     {
-      // New Cloudflare-tunneled setup (HTTP-only behind the tunnel)
+      // Public HTTPS setup - assumes a Cloudflare proxy
+      name: 'cometserver3-proxied',
+      script: 'cometserver.js',
+      args: [
+        '--protocol', 'https',
+        '--port', '443',
+        '--keyfile', '/etc/ssl/cloudflare/origin.key',
+        '--certfile', '/etc/ssl/cloudflare/origin.pem'
+      ],
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 30000
+    },
+    {
+      // Cloudflare-tunneled setup (HTTP-only behind the tunnel)
       name: 'cometserver3-tunneled',
       script: 'cometserver.js',
       args: [
@@ -29,5 +46,3 @@ module.exports = {
     }
   ]
 };
-
-
