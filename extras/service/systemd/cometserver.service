@@ -1,0 +1,39 @@
+[Unit]
+Description=Comet.Photos cometserver
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/Comet.Photos/server
+MemoryAccounting=yes
+MemorySwapMax=0
+
+### BEGIN CONFIG OPTIONS - Uncomment the desired ExecStart line ###
+
+# Regular Config with SSL
+ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --redirect --port 443 --http_port 80 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem
+
+# Simple HTTP-only Config - may have to be run as root to bind to port 80
+#ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --protocol http --port 80
+
+# Simple HTTP-only Config - using port 8082. Same as Cloudflare Tunnel Config.
+#ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --port 8082
+
+# Cloudflare Proxied Config - Cloudflare is handling SSL termination and we use their certificates.
+#ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --protocol https --port 443 --keyfile /etc/ssl/cloudflare/origin.key --certfile /etc/ssl/cloudflare/origin.pem
+
+### END CONFIG OPTIONS ###
+
+Restart=on-failure
+RestartSec=30
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
