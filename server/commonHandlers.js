@@ -18,12 +18,17 @@ function commonHandlers(io, args) {
 
     // Step 2 - When a socket connection occurs, register handlers for events
     io.on('connection', function(socket) {
-        const clientIp = socket.handshake.address;      // print out the IP 
-        const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
-        console.log(`Client connection from: ${socket.handshake.query.clientID} at ${ipv4}`);
+        let mesg = `Client connection from: ${socket.handshake.query.clientID}`;
         if (args.open)
             clientSet.add(socket.handshake.query.clientID);
-
+        else {
+            const clientIp = socket.handshake.address;      // print out the IP 
+            const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
+            const userAgent = socket.handshake.headers['user-agent'];
+            mesg += ` at ${ipv4} [UA: ${userAgent}]`;
+        }
+        console.log(mesg);
+        
 
         socket.on('clientShutdown', () => {
             console.log(`Client shutting down: ${socket.handshake.query.clientID}`);
