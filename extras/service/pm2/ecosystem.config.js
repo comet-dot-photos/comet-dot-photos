@@ -5,13 +5,12 @@
 module.exports = {
   apps: [
     {
-      // Public HTTPS setup - works without Cloudflare Dns
+      // Public HTTPS / HTTP setup
       name: 'cometserver3',
       script: 'cometserver.js',
       args: [
-        '--redirect_http',
         '--port', '443',
-        '--http_port', '80',
+        '--redirect_port', '80',
         '--certfile', '/etc/letsencrypt/live/comet.photos/fullchain.pem',
         '--keyfile', '/etc/letsencrypt/live/comet.photos/privkey.pem'
       ],
@@ -20,7 +19,7 @@ module.exports = {
       restart_delay: 30000
     },
     {
-      // Public HTTPS setup - assumes a Cloudflare proxy
+      // Public HTTPS setup - assumes a Cloudflare proxy and certificates
       name: 'cometserver3-proxied',
       script: 'cometserver.js',
       args: [

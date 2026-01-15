@@ -16,8 +16,7 @@ const { openInBrowser } = require('./openInBrowser.js');
 // STEP 1: parse arguments
 const parseArgs = require('./parseArgs.js');
 const DEFAULTS = {
-  port: 8080,
-  http_port: 8081,
+  port: 8082,
   protocol: 'auto'
 };
 const args = parseArgs(DEFAULTS);
@@ -61,15 +60,15 @@ if (key && cert) {
     // 3A. Primary Secure Server (Port 443/args.port)
     server = https.createServer({ key, cert }, app); //
     
-    // 3B. Dedicated Redirect Server (Port 80/args.http_port)
-    if (args.redirect_http) {
+    // 3B. Dedicated Redirect Server (from http to https)
+    if (args.redirect_port) {
         http.createServer((req, res) => { //
             const host = req.headers.host.split(':')[0]; // Strip existing port
             const targetPort = args.port === 443 ? '' : `:${args.port}`;
             res.writeHead(301, { "Location": `https://${host}${targetPort}${req.url}` });
             res.end();
-        }).listen(args.http_port || 80);
-        console.log(`HTTPS server ready. Redirecting port ${args.http_port || 80} to ${args.port}`);
+        }).listen(args.redirect_port);
+        console.log(`HTTPS server ready. Redirecting port ${args.redirect_port} to ${args.port}`);
     } else console.log(`HTTPS server ready on port ${args.port} (no HTTP redirect listener)`);
 } else { // Fallback to plain HTTP if no certs are found
     server = http.createServer(app);
