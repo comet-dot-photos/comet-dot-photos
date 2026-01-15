@@ -22,13 +22,18 @@ function commonHandlers(io, args) {
         if (args.open)
             clientSet.add(socket.handshake.query.clientID);
         else {
-            const clientIp = socket.handshake.address;      // print out the IP 
-            const ipv4 = clientIp.startsWith('::ffff:') ? clientIp.split(':').pop() : clientIp;
-            const userAgent = socket.handshake.headers['user-agent'];
-            mesg += ` at ${ipv4} [UA: ${userAgent}]`;
+            const headers = socket.handshake.headers;
+            const cfIp = headers['cf-connecting-ip'];  // cloudflare tunnel
+            const forwarded = headers['x-forwarded-for'];  // regular proxy
+            const forwardedIp = forwarded ? forwarded.split(',')[0].trim() : null;
+            const directIp = socket.handshake.address;
+            const realIp = cfIp || forwardedIp || directIp;
+            const clientIp = realIp.startsWith('::ffff:') ? realIp.split(':').pop() : realIp;
+            const userAgent = headers['user-agent'];
+            mesg += ` at ${clientIp} [UA: ${userAgent}]`;
         }
         console.log(mesg);
-        
+
 
         socket.on('clientShutdown', () => {
             console.log(`Client shutting down: ${socket.handshake.query.clientID}`);
