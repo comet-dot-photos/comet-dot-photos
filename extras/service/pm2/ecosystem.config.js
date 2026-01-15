@@ -9,7 +9,7 @@ module.exports = {
       name: 'cometserver3',
       script: 'cometserver.js',
       args: [
-        '--redirect',
+        '--redirect_http',
         '--port', '443',
         '--http_port', '80',
         '--certfile', '/etc/letsencrypt/live/comet.photos/fullchain.pem',

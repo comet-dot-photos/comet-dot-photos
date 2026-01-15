@@ -16,7 +16,7 @@ MemorySwapMax=0
 ### BEGIN CONFIG OPTIONS - Uncomment the desired ExecStart line ###
 
 # Regular Config with SSL
-ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --redirect --port 443 --http_port 80 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem
+ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --redirect_http --port 443 --http_port 80 --certfile /etc/letsencrypt/live/comet.photos/fullchain.pem --keyfile /etc/letsencrypt/live/comet.photos/privkey.pem
 
 # Simple HTTP-only Config - may have to be run as root to bind to port 80
 #ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --protocol http --port 80
