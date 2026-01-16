@@ -63,7 +63,7 @@ if (key && cert) {
     // 3B. Dedicated Redirect Server (from http to https)
     if (args.redirect_port) {
         http.createServer((req, res) => { //
-            const host = req.headers.host.split(':')[0]; // Strip existing port
+            const host = (req.headers.host || '').split(':')[0]; // Strip existing port
             const targetPort = args.port === 443 ? '' : `:${args.port}`;
             res.writeHead(301, { "Location": `https://${host}${targetPort}${req.url}` });
             res.end();
