@@ -3,7 +3,7 @@ Description=Comet.Photos cometserver
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=600
-StartLimitBurst=10
+StartLimitBurst=20
 
 [Service]
 Type=simple
@@ -30,7 +30,7 @@ ExecStart=/usr/bin/node /root/Comet.Photos/server/cometserver.js --port 443 --re
 ### END CONFIG OPTIONS ###
 
 Restart=on-failure
-RestartSec=30
+RestartSec=5
 
 StandardOutput=journal
 StandardError=journal
