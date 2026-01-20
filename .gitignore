@@ -1,3 +1,4 @@
-data/
+# ignore data dir except README (which ensures the folder exists)
+data/*
+!data/README.md
 node_modules/
-watch.cmd
