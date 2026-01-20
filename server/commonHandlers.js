@@ -6,7 +6,7 @@ const { exit } = require('process');
 
 function commonHandlers(io, args) {
     const clientSet = new Set();
-    let fileText, datasets;
+    let datasets;
 
     // Step 1 - Fetch the datasets
     const fetchDatasets = require('./fetchDatasets.js');
