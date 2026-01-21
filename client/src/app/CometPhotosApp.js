@@ -309,7 +309,7 @@ export class CometPhotosApp {
   //   image delivery, by racing a set of hosts against each other using representative images.
   //   This is only invoked when running on comet.photos, not on localhost or other servers.
   //
-  async #installCDN() {
+  async #installCDN(warmUp = true, numImages = 1) {
     if (window.location.hostname === 'comet.photos') {
       let hosts;
       try {               // fetch the list of CDN hosts
@@ -321,18 +321,19 @@ export class CometPhotosApp {
         return;
       }
 
-      await Promise.all(   // NEW: warm up all hosts
-        hosts.flatMap(h =>
-          Array.from({ length: 2 }, () =>
-            fetch(`https://${h}/`, { method: "HEAD", cache: "no-store" }).catch(() => {})
+      if (warmUp)
+        await Promise.all(   // NEW: warm up all hosts
+          hosts.flatMap(h =>
+            Array.from({ length: 2 }, () =>
+              fetch(`https://${h}/`, { method: "HEAD", cache: "no-store" }).catch(() => {})
+            )
           )
-        )
-      );
+        );
 
       const t0 = performance.now();
       const ctrls = hosts.map(() => new AbortController());
 
-      let imgPaths = this.imageBrowser.getImagePaths(2); 
+      let imgPaths = this.imageBrowser.getImagePaths(numImages); 
       if (imgPaths.length === 0) return;
 
       const cacheBust = `v=${Date.now()}`;
