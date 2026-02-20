@@ -44,6 +44,7 @@ function runtimeHandlers(io, datasets) {
         //
         socket.on('clientRequestsVis', function(message, ack) { 
             try {
+                const start = process.hrtime.bigint();
                 if (!Number.isInteger(message.mustMatch)) {
                     throw new Error ('message.mustMatch must be an integer.');
                 }
@@ -62,6 +63,7 @@ function runtimeHandlers(io, datasets) {
                     c_check_vis2(tableIndex, message.mustMatch, imgSelBuff, message.visAr);
                 }
                 // All done, reply with altered imgSels
+                console.log(`Spatial search [${socket.handshake.query.clientID}]: ${Number(process.hrtime.bigint() - start)/1e6} ms.`);
                 ack(message.imgSels);
             } catch (error) {  // Additional protection against malformed messages. Perhaps unneeded given earlier checks?
                 console.error(`clientRequestsVis error: `, error.message);
