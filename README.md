@@ -38,11 +38,11 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 2. Download and unpack the Comet.Photos release
 
-Download the packaged Comet.Photos release by clicking here: [comet-photos-v3.0.tar.gz](https://comet.photos/comet-photos-v3.0.tar.gz). This will start copying the file to your browser's download folder. However due to the quantity of photos, this may take some time, so be prepared. Get a cup of coffee, or get some sleep, depending on your Internet speed. When the download completes, move the file to the folder where you want the
-Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v3.0.tar.gz** to allow your machine to trust the download.
+Download the packaged Comet.Photos release by clicking here: [comet-photos-v3.0.1.tar.gz](https://comet.photos/comet-photos-v3.0.1.tar.gz). This will start copying the file to your browser's download folder. However due to the quantity of photos, this may take some time, so be prepared. Get a cup of coffee, or get some sleep, depending on your Internet speed. When the download completes, move the file to the folder where you want the
+Comet.Photos directory to reside. Open up a terminal, shell, or cmd window, and navigate to the folder that holds .tar.gz file. If you are on a mac, type: **xattr -d com.apple.quarantine comet-photos-v3.0.1.tar.gz** to allow your machine to trust the download.
 
 Run the following command in the terminal to extract the files from the package:
-**tar -xf comet-photos-v3.0.tar.gz**
+**tar -xf comet-photos-v3.0.1.tar.gz**
 This may take up to ten minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos will be installed in the new Comet.Photos folder, and you can delete the .tar.gz file to free up space.
 
 Congratulations! You have now installed Comet.Photos. Advance to the [Starting Comet.Photos](#starting-cometphotos) section to learn how to start up the app.
@@ -57,7 +57,7 @@ Node.js is a popular JavaScript runtime required by Comet.Photos, which can be d
 
 2. Fetch the Comet.Photos release from GitHub.
 
-Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos**. If you are on a mac, cd to the Comet.Photos directory in a terminal window, and run **xattr -r -d com.apple.quarantine ./** which will remove Apple's quarantine bit on all the files in the tree.
+Install the git package if you haven't already. Get a copy of the files locally via **git clone https://github.com/comet-dot-photos/comet-dot-photos**.
 
 3. Install the dependencies and build the project.
 
@@ -65,9 +65,11 @@ Go into the top level folder (Comet.Photos), and type: **npm install** which wil
 
 4. Download and install the dataset into the /data subdirectory.
 
-The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the dataset by clicking here [comet-photos-data-v3.tar.gz](https://comet.photos/comet-photos-data-v3.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is a little over 12.3 GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
-**tar -xf comet-photos-data-v3.tar.gz**
+The dataset is too large to include in GitHub, so it needs to be downloaded and unpacked as an additional step. Download the rosetta dataset by clicking here [rosetta-v3.tar.gz](https://comet.photos/rosetta-v3.tar.gz), which will start downloading the dataset into the browser's download folder. Again, this is a little over 12.3 GB, so it may take some time. Don't fret - it will be worth it! When the transfer completes, move this file to your Comet.Photos directory. Run this tar command on the dataset to unpack it and create a data subdirectory under Comet.Photos:
+**tar -xf rosetta-v3.tar.gz**
 This may take up to 10 minutes as there are plenty of files to unpack. After the tar command finishes up, Comet.Photos should be completely installed. You can delete the original tar file, and can move on to the next step, [Starting Comet.Photos](#starting-cometphotos).
+
+Additional datasets that you can download into Comet.Photos include the [OSIRIS-REx mission to Asteroid Bennu](https://comet.photos/orex-v3.tar.gz) and the [Hayabusa2 mission to Asteroid Ryugu](https://comet.photos/hyb2-v3.tar.gz). These mission datasets can be installed using steps similar to those described above for Rosetta.
 
 ### Starting Comet.Photos
 
